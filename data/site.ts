@@ -1,11 +1,14 @@
+// file: data/site.ts
 export type PackCategory =
   | "all"
+  | "general"
   | "tv"
   | "music"
   | "geo"
   | "history"
   | "sport"
-  | "science";
+  | "science"
+  | "themed";
 
 export type Pack = {
   id: string;
@@ -35,27 +38,49 @@ export type Plan = {
 export const navLinks = [
   { label: "Shop", href: "#packs" },
   { label: "Memberships", href: "#memberships" },
-  { label: "My Downloads", href: "#downloads" },
-  { label: "About", href: "#about" }
+  { label: "My Downloads", href: "/downloads" },
+  { label: "About", href: "/about" }
 ];
 
 export const stats = [
   { value: "2,400+", label: "Questions available" },
-  { value: "48", label: "Category packs" },
-  { value: "3,100+", label: "Happy quiz masters" }
+  { value: "48+", label: "Quiz packs" },
+  { value: "300+", label: "Quiz nights powered" }
 ];
 
 export const packCategories: Array<{ id: PackCategory; label: string }> = [
   { id: "all", label: "All Packs" },
+  { id: "general", label: "🧠 General Knowledge" },
   { id: "tv", label: "📺 TV & Film" },
   { id: "music", label: "🎵 Music" },
   { id: "geo", label: "🌍 Geography" },
   { id: "history", label: "📜 History" },
   { id: "sport", label: "⚽ Sport" },
-  { id: "science", label: "🔬 Science" }
+  { id: "science", label: "🔬 Science" },
+  { id: "themed", label: "🎉 Themed Nights" }
 ];
 
 export const packs: Pack[] = [
+  {
+    id: "general-knowledge-vol-1",
+    category: "general",
+    categoryLabel: "General Knowledge",
+    title: "General Knowledge Vol. 1",
+    emoji: "🧠",
+    price: "€4.99",
+    glow: "radial-gradient(circle at 50% 0%, #f59e0b, transparent 70%)",
+    badges: ["50 questions", "🔥 Bestseller"]
+  },
+  {
+    id: "general-knowledge-vol-2",
+    category: "general",
+    categoryLabel: "General Knowledge",
+    title: "General Knowledge Vol. 2",
+    emoji: "🎯",
+    price: "€4.99",
+    glow: "radial-gradient(circle at 50% 0%, #f97316, transparent 70%)",
+    badges: ["50 questions", "✦ New"]
+  },
   {
     id: "friends-ultimate-pack",
     category: "tv",
@@ -67,41 +92,21 @@ export const packs: Pack[] = [
     badges: ["50 questions", "🔥 Bestseller"]
   },
   {
-    id: "marvel-cinematic-universe",
+    id: "movie-mix-80s-90s",
     category: "tv",
     categoryLabel: "TV & Film",
-    title: "Marvel Cinematic Universe",
-    emoji: "🕷️",
+    title: "80s & 90s Movie Mix",
+    emoji: "🎬",
     price: "€4.99",
     glow: "radial-gradient(circle at 50% 0%, #dc2626, transparent 70%)",
-    badges: ["50 questions", "🔥 Bestseller"]
-  },
-  {
-    id: "breaking-bad-better-call-saul",
-    category: "tv",
-    categoryLabel: "TV & Film",
-    title: "Breaking Bad & Better Call Saul",
-    emoji: "⚗️",
-    price: "€4.99",
-    glow: "radial-gradient(circle at 50% 0%, #0ea5e9, transparent 70%)",
-    badges: ["50 questions", "✦ New"]
-  },
-  {
-    id: "game-of-thrones",
-    category: "tv",
-    categoryLabel: "TV & Film",
-    title: "Game of Thrones",
-    emoji: "🏰",
-    price: "€4.99",
-    glow: "radial-gradient(circle at 50% 0%, #facc15, transparent 70%)",
     badges: ["50 questions"]
   },
   {
-    id: "nineties-pop-rock",
+    id: "music-through-the-decades",
     category: "music",
     categoryLabel: "Music",
-    title: "90s Pop & Rock Anthems",
-    emoji: "🎸",
+    title: "Music Through the Decades",
+    emoji: "🎵",
     price: "€4.99",
     glow: "radial-gradient(circle at 50% 0%, #ec4899, transparent 70%)",
     badges: ["50 questions", "🔥 Popular"]
@@ -110,7 +115,7 @@ export const packs: Pack[] = [
     id: "one-hit-wonders",
     category: "music",
     categoryLabel: "Music",
-    title: "One Hit Wonders — Guess the Year",
+    title: "One Hit Wonders",
     emoji: "🎤",
     price: "€4.99",
     glow: "radial-gradient(circle at 50% 0%, #a855f7, transparent 70%)",
@@ -137,6 +142,16 @@ export const packs: Pack[] = [
     badges: ["50 questions", "🔥 Bestseller"]
   },
   {
+    id: "ancient-civilisations",
+    category: "history",
+    categoryLabel: "History",
+    title: "Ancient Civilisations",
+    emoji: "🏺",
+    price: "€4.99",
+    glow: "radial-gradient(circle at 50% 0%, #b45309, transparent 70%)",
+    badges: ["50 questions"]
+  },
+  {
     id: "world-war-ii-full-story",
     category: "history",
     categoryLabel: "History",
@@ -145,16 +160,6 @@ export const packs: Pack[] = [
     price: "€4.99",
     glow: "radial-gradient(circle at 50% 0%, #f97316, transparent 70%)",
     badges: ["50 questions", "🔥 Popular"]
-  },
-  {
-    id: "ancient-civilisations",
-    category: "history",
-    categoryLabel: "History",
-    title: "Ancient Civilisations",
-    emoji: "🏺",
-    price: "€4.99",
-    glow: "radial-gradient(circle at 50% 0%, #b45309, transparent 70%)",
-    badges: ["50 questions", "✦ New"]
   },
   {
     id: "football-world-cup-edition",
@@ -167,6 +172,16 @@ export const packs: Pack[] = [
     badges: ["50 questions", "🔥 Bestseller"]
   },
   {
+    id: "olympics-quiz-pack",
+    category: "sport",
+    categoryLabel: "Sport",
+    title: "Olympics Quiz Pack",
+    emoji: "🏅",
+    price: "€4.99",
+    glow: "radial-gradient(circle at 50% 0%, #10b981, transparent 70%)",
+    badges: ["50 questions"]
+  },
+  {
     id: "space-and-the-universe",
     category: "science",
     categoryLabel: "Science",
@@ -175,6 +190,36 @@ export const packs: Pack[] = [
     price: "€4.99",
     glow: "radial-gradient(circle at 50% 0%, #3b82f6, transparent 70%)",
     badges: ["50 questions", "✦ New"]
+  },
+  {
+    id: "human-body-basics",
+    category: "science",
+    categoryLabel: "Science",
+    title: "Human Body Basics",
+    emoji: "🧬",
+    price: "€4.99",
+    glow: "radial-gradient(circle at 50% 0%, #2563eb, transparent 70%)",
+    badges: ["50 questions"]
+  },
+  {
+    id: "christmas-quiz-night",
+    category: "themed",
+    categoryLabel: "Themed Nights",
+    title: "Christmas Quiz Night",
+    emoji: "🎄",
+    price: "€5.99",
+    glow: "radial-gradient(circle at 50% 0%, #ef4444, transparent 70%)",
+    badges: ["50 questions", "🔥 Seasonal"]
+  },
+  {
+    id: "halloween-special",
+    category: "themed",
+    categoryLabel: "Themed Nights",
+    title: "Halloween Special",
+    emoji: "🎃",
+    price: "€5.99",
+    glow: "radial-gradient(circle at 50% 0%, #f97316, transparent 70%)",
+    badges: ["50 questions", "✦ Special"]
   }
 ];
 
@@ -185,15 +230,15 @@ export const plans: Plan[] = [
     icon: "🥉",
     price: "€5.99",
     description:
-      "Perfect for casual hosts who need a few great packs per month.",
+      "Ideal for casual hosts who want ready-made quiz content each month without overpaying.",
     features: [
       { label: "3 pack downloads per month", included: true, strong: true },
-      { label: "Access to Bronze-only category packs", included: true },
-      { label: "PDF download immediately on purchase", included: true },
-      { label: "10% off individual pack purchases", included: true },
+      { label: "Access to Bronze-only packs", included: true },
+      { label: "Instant PDF downloads", included: true },
+      { label: "10% off extra pack purchases", included: true },
       { label: "Weekly new pack drops", included: false },
       { label: "Custom round builder", included: false },
-      { label: "Full archive access (48 packs)", included: false }
+      { label: "Full archive access", included: false }
     ]
   },
   {
@@ -202,15 +247,15 @@ export const plans: Plan[] = [
     icon: "🥈",
     price: "€9.99",
     description:
-      "For regular quiz hosts who want fresh content every single week.",
+      "Best for regular quiz hosts who need fresh weekly material and more variety.",
     features: [
       { label: "Unlimited downloads from current packs", included: true, strong: true },
-      { label: "Access to Silver + Bronze category packs", included: true },
-      { label: "Early access to new weekly pack drops", included: true },
-      { label: "20% off individual pack purchases", included: true },
-      { label: "Themed mega-packs (100 questions)", included: true },
+      { label: "Access to Silver + Bronze packs", included: true },
+      { label: "Early access to weekly releases", included: true },
+      { label: "20% off extra pack purchases", included: true },
+      { label: "Themed mega-packs", included: true },
       { label: "Custom round builder", included: false },
-      { label: "Full archive access (48 packs)", included: false }
+      { label: "Full archive access", included: false }
     ]
   },
   {
@@ -219,16 +264,16 @@ export const plans: Plan[] = [
     icon: "🥇",
     price: "€14.99",
     description:
-      "The full experience — unlimited access, tools, and priority new releases.",
+      "For serious quiz masters who want the full library, premium tools, and maximum flexibility.",
     featured: true,
     features: [
-      { label: "Unlimited access to all 48+ packs", included: true, strong: true },
-      { label: "Full archive — every pack ever released", included: true },
-      { label: "Priority access to new drops before anyone else", included: true },
-      { label: "Custom round builder — mix questions from any pack", included: true },
-      { label: "Request a custom topic pack (1/month)", included: true },
-      { label: "Printable scoresheets & host guides included", included: true },
-      { label: "Private Discord community for quiz masters", included: true }
+      { label: "Unlimited access to all packs", included: true, strong: true },
+      { label: "Full archive access", included: true },
+      { label: "Priority access to new drops", included: true },
+      { label: "Custom round builder", included: true },
+      { label: "1 custom topic request per month", included: true },
+      { label: "Printable host guides and scoresheets", included: true },
+      { label: "Private quiz master community access", included: true }
     ]
   }
 ];
