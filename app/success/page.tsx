@@ -3,7 +3,14 @@ import Link from "next/link";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 
-export default function SuccessPage() {
+export default async function SuccessPage({
+    searchParams
+}: {
+    searchParams: Promise<{ session_id?: string }>;
+}) {
+    const params = await searchParams;
+    const sessionId = params.session_id;
+
     return (
         <main className="min-h-screen bg-[var(--bg)] text-[var(--text)]">
             <Header />
@@ -19,23 +26,23 @@ export default function SuccessPage() {
                     </h1>
 
                     <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-[var(--muted)]">
-                        Thanks for your purchase. Your quiz pack or membership has been processed
-                        successfully.
+                        Thanks for your purchase. Use the button below to load your downloads from
+                        this checkout session.
                     </p>
 
                     <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
                         <Link
-                            href="/downloads"
+                            href={sessionId ? `/downloads?session_id=${sessionId}` : "/downloads"}
                             className="rounded-xl bg-[var(--gold)] px-6 py-3 text-sm font-extrabold text-black hover:bg-[var(--gold-strong)]"
                         >
                             Go to Downloads
                         </Link>
 
                         <Link
-                            href="/memberships"
+                            href="/"
                             className="rounded-xl border border-white/10 bg-white/5 px-6 py-3 text-sm font-bold text-white hover:bg-white/10"
                         >
-                            View Memberships
+                            Back to Home
                         </Link>
                     </div>
                 </div>

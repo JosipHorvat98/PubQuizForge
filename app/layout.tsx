@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { CartProvider } from "@/components/providers/cart-provider";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://pubquizforge.com"),
@@ -23,13 +24,15 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({
-  children
+    children
 }: Readonly<{
-  children: React.ReactNode;
+    children: React.ReactNode;
 }>) {
-  return (
-    <html lang="hr">
-      <body>{children}</body>
-    </html>
-  );
+    return (
+        <html lang="hr">
+            <body>
+                <CartProvider>{children}</CartProvider>
+            </body>
+        </html>
+    );
 }

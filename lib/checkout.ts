@@ -8,6 +8,15 @@ export type CheckoutPayload =
         slug?: string;
     }
     | {
+        mode: "payment";
+        items: Array<{
+            id: string;
+            title: string;
+            price: string;
+            quantity: number;
+        }>;
+    }
+    | {
         mode: "subscription";
         priceId: string;
         slug?: string;

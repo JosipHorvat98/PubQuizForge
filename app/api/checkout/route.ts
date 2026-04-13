@@ -17,6 +17,13 @@ if (!siteUrl) {
 
 const stripe = new Stripe(stripeSecretKey);
 
+type PaymentItem = {
+    id: string;
+    title: string;
+    price: string;
+    quantity: number;
+};
+
 type CheckoutRequestBody =
     | {
         mode: "payment";
@@ -24,6 +31,10 @@ type CheckoutRequestBody =
         unitAmount: number;
         quantity?: number;
         slug?: string;
+    }
+    | {
+        mode: "payment";
+        items: PaymentItem[];
     }
     | {
         mode: "subscription";
@@ -35,14 +46,45 @@ export async function POST(request: Request) {
     try {
         const body = (await request.json()) as CheckoutRequestBody;
 
-        if (body.mode === "payment") {
-            if (!body.productName || !body.unitAmount) {
+        if (body.mode === "payment" && "items" in body) {
+            if (!body.items.length) {
+                return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
+            }
+
+            const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = body.items.map(
+                (item) => ({
+                    quantity: item.quantity,
+                    price_data: {
+                        currency: "eur",
+                        product_data: {
+                            name: item.title
+                        },
+                        unit_amount: Math.round(Number(item.price.replace("€", "")) * 100)
+                    }
+                })
+            );
+
+            const session = await stripe.checkout.sessions.create({
+                mode: "payment",
+                success_url: `${siteUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
+                cancel_url: `${siteUrl}/cart`,
+                line_items: lineItems,
+                metadata: {
+                    slugs: JSON.stringify(body.items.map((item) => item.id))
+                }
+            });
+
+            if (!session.url) {
                 return NextResponse.json(
-                    { error: "Missing productName or unitAmount" },
-                    { status: 400 }
+                    { error: "Stripe session URL was not returned" },
+                    { status: 500 }
                 );
             }
 
+            return NextResponse.json({ url: session.url });
+        }
+
+        if (body.mode === "payment" && "productName" in body) {
             const session = await stripe.checkout.sessions.create({
                 mode: "payment",
                 success_url: `${siteUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
@@ -75,10 +117,6 @@ export async function POST(request: Request) {
         }
 
         if (body.mode === "subscription") {
-            if (!body.priceId) {
-                return NextResponse.json({ error: "Missing priceId" }, { status: 400 });
-            }
-
             const session = await stripe.checkout.sessions.create({
                 mode: "subscription",
                 success_url: `${siteUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
@@ -104,7 +142,7 @@ export async function POST(request: Request) {
             return NextResponse.json({ url: session.url });
         }
 
-        return NextResponse.json({ error: "Invalid checkout mode" }, { status: 400 });
+        return NextResponse.json({ error: "Invalid checkout payload" }, { status: 400 });
     } catch (error) {
         console.error("Stripe checkout error:", error);
 

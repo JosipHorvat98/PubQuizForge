@@ -5,11 +5,13 @@ import Link from "next/link";
 import { notFound, useParams } from "next/navigation";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
+import { useCart } from "@/components/providers/cart-provider";
 import { packs } from "@/data/site";
 import { startCheckout } from "@/lib/checkout";
 
 export default function PackPage() {
     const params = useParams<{ slug: string }>();
+    const { addItem } = useCart();
     const pack = packs.find((item) => item.id === params.slug);
 
     if (!pack) {
@@ -55,54 +57,8 @@ export default function PackPage() {
 
                         <p className="mt-6 max-w-3xl text-lg leading-8 text-[var(--muted)]">
                             A ready-to-host quiz pack designed for fast setup and a polished quiz
-                            night experience. Great for pubs, bars, private events, and trivia hosts
-                            who want quality content without spending hours writing questions.
+                            night experience.
                         </p>
-
-                        <div className="mt-8 flex flex-wrap gap-2">
-                            {pack.badges.map((badge) => {
-                                const isHot = badge.includes("🔥");
-                                const isNew = badge.includes("✦");
-
-                                return (
-                                    <span
-                                        key={badge}
-                                        className={[
-                                            "rounded-full px-3 py-1 text-xs font-semibold",
-                                            isHot
-                                                ? "bg-red-500/12 text-red-300"
-                                                : isNew
-                                                    ? "bg-green-500/12 text-green-300"
-                                                    : "bg-[var(--surface-2)] text-[var(--muted)]"
-                                        ].join(" ")}
-                                    >
-                                        {badge}
-                                    </span>
-                                );
-                            })}
-                        </div>
-
-                        <div className="mt-10 grid gap-4 sm:grid-cols-2">
-                            <article className="rounded-2xl border border-white/8 bg-[var(--surface)] p-5">
-                                <h2 className="text-lg font-bold">What’s included</h2>
-                                <ul className="mt-4 space-y-3 text-[var(--muted)]">
-                                    <li>• 50 quiz questions</li>
-                                    <li>• Ready-to-print PDF format</li>
-                                    <li>• Answer sheet included</li>
-                                    <li>• Suitable for pub and private quiz nights</li>
-                                </ul>
-                            </article>
-
-                            <article className="rounded-2xl border border-white/8 bg-[var(--surface)] p-5">
-                                <h2 className="text-lg font-bold">Best for</h2>
-                                <ul className="mt-4 space-y-3 text-[var(--muted)]">
-                                    <li>• Weekly pub quizzes</li>
-                                    <li>• Themed quiz events</li>
-                                    <li>• Fundraisers and parties</li>
-                                    <li>• Hosts who need fast setup</li>
-                                </ul>
-                            </article>
-                        </div>
                     </div>
 
                     <aside className="rounded-[28px] border border-white/8 bg-[var(--surface)] p-6 md:p-8">
@@ -118,15 +74,21 @@ export default function PackPage() {
                             {pack.price}
                         </div>
 
-                        <p className="mt-3 text-sm leading-6 text-[var(--muted)]">
-                            Instant digital download. Ideal for hosts who want a polished quiz pack
-                            ready to use with minimal prep.
-                        </p>
-
                         <div className="mt-6 grid gap-3">
-                            <button className="rounded-xl bg-[var(--gold)] px-5 py-3 text-sm font-extrabold text-black hover:bg-[var(--gold-strong)]">
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    addItem({
+                                        id: pack.id,
+                                        title: pack.title,
+                                        price: pack.price
+                                    })
+                                }
+                                className="rounded-xl bg-[var(--gold)] px-5 py-3 text-sm font-extrabold text-black hover:bg-[var(--gold-strong)]"
+                            >
                                 Add to Cart
                             </button>
+
                             <button
                                 type="button"
                                 onClick={handleBuyNow}
@@ -134,13 +96,6 @@ export default function PackPage() {
                             >
                                 Buy Now
                             </button>
-                        </div>
-
-                        <div className="mt-6 rounded-2xl border border-[rgba(245,200,66,0.2)] bg-[var(--gold-dim)] p-4">
-                            <p className="text-sm leading-6 text-white">
-                                Looking for better value? A membership may be cheaper if you host quiz
-                                nights regularly.
-                            </p>
                         </div>
                     </aside>
                 </div>
@@ -152,9 +107,6 @@ export default function PackPage() {
                         <h2 className="text-3xl font-black tracking-tight md:text-4xl">
                             Related packs
                         </h2>
-                        <p className="mt-3 text-[var(--muted)]">
-                            More packs from the same category.
-                        </p>
                     </div>
 
                     <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">

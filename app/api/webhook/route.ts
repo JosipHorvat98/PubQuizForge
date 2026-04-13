@@ -1,6 +1,8 @@
 ﻿// file: app/api/webhook/route.ts
 import Stripe from "stripe";
 import { NextResponse } from "next/server";
+import { addDownloads } from "@/lib/dev-store";
+import { packs, plans } from "@/data/site";
 
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
@@ -27,54 +29,54 @@ export async function POST(request: Request) {
 
     try {
         const payload = await request.text();
+        const event = stripe.webhooks.constructEvent(payload, signature, webhookSecret);
 
-        const event = stripe.webhooks.constructEvent(
-            payload,
-            signature,
-            webhookSecret
-        );
+        if (event.type === "checkout.session.completed") {
+            const session = event.data.object as Stripe.Checkout.Session;
+            const email = session.customer_details?.email;
 
-        switch (event.type) {
-            case "checkout.session.completed": {
-                const session = event.data.object as Stripe.Checkout.Session;
+            if (email) {
+                const createdAt = new Date().toISOString();
 
-                console.log("checkout.session.completed", {
-                    sessionId: session.id,
-                    customerEmail: session.customer_details?.email ?? null,
-                    mode: session.mode,
-                    metadata: session.metadata ?? {}
-                });
+                if (session.mode === "subscription") {
+                    const slug = session.metadata?.slug ?? "";
+                    const plan = plans.find((item) => item.id === slug);
 
-                break;
+                    if (plan) {
+                        await addDownloads([
+                            {
+                                id: `${session.id}:${plan.id}`,
+                                title: `${plan.name} Membership`,
+                                email,
+                                type: "membership",
+                                createdAt
+                            }
+                        ]);
+                    }
+                }
+
+                if (session.mode === "payment") {
+                    const singleSlug = session.metadata?.slug;
+                    const multiSlugs = session.metadata?.slugs
+                        ? (JSON.parse(session.metadata.slugs) as string[])
+                        : [];
+
+                    const slugs = singleSlug ? [singleSlug] : multiSlugs;
+                    const matched = packs.filter((pack) => slugs.includes(pack.id));
+
+                    if (matched.length) {
+                        await addDownloads(
+                            matched.map((pack) => ({
+                                id: `${session.id}:${pack.id}`,
+                                title: pack.title,
+                                email,
+                                type: "pack" as const,
+                                createdAt
+                            }))
+                        );
+                    }
+                }
             }
-
-            case "invoice.paid": {
-                const invoice = event.data.object as Stripe.Invoice;
-
-                console.log("invoice.paid", {
-                    invoiceId: invoice.id,
-                    customerId: invoice.customer
-                });
-
-                break;
-            }
-
-            case "customer.subscription.created":
-            case "customer.subscription.updated":
-            case "customer.subscription.deleted": {
-                const subscription = event.data.object as Stripe.Subscription;
-
-                console.log(event.type, {
-                    subscriptionId: subscription.id,
-                    status: subscription.status,
-                    customerId: subscription.customer
-                });
-
-                break;
-            }
-
-            default:
-                console.log(`Unhandled event type: ${event.type}`);
         }
 
         return NextResponse.json({ received: true });
