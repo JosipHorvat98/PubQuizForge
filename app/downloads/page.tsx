@@ -12,7 +12,9 @@ type DownloadItem = {
     title: string;
     email: string;
     type: "pack" | "membership";
-    createdAt: string;
+    created_at: string;
+    pack_slug: string | null;
+    download_url: string | null;
 };
 
 export default function DownloadsPage() {
@@ -33,11 +35,7 @@ export default function DownloadsPage() {
 
             try {
                 const response = await fetch(`/api/downloads?session_id=${sessionId}`);
-                const data = (await response.json()) as {
-                    email?: string | null;
-                    downloads?: DownloadItem[];
-                    error?: string;
-                };
+                const data = await response.json();
 
                 if (!response.ok) {
                     throw new Error(data.error ?? "Unable to load downloads");
@@ -70,8 +68,7 @@ export default function DownloadsPage() {
                     </h1>
 
                     <p className="mt-6 max-w-3xl text-lg leading-8 text-[var(--muted)]">
-                        This local-dev version loads purchases from the Stripe session and a simple
-                        JSON store written by the webhook.
+                        Purchased packs and memberships linked to this checkout session.
                     </p>
                 </div>
             </section>
@@ -84,10 +81,7 @@ export default function DownloadsPage() {
                         <p className="text-red-300">{error}</p>
                     ) : !sessionId ? (
                         <div>
-                            <p className="text-[var(--muted)]">
-                                No `session_id` found. Complete a checkout first, or open the link from
-                                the success page.
-                            </p>
+                            <p className="text-[var(--muted)]">No session_id found.</p>
                             <Link
                                 href="/"
                                 className="mt-6 inline-flex rounded-xl bg-[var(--gold)] px-5 py-3 text-sm font-extrabold text-black hover:bg-[var(--gold-strong)]"
@@ -105,10 +99,7 @@ export default function DownloadsPage() {
                             </div>
 
                             {!downloads.length ? (
-                                <p className="text-[var(--muted)]">
-                                    No downloads found yet. Make sure your webhook ran and wrote the local
-                                    dev store.
-                                </p>
+                                <p className="text-[var(--muted)]">No downloads found.</p>
                             ) : (
                                 <div className="grid gap-4">
                                     {downloads.map((item) => (
@@ -122,16 +113,30 @@ export default function DownloadsPage() {
                                                 </div>
                                                 <h3 className="mt-2 text-xl font-bold">{item.title}</h3>
                                                 <p className="mt-2 text-sm text-[var(--muted)]">
-                                                    {new Date(item.createdAt).toLocaleString()}
+                                                    {new Date(item.created_at).toLocaleString()}
                                                 </p>
                                             </div>
 
-                                            <button
-                                                type="button"
-                                                className="rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-bold text-white hover:bg-white/10"
-                                            >
-                                                Download PDF
-                                            </button>
+                                            {item.type === "pack" && item.download_url ? (
+                                                <a
+                                                    href={item.download_url}
+                                                    download
+                                                    className="rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-bold text-white hover:bg-white/10"
+                                                >
+                                                    Download PDF
+                                                </a>
+                                            ) : item.type === "pack" ? (
+                                                <span className="rounded-xl border border-yellow-500/20 bg-yellow-500/10 px-4 py-2.5 text-sm font-bold text-yellow-300">
+                                                    PDF coming soon
+                                                </span>
+                                            ) : (
+                                                <Link
+                                                    href="/memberships"
+                                                    className="rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-bold text-white hover:bg-white/10"
+                                                >
+                                                    View Membership
+                                                </Link>
+                                            )}
                                         </article>
                                     ))}
                                 </div>
