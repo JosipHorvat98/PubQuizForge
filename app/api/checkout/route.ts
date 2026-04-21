@@ -4,18 +4,18 @@ export const dynamic = "force-dynamic";
 import Stripe from "stripe";
 import { NextResponse } from "next/server";
 
-const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+function getEnv(name: string): string {
+    const value = process.env[name];
 
-if (!stripeSecretKey) {
-    throw new Error("Missing STRIPE_SECRET_KEY");
+    if (!value) {
+        throw new Error(`Missing ${name}`);
+    }
+
+    return value;
 }
 
-if (!siteUrl) {
-    throw new Error("Missing NEXT_PUBLIC_SITE_URL");
-}
-
-const stripe = new Stripe(stripeSecretKey);
+const stripe = new Stripe(getEnv("STRIPE_SECRET_KEY"));
+const siteUrl = getEnv("NEXT_PUBLIC_SITE_URL");
 
 type PaymentItem = {
     id: string;
@@ -42,8 +42,26 @@ type CheckoutRequestBody =
         slug?: string;
     };
 
+let loggedStripeAccount = false;
+
+async function logStripeAccountOnce() {
+    if (loggedStripeAccount) {
+        return;
+    }
+
+    try {
+        const account = await stripe.accounts.retrieve();
+        console.log("Stripe API account:", account.id);
+        loggedStripeAccount = true;
+    } catch (error) {
+        console.error("Unable to retrieve Stripe account:", error);
+    }
+}
+
 export async function POST(request: Request) {
     try {
+        await logStripeAccountOnce();
+
         const body = (await request.json()) as CheckoutRequestBody;
 
         if (body.mode === "payment" && "items" in body) {
@@ -74,6 +92,12 @@ export async function POST(request: Request) {
                 }
             });
 
+            console.log("Checkout session created:", {
+                sessionId: session.id,
+                mode: session.mode,
+                metadata: session.metadata ?? {}
+            });
+
             if (!session.url) {
                 return NextResponse.json(
                     { error: "Stripe session URL was not returned" },
@@ -85,6 +109,13 @@ export async function POST(request: Request) {
         }
 
         if (body.mode === "payment" && "productName" in body) {
+            if (!body.productName || !body.unitAmount) {
+                return NextResponse.json(
+                    { error: "Missing productName or unitAmount" },
+                    { status: 400 }
+                );
+            }
+
             const session = await stripe.checkout.sessions.create({
                 mode: "payment",
                 success_url: `${siteUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
@@ -106,6 +137,12 @@ export async function POST(request: Request) {
                 }
             });
 
+            console.log("Checkout session created:", {
+                sessionId: session.id,
+                mode: session.mode,
+                metadata: session.metadata ?? {}
+            });
+
             if (!session.url) {
                 return NextResponse.json(
                     { error: "Stripe session URL was not returned" },
@@ -117,6 +154,10 @@ export async function POST(request: Request) {
         }
 
         if (body.mode === "subscription") {
+            if (!body.priceId) {
+                return NextResponse.json({ error: "Missing priceId" }, { status: 400 });
+            }
+
             const session = await stripe.checkout.sessions.create({
                 mode: "subscription",
                 success_url: `${siteUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
@@ -130,6 +171,12 @@ export async function POST(request: Request) {
                 metadata: {
                     slug: body.slug ?? ""
                 }
+            });
+
+            console.log("Checkout session created:", {
+                sessionId: session.id,
+                mode: session.mode,
+                metadata: session.metadata ?? {}
             });
 
             if (!session.url) {
