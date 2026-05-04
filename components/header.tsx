@@ -1,17 +1,20 @@
 // file: components/header.tsx
-"use client";
-
 import Link from "next/link";
 import { navLinks } from "@/data/site";
-import { useCart } from "@/components/providers/cart-provider";
+import { createClient } from "@/utils/supabase/server";
+import { HeaderCartButton } from "@/components/header-cart-button";
+import { logout } from "@/app/logout/actions";
 
-export function Header() {
-    const { count } = useCart();
+export async function Header() {
+    const supabase = await createClient();
+    const {
+        data: { user }
+    } = await supabase.auth.getUser();
 
     return (
         <header className="sticky top-0 z-50 border-b border-white/8 bg-black/45 backdrop-blur-xl">
             <div className="container-shell flex h-16 items-center justify-between gap-4">
-                <Link href="/" className="text-xl font-black tracking-[0.18em] uppercase">
+                <Link href="/" className="text-xl font-black uppercase tracking-[0.18em]">
                     PubQuiz<span className="text-[var(--gold)]">Forge</span>
                 </Link>
 
@@ -29,20 +32,52 @@ export function Header() {
                             {link.label}
                         </Link>
                     ))}
+
                     <Link
                         href="/contact"
                         className="text-sm font-medium text-[var(--muted)] hover:text-white"
                     >
                         Contact
                     </Link>
+
+                    {user ? (
+                        <>
+                            <Link
+                                href="/account"
+                                className="text-sm font-semibold text-white hover:text-[var(--gold)]"
+                            >
+                                Account
+                            </Link>
+
+                            <form action={logout}>
+                                <button
+                                    type="submit"
+                                    className="text-sm font-medium text-[var(--muted)] hover:text-white"
+                                >
+                                    Logout
+                                </button>
+                            </form>
+                        </>
+                    ) : (
+                        <>
+                            <Link
+                                href="/login"
+                                className="text-sm font-semibold text-white hover:text-[var(--gold)]"
+                            >
+                                Login
+                            </Link>
+
+                            <Link
+                                href="/signup"
+                                className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm font-bold text-white hover:bg-white/10"
+                            >
+                                Sign Up
+                            </Link>
+                        </>
+                    )}
                 </nav>
 
-                <Link
-                    href="/cart"
-                    className="rounded-lg bg-[var(--gold)] px-4 py-2 text-sm font-bold text-black hover:bg-[var(--gold-strong)]"
-                >
-                    🛒 Cart ({count})
-                </Link>
+                <HeaderCartButton />
             </div>
         </header>
     );
