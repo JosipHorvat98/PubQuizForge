@@ -42,26 +42,8 @@ type CheckoutRequestBody =
         slug?: string;
     };
 
-let loggedStripeAccount = false;
-
-async function logStripeAccountOnce() {
-    if (loggedStripeAccount) {
-        return;
-    }
-
-    try {
-        const account = await stripe.accounts.retrieve();
-        console.log("Stripe API account:", account.id);
-        loggedStripeAccount = true;
-    } catch (error) {
-        console.error("Unable to retrieve Stripe account:", error);
-    }
-}
-
 export async function POST(request: Request) {
     try {
-        await logStripeAccountOnce();
-
         const body = (await request.json()) as CheckoutRequestBody;
 
         if (body.mode === "payment" && "items" in body) {
@@ -69,18 +51,16 @@ export async function POST(request: Request) {
                 return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
             }
 
-            const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = body.items.map(
-                (item) => ({
-                    quantity: item.quantity,
-                    price_data: {
-                        currency: "eur",
-                        product_data: {
-                            name: item.title
-                        },
-                        unit_amount: Math.round(Number(item.price.replace("€", "")) * 100)
-                    }
-                })
-            );
+            const lineItems = body.items.map((item) => ({
+                quantity: item.quantity,
+                price_data: {
+                    currency: "eur",
+                    product_data: {
+                        name: item.title
+                    },
+                    unit_amount: Math.round(Number(item.price.replace("€", "")) * 100)
+                }
+            }));
 
             const session = await stripe.checkout.sessions.create({
                 mode: "payment",

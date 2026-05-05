@@ -12,11 +12,14 @@ import { startCheckout } from "@/lib/checkout";
 export default function PackPage() {
     const params = useParams<{ slug: string }>();
     const { addItem } = useCart();
-    const pack = packs.find((item) => item.id === params.slug);
 
-    if (!pack) {
+    const foundPack = packs.find((item) => item.id === params.slug);
+
+    if (!foundPack) {
         notFound();
     }
+
+    const pack = foundPack;
 
     const relatedPacks = packs
         .filter((item) => item.category === pack.category && item.id !== pack.id)

@@ -1,15 +1,46 @@
 // file: components/header.tsx
-import Link from "next/link";
-import { navLinks } from "@/data/site";
-import { createClient } from "@/utils/supabase/server";
-import { HeaderCartButton } from "@/components/header-cart-button";
-import { logout } from "@/app/logout/actions";
+"use client";
 
-export async function Header() {
-    const supabase = await createClient();
-    const {
-        data: { user }
-    } = await supabase.auth.getUser();
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import type { User } from "@supabase/supabase-js";
+import { navLinks } from "@/data/site";
+import { createClient } from "@/utils/supabase/client";
+import { useCart } from "@/components/providers/cart-provider";
+
+export function Header() {
+    const [user, setUser] = useState<User | null>(null);
+    const { count } = useCart();
+
+    useEffect(() => {
+        const supabase = createClient();
+
+        async function loadUser() {
+            const {
+                data: { user }
+            } = await supabase.auth.getUser();
+
+            setUser(user);
+        }
+
+        loadUser();
+
+        const {
+            data: { subscription }
+        } = supabase.auth.onAuthStateChange((_event, session) => {
+            setUser(session?.user ?? null);
+        });
+
+        return () => {
+            subscription.unsubscribe();
+        };
+    }, []);
+
+    async function handleLogout() {
+        const supabase = createClient();
+        await supabase.auth.signOut();
+        window.location.href = "/";
+    }
 
     return (
         <header className="sticky top-0 z-50 border-b border-white/8 bg-black/45 backdrop-blur-xl">
@@ -49,14 +80,13 @@ export async function Header() {
                                 Account
                             </Link>
 
-                            <form action={logout}>
-                                <button
-                                    type="submit"
-                                    className="text-sm font-medium text-[var(--muted)] hover:text-white"
-                                >
-                                    Logout
-                                </button>
-                            </form>
+                            <button
+                                type="button"
+                                onClick={handleLogout}
+                                className="text-sm font-medium text-[var(--muted)] hover:text-white"
+                            >
+                                Logout
+                            </button>
                         </>
                     ) : (
                         <>
@@ -77,7 +107,12 @@ export async function Header() {
                     )}
                 </nav>
 
-                <HeaderCartButton />
+                <Link
+                    href="/cart"
+                    className="rounded-lg bg-[var(--gold)] px-4 py-2 text-sm font-bold text-black hover:bg-[var(--gold-strong)]"
+                >
+                    🛒 Cart ({count})
+                </Link>
             </div>
         </header>
     );
