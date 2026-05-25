@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
+import { AuthSubmitButton } from "@/components/auth-submit-button";
 import { login } from "./actions";
 
 export default async function LoginPage({
@@ -69,12 +70,10 @@ export default async function LoginPage({
                                 />
                             </div>
 
-                            <button
-                                type="submit"
-                                className="mt-2 rounded-xl bg-[var(--gold)] px-5 py-3 text-sm font-extrabold text-black hover:bg-[var(--gold-strong)]"
-                            >
-                                Sign In
-                            </button>
+                            <AuthSubmitButton
+                                idleLabel="Sign In"
+                                pendingLabel="Signing in..."
+                            />
                         </form>
 
                         <div className="mt-6 flex flex-col gap-2 text-sm text-[var(--muted)]">

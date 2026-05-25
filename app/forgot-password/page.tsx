@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
+import { AuthSubmitButton } from "@/components/auth-submit-button";
 import { sendResetPasswordEmail } from "./actions";
 
 export default async function ForgotPasswordPage({
@@ -56,23 +57,33 @@ export default async function ForgotPasswordPage({
                                 />
                             </div>
 
-                            <button
-                                type="submit"
-                                className="mt-2 rounded-xl bg-[var(--gold)] px-5 py-3 text-sm font-extrabold text-black hover:bg-[var(--gold-strong)]"
-                            >
-                                Send Reset Link
-                            </button>
+                            <AuthSubmitButton
+                                idleLabel="Send Reset Link"
+                                pendingLabel="Sending reset link..."
+                            />
                         </form>
 
-                        <p className="mt-6 text-sm text-[var(--muted)]">
-                            Back to{" "}
-                            <Link
-                                href="/login"
-                                className="font-bold text-white hover:text-[var(--gold)]"
-                            >
-                                login
-                            </Link>
-                        </p>
+                        <div className="mt-6 flex flex-col gap-2 text-sm text-[var(--muted)]">
+                            <p>
+                                Back to{" "}
+                                <Link
+                                    href="/login"
+                                    className="font-bold text-white hover:text-[var(--gold)]"
+                                >
+                                    login
+                                </Link>
+                            </p>
+
+                            <p>
+                                Need an account?{" "}
+                                <Link
+                                    href="/signup"
+                                    className="font-bold text-white hover:text-[var(--gold)]"
+                                >
+                                    Create one
+                                </Link>
+                            </p>
+                        </div>
                     </div>
                 </div>
             </section>

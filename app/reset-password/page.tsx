@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
+import { AuthSubmitButton } from "@/components/auth-submit-button";
 import { updatePassword } from "./actions";
 
 export default async function ResetPasswordPage({
@@ -65,12 +66,10 @@ export default async function ResetPasswordPage({
                                 />
                             </div>
 
-                            <button
-                                type="submit"
-                                className="mt-2 rounded-xl bg-[var(--gold)] px-5 py-3 text-sm font-extrabold text-black hover:bg-[var(--gold-strong)]"
-                            >
-                                Update Password
-                            </button>
+                            <AuthSubmitButton
+                                idleLabel="Update Password"
+                                pendingLabel="Updating password..."
+                            />
                         </form>
 
                         <p className="mt-6 text-sm text-[var(--muted)]">
