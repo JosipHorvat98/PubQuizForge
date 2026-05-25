@@ -3,6 +3,7 @@
 
 import Link from "next/link";
 import { notFound, useParams } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 import { useCart } from "@/components/providers/cart-provider";
@@ -12,6 +13,10 @@ import { startCheckout } from "@/lib/checkout";
 export default function PackPage() {
     const params = useParams<{ slug: string }>();
     const { addItem } = useCart();
+    const [isAdded, setIsAdded] = useState(false);
+    const [showToast, setShowToast] = useState(false);
+    const resetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const foundPack = packs.find((item) => item.id === params.slug);
 
@@ -24,6 +29,45 @@ export default function PackPage() {
     const relatedPacks = packs
         .filter((item) => item.category === pack.category && item.id !== pack.id)
         .slice(0, 3);
+
+    useEffect(() => {
+        return () => {
+            if (resetTimerRef.current) {
+                clearTimeout(resetTimerRef.current);
+            }
+
+            if (toastTimerRef.current) {
+                clearTimeout(toastTimerRef.current);
+            }
+        };
+    }, []);
+
+    function handleAddToCart() {
+        addItem({
+            id: pack.id,
+            title: pack.title,
+            price: pack.price
+        });
+
+        setIsAdded(true);
+        setShowToast(true);
+
+        if (resetTimerRef.current) {
+            clearTimeout(resetTimerRef.current);
+        }
+
+        if (toastTimerRef.current) {
+            clearTimeout(toastTimerRef.current);
+        }
+
+        resetTimerRef.current = setTimeout(() => {
+            setIsAdded(false);
+        }, 1500);
+
+        toastTimerRef.current = setTimeout(() => {
+            setShowToast(false);
+        }, 1600);
+    }
 
     async function handleBuyNow() {
         try {
@@ -80,16 +124,11 @@ export default function PackPage() {
                         <div className="mt-6 grid gap-3">
                             <button
                                 type="button"
-                                onClick={() =>
-                                    addItem({
-                                        id: pack.id,
-                                        title: pack.title,
-                                        price: pack.price
-                                    })
-                                }
-                                className="rounded-xl bg-[var(--gold)] px-5 py-3 text-sm font-extrabold text-black hover:bg-[var(--gold-strong)]"
+                                onClick={handleAddToCart}
+                                disabled={isAdded}
+                                className="rounded-xl bg-[var(--gold)] px-5 py-3 text-sm font-extrabold text-black transition duration-150 hover:bg-[var(--gold-strong)] disabled:cursor-not-allowed disabled:opacity-80"
                             >
-                                Add to Cart
+                                {isAdded ? "Added!" : "Add to Cart"}
                             </button>
 
                             <button
@@ -150,6 +189,12 @@ export default function PackPage() {
                     </div>
                 </div>
             </section>
+
+            {showToast ? (
+                <div className="pointer-events-none fixed right-4 top-24 z-[60] rounded-xl border border-green-500/20 bg-green-500/10 px-4 py-3 text-sm font-bold text-green-300 shadow-lg backdrop-blur-md">
+                    Added to cart
+                </div>
+            ) : null}
 
             <Footer />
         </main>

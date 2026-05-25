@@ -11,7 +11,8 @@ import { useCart } from "@/components/providers/cart-provider";
 export function Header() {
     const [user, setUser] = useState<User | null>(null);
     const [isAuthReady, setIsAuthReady] = useState(false);
-    const { count } = useCart();
+    const [isCartBumping, setIsCartBumping] = useState(false);
+    const { count, cartPulseKey } = useCart();
     const supabase = useMemo(() => createClient(), []);
 
     useEffect(() => {
@@ -37,6 +38,22 @@ export function Header() {
             subscription.unsubscribe();
         };
     }, [supabase]);
+
+    useEffect(() => {
+        if (cartPulseKey === 0) {
+            return;
+        }
+
+        setIsCartBumping(true);
+
+        const timer = window.setTimeout(() => {
+            setIsCartBumping(false);
+        }, 280);
+
+        return () => {
+            window.clearTimeout(timer);
+        };
+    }, [cartPulseKey]);
 
     async function handleLogout() {
         await supabase.auth.signOut();
@@ -121,7 +138,8 @@ export function Header() {
 
                 <Link
                     href="/cart"
-                    className="rounded-lg bg-[var(--gold)] px-4 py-2 text-sm font-bold text-black hover:bg-[var(--gold-strong)]"
+                    className={`rounded-lg bg-[var(--gold)] px-4 py-2 text-sm font-bold text-black transition-transform duration-200 hover:bg-[var(--gold-strong)] ${isCartBumping ? "scale-110" : "scale-100"
+                        }`}
                 >
                     🛒 Cart ({count})
                 </Link>

@@ -3,8 +3,8 @@
 
 import {
     createContext,
+    useCallback,
     useContext,
-    useEffect,
     useMemo,
     useState,
     type ReactNode
@@ -17,40 +17,40 @@ export type CartItem = {
     quantity: number;
 };
 
+type AddCartItemInput = {
+    id: string;
+    title: string;
+    price: string;
+};
+
 type CartContextValue = {
     items: CartItem[];
     count: number;
     total: number;
-    addItem: (item: Omit<CartItem, "quantity">) => void;
+    cartPulseKey: number;
+    addItem: (item: AddCartItemInput) => void;
     removeItem: (id: string) => void;
     updateQuantity: (id: string, quantity: number) => void;
     clearCart: () => void;
 };
 
-const STORAGE_KEY = "pubquizforge_cart";
+const CartContext = createContext<CartContextValue | undefined>(undefined);
 
-const CartContext = createContext<CartContextValue | null>(null);
+function parsePrice(price: string): number {
+    const numericValue = Number(price.replace("€", "").trim());
+
+    if (Number.isNaN(numericValue)) {
+        return 0;
+    }
+
+    return numericValue;
+}
 
 export function CartProvider({ children }: { children: ReactNode }) {
     const [items, setItems] = useState<CartItem[]>([]);
+    const [cartPulseKey, setCartPulseKey] = useState(0);
 
-    useEffect(() => {
-        const raw = window.localStorage.getItem(STORAGE_KEY);
-        if (!raw) return;
-
-        try {
-            const parsed = JSON.parse(raw) as CartItem[];
-            setItems(Array.isArray(parsed) ? parsed : []);
-        } catch {
-            setItems([]);
-        }
-    }, []);
-
-    useEffect(() => {
-        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-    }, [items]);
-
-    function addItem(item: Omit<CartItem, "quantity">) {
+    const addItem = useCallback((item: AddCartItemInput) => {
         setItems((current) => {
             const existing = current.find((entry) => entry.id === item.id);
 
@@ -64,52 +64,56 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
             return [...current, { ...item, quantity: 1 }];
         });
-    }
 
-    function removeItem(id: string) {
+        setCartPulseKey((value) => value + 1);
+    }, []);
+
+    const removeItem = useCallback((id: string) => {
         setItems((current) => current.filter((item) => item.id !== id));
-    }
+    }, []);
 
-    function updateQuantity(id: string, quantity: number) {
-        if (quantity <= 0) {
-            removeItem(id);
-            return;
-        }
-
+    const updateQuantity = useCallback((id: string, quantity: number) => {
         setItems((current) =>
-            current.map((item) => (item.id === id ? { ...item, quantity } : item))
+            current
+                .map((item) =>
+                    item.id === id
+                        ? { ...item, quantity: Math.max(1, quantity) }
+                        : item
+                )
+                .filter((item) => item.quantity > 0)
         );
-    }
+    }, []);
 
-    function clearCart() {
+    const clearCart = useCallback(() => {
         setItems([]);
-    }
+    }, []);
 
     const count = useMemo(
-        () => items.reduce((sum, item) => sum + item.quantity, 0),
+        () => items.reduce((total, item) => total + item.quantity, 0),
         [items]
     );
 
     const total = useMemo(
         () =>
-            items.reduce((sum, item) => {
-                const numericPrice = Number(item.price.replace("€", ""));
-                return sum + numericPrice * item.quantity;
-            }, 0),
+            items.reduce(
+                (sum, item) => sum + parsePrice(item.price) * item.quantity,
+                0
+            ),
         [items]
     );
 
-    const value = useMemo(
+    const value = useMemo<CartContextValue>(
         () => ({
             items,
             count,
             total,
+            cartPulseKey,
             addItem,
             removeItem,
             updateQuantity,
             clearCart
         }),
-        [items, count, total]
+        [items, count, total, cartPulseKey, addItem, removeItem, updateQuantity, clearCart]
     );
 
     return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
