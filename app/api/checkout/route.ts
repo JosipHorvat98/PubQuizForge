@@ -14,7 +14,8 @@ function getEnv(name: string): string {
     return value;
 }
 
-const stripe = new Stripe(getEnv("STRIPE_SECRET_KEY"));
+const stripeSecretKey = getEnv("STRIPE_SECRET_KEY");
+const stripe = new Stripe(stripeSecretKey);
 const siteUrl = getEnv("NEXT_PUBLIC_SITE_URL");
 
 type PaymentItem = {
@@ -42,6 +43,16 @@ type CheckoutRequestBody =
         slug?: string;
     };
 
+function parseEuroPriceToCents(price: string): number {
+    const numericPrice = Number(price.replace("€", "").trim());
+
+    if (Number.isNaN(numericPrice)) {
+        throw new Error(`Invalid price format: ${price}`);
+    }
+
+    return Math.round(numericPrice * 100);
+}
+
 export async function POST(request: Request) {
     try {
         const body = (await request.json()) as CheckoutRequestBody;
@@ -58,24 +69,18 @@ export async function POST(request: Request) {
                     product_data: {
                         name: item.title
                     },
-                    unit_amount: Math.round(Number(item.price.replace("€", "")) * 100)
+                    unit_amount: parseEuroPriceToCents(item.price)
                 }
             }));
 
             const session = await stripe.checkout.sessions.create({
                 mode: "payment",
-                success_url: `${siteUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
+                success_url: `${siteUrl}/success`,
                 cancel_url: `${siteUrl}/cart`,
                 line_items: lineItems,
                 metadata: {
                     slugs: JSON.stringify(body.items.map((item) => item.id))
                 }
-            });
-
-            console.log("Checkout session created:", {
-                sessionId: session.id,
-                mode: session.mode,
-                metadata: session.metadata ?? {}
             });
 
             if (!session.url) {
@@ -98,7 +103,7 @@ export async function POST(request: Request) {
 
             const session = await stripe.checkout.sessions.create({
                 mode: "payment",
-                success_url: `${siteUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
+                success_url: `${siteUrl}/success`,
                 cancel_url: `${siteUrl}/cancel`,
                 line_items: [
                     {
@@ -115,12 +120,6 @@ export async function POST(request: Request) {
                 metadata: {
                     slug: body.slug ?? ""
                 }
-            });
-
-            console.log("Checkout session created:", {
-                sessionId: session.id,
-                mode: session.mode,
-                metadata: session.metadata ?? {}
             });
 
             if (!session.url) {
@@ -140,7 +139,7 @@ export async function POST(request: Request) {
 
             const session = await stripe.checkout.sessions.create({
                 mode: "subscription",
-                success_url: `${siteUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
+                success_url: `${siteUrl}/success`,
                 cancel_url: `${siteUrl}/cancel`,
                 line_items: [
                     {
@@ -153,12 +152,6 @@ export async function POST(request: Request) {
                 }
             });
 
-            console.log("Checkout session created:", {
-                sessionId: session.id,
-                mode: session.mode,
-                metadata: session.metadata ?? {}
-            });
-
             if (!session.url) {
                 return NextResponse.json(
                     { error: "Stripe session URL was not returned" },
@@ -169,7 +162,10 @@ export async function POST(request: Request) {
             return NextResponse.json({ url: session.url });
         }
 
-        return NextResponse.json({ error: "Invalid checkout payload" }, { status: 400 });
+        return NextResponse.json(
+            { error: "Invalid checkout payload" },
+            { status: 400 }
+        );
     } catch (error) {
         console.error("Stripe checkout error:", error);
 

@@ -93,7 +93,7 @@ export const packs: Pack[] = [
         price: "€4.99",
         glow: "radial-gradient(circle at 50% 0%, #7c3aed, transparent 70%)",
         badges: ["50 questions", "🔥 Bestseller"],
-        pdfPath: null
+        pdfPath: "/packs/friends-ultimate-pack.pdf"
     },
     {
         id: "movie-mix-80s-90s",
@@ -104,7 +104,7 @@ export const packs: Pack[] = [
         price: "€4.99",
         glow: "radial-gradient(circle at 50% 0%, #dc2626, transparent 70%)",
         badges: ["50 questions"],
-        pdfPath: null
+        pdfPath: "/packs/movie-mix-80s-90s.pdf"
     },
     {
         id: "music-through-the-decades",
@@ -137,7 +137,7 @@ export const packs: Pack[] = [
         price: "€4.99",
         glow: "radial-gradient(circle at 50% 0%, #22c55e, transparent 70%)",
         badges: ["50 questions"],
-        pdfPath: null
+        pdfPath: "/packs/world-capitals-master-edition.pdf"
     },
     {
         id: "flags-of-the-world",
@@ -148,7 +148,7 @@ export const packs: Pack[] = [
         price: "€4.99",
         glow: "radial-gradient(circle at 50% 0%, #14b8a6, transparent 70%)",
         badges: ["50 questions", "🔥 Bestseller"],
-        pdfPath: null
+        pdfPath: "/packs/flags-of-the-world.pdf"
     },
     {
         id: "ancient-civilisations",
