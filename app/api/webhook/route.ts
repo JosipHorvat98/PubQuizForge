@@ -16,7 +16,6 @@ function getEnv(name: string): string {
 
 const stripeSecretKey = getEnv("STRIPE_SECRET_KEY");
 const webhookSecret = getEnv("STRIPE_WEBHOOK_SECRET");
-
 const stripe = new Stripe(stripeSecretKey);
 
 export async function POST(request: Request) {

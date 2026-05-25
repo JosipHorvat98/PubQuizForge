@@ -14,8 +14,7 @@ function getEnv(name: string): string {
     return value;
 }
 
-const stripeSecretKey = getEnv("STRIPE_SECRET_KEY");
-const stripe = new Stripe(stripeSecretKey);
+const stripe = new Stripe(getEnv("STRIPE_SECRET_KEY"));
 const siteUrl = getEnv("NEXT_PUBLIC_SITE_URL");
 
 type PaymentItem = {

@@ -1,13 +1,13 @@
-﻿// file: app/login/page.tsx
+// file: app/reset-password/page.tsx
 import Link from "next/link";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
-import { login } from "./actions";
+import { updatePassword } from "./actions";
 
-export default async function LoginPage({
+export default async function ResetPasswordPage({
     searchParams
 }: {
-    searchParams: Promise<{ error?: string; message?: string }>;
+    searchParams: Promise<{ error?: string }>;
 }) {
     const params = await searchParams;
 
@@ -18,15 +18,15 @@ export default async function LoginPage({
             <section className="section-space">
                 <div className="container-shell max-w-2xl">
                     <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[rgba(245,200,66,0.3)] bg-[var(--gold-dim)] px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--gold)]">
-                        Login
+                        Reset Password
                     </div>
 
                     <h1 className="text-5xl font-black tracking-tight md:text-7xl">
-                        Sign in to your account.
+                        Choose a new password.
                     </h1>
 
                     <p className="mt-6 max-w-2xl text-lg leading-8 text-[var(--muted)]">
-                        Access your purchases, memberships, and future quiz downloads.
+                        Enter your new password below to finish resetting your account.
                     </p>
 
                     <div className="mt-10 rounded-[28px] border border-white/8 bg-[var(--surface)] p-8">
@@ -36,35 +36,31 @@ export default async function LoginPage({
                             </p>
                         ) : null}
 
-                        {params.message ? (
-                            <p className="mb-4 rounded-xl border border-green-500/20 bg-green-500/10 px-4 py-3 text-sm text-green-300">
-                                {params.message}
-                            </p>
-                        ) : null}
-
-                        <form action={login} className="grid gap-4">
-                            <div className="grid gap-2">
-                                <label htmlFor="email" className="text-sm font-semibold">
-                                    Email
-                                </label>
-                                <input
-                                    id="email"
-                                    name="email"
-                                    type="email"
-                                    required
-                                    className="rounded-xl border border-white/10 bg-[var(--surface-2)] px-4 py-3 outline-none focus:border-[var(--gold)]"
-                                />
-                            </div>
-
+                        <form action={updatePassword} className="grid gap-4">
                             <div className="grid gap-2">
                                 <label htmlFor="password" className="text-sm font-semibold">
-                                    Password
+                                    New password
                                 </label>
                                 <input
                                     id="password"
                                     name="password"
                                     type="password"
                                     required
+                                    minLength={6}
+                                    className="rounded-xl border border-white/10 bg-[var(--surface-2)] px-4 py-3 outline-none focus:border-[var(--gold)]"
+                                />
+                            </div>
+
+                            <div className="grid gap-2">
+                                <label htmlFor="confirmPassword" className="text-sm font-semibold">
+                                    Confirm new password
+                                </label>
+                                <input
+                                    id="confirmPassword"
+                                    name="confirmPassword"
+                                    type="password"
+                                    required
+                                    minLength={6}
                                     className="rounded-xl border border-white/10 bg-[var(--surface-2)] px-4 py-3 outline-none focus:border-[var(--gold)]"
                                 />
                             </div>
@@ -73,31 +69,19 @@ export default async function LoginPage({
                                 type="submit"
                                 className="mt-2 rounded-xl bg-[var(--gold)] px-5 py-3 text-sm font-extrabold text-black hover:bg-[var(--gold-strong)]"
                             >
-                                Sign In
+                                Update Password
                             </button>
                         </form>
 
-                        <div className="mt-6 flex flex-col gap-2 text-sm text-[var(--muted)]">
-                            <p>
-                                No account yet?{" "}
-                                <Link
-                                    href="/signup"
-                                    className="font-bold text-white hover:text-[var(--gold)]"
-                                >
-                                    Create one
-                                </Link>
-                            </p>
-
-                            <p>
-                                Forgot your password?{" "}
-                                <Link
-                                    href="/forgot-password"
-                                    className="font-bold text-white hover:text-[var(--gold)]"
-                                >
-                                    Reset it here
-                                </Link>
-                            </p>
-                        </div>
+                        <p className="mt-6 text-sm text-[var(--muted)]">
+                            Back to{" "}
+                            <Link
+                                href="/login"
+                                className="font-bold text-white hover:text-[var(--gold)]"
+                            >
+                                login
+                            </Link>
+                        </p>
                     </div>
                 </div>
             </section>
