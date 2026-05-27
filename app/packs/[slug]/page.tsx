@@ -13,6 +13,7 @@ import { startCheckout } from "@/lib/checkout";
 export default function PackPage() {
     const params = useParams<{ slug: string }>();
     const { addItem } = useCart();
+    const [quantity, setQuantity] = useState(1);
     const [isAdded, setIsAdded] = useState(false);
     const [showToast, setShowToast] = useState(false);
     const resetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -42,12 +43,33 @@ export default function PackPage() {
         };
     }, []);
 
+    function decreaseQuantity() {
+        setQuantity((current) => Math.max(1, current - 1));
+    }
+
+    function increaseQuantity() {
+        setQuantity((current) => current + 1);
+    }
+
+    function handleQuantityInput(value: string) {
+        const parsed = Number(value);
+
+        if (!Number.isFinite(parsed) || parsed < 1) {
+            setQuantity(1);
+            return;
+        }
+
+        setQuantity(Math.floor(parsed));
+    }
+
     function handleAddToCart() {
-        addItem({
-            id: pack.id,
-            title: pack.title,
-            price: pack.price
-        });
+        for (let index = 0; index < quantity; index += 1) {
+            addItem({
+                id: pack.id,
+                title: pack.title,
+                price: pack.price
+            });
+        }
 
         setIsAdded(true);
         setShowToast(true);
@@ -66,7 +88,7 @@ export default function PackPage() {
 
         toastTimerRef.current = setTimeout(() => {
             setShowToast(false);
-        }, 1600);
+        }, 2200);
     }
 
     async function handleBuyNow() {
@@ -78,7 +100,7 @@ export default function PackPage() {
                 mode: "payment",
                 productName: pack.title,
                 unitAmount,
-                quantity: 1,
+                quantity,
                 slug: pack.id
             });
         } catch (error) {
@@ -121,6 +143,40 @@ export default function PackPage() {
                             {pack.price}
                         </div>
 
+                        <div className="mt-6">
+                            <p className="mb-3 text-sm font-semibold text-[var(--muted)]">
+                                Quantity
+                            </p>
+
+                            <div className="flex w-fit items-center overflow-hidden rounded-xl border border-white/10 bg-white/5">
+                                <button
+                                    type="button"
+                                    onClick={decreaseQuantity}
+                                    className="px-4 py-3 text-lg font-bold text-white hover:bg-white/10"
+                                    aria-label="Decrease quantity"
+                                >
+                                    -
+                                </button>
+
+                                <input
+                                    type="number"
+                                    min={1}
+                                    value={quantity}
+                                    onChange={(event) => handleQuantityInput(event.target.value)}
+                                    className="w-16 border-x border-white/10 bg-transparent px-2 py-3 text-center text-sm font-bold text-white outline-none"
+                                />
+
+                                <button
+                                    type="button"
+                                    onClick={increaseQuantity}
+                                    className="px-4 py-3 text-lg font-bold text-white hover:bg-white/10"
+                                    aria-label="Increase quantity"
+                                >
+                                    +
+                                </button>
+                            </div>
+                        </div>
+
                         <div className="mt-6 grid gap-3">
                             <button
                                 type="button"
@@ -128,7 +184,7 @@ export default function PackPage() {
                                 disabled={isAdded}
                                 className="rounded-xl bg-[var(--gold)] px-5 py-3 text-sm font-extrabold text-black transition duration-150 hover:bg-[var(--gold-strong)] disabled:cursor-not-allowed disabled:opacity-80"
                             >
-                                {isAdded ? "Added!" : "Add to Cart"}
+                                {isAdded ? "Added!" : `Add ${quantity} to Cart`}
                             </button>
 
                             <button
@@ -191,9 +247,12 @@ export default function PackPage() {
             </section>
 
             {showToast ? (
-                <div className="pointer-events-none fixed right-4 top-24 z-[60] rounded-xl border border-green-500/20 bg-green-500/10 px-4 py-3 text-sm font-bold text-green-300 shadow-lg backdrop-blur-md">
-                    Added to cart
-                </div>
+                <Link
+                    href="/cart"
+                    className="fixed right-4 top-24 z-[60] rounded-xl border border-green-500/20 bg-green-500/10 px-4 py-3 text-sm font-bold text-green-300 shadow-lg backdrop-blur-md transition hover:bg-green-500/15"
+                >
+                    Added {quantity} to cart. View cart →
+                </Link>
             ) : null}
 
             <Footer />

@@ -7,16 +7,27 @@ import { Header } from "@/components/header";
 import { useCart } from "@/components/providers/cart-provider";
 import { startCheckout } from "@/lib/checkout";
 
+function formatEuro(amount: number) {
+    return `€${amount.toFixed(2)}`;
+}
+
 export default function CartPage() {
     const { items, total, removeItem, updateQuantity, clearCart } = useCart();
 
     async function handleCheckout() {
-        if (!items.length) return;
+        if (!items.length) {
+            return;
+        }
 
         try {
             await startCheckout({
                 mode: "payment",
-                items
+                items: items.map((item) => ({
+                    id: item.id,
+                    title: item.title,
+                    price: item.price,
+                    quantity: item.quantity
+                }))
             });
         } catch (error) {
             console.error(error);
@@ -28,128 +39,171 @@ export default function CartPage() {
         <main className="min-h-screen bg-[var(--bg)] text-[var(--text)]">
             <Header />
 
-            <section className="section-space">
+            <section className="section-space pb-40">
                 <div className="container-shell">
                     <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[rgba(245,200,66,0.3)] bg-[var(--gold-dim)] px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--gold)]">
                         Cart
                     </div>
 
                     <h1 className="max-w-4xl text-5xl font-black leading-tight tracking-tight md:text-7xl">
-                        Your quiz pack cart.
+                        Your cart.
                     </h1>
 
                     <p className="mt-6 max-w-3xl text-lg leading-8 text-[var(--muted)]">
-                        Review your packs, adjust quantities, then continue to Stripe checkout.
+                        Review your packs, adjust quantities, and continue to checkout when ready.
                     </p>
-                </div>
-            </section>
 
-            <section className="pb-20">
-                <div className="container-shell grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-                    <div className="rounded-[28px] border border-white/8 bg-[var(--surface)] p-6 md:p-8">
-                        {!items.length ? (
-                            <div className="text-center">
-                                <h2 className="text-2xl font-black tracking-tight">Your cart is empty</h2>
-                                <p className="mt-3 text-[var(--muted)]">
-                                    Add a few quiz packs and come back here.
-                                </p>
+                    {!items.length ? (
+                        <div className="mt-10 rounded-[28px] border border-white/8 bg-[var(--surface)] p-8">
+                            <p className="text-[var(--muted)]">Your cart is empty.</p>
+
+                            <div className="mt-6 flex flex-wrap gap-3">
                                 <Link
                                     href="/#packs"
-                                    className="mt-6 inline-flex rounded-xl bg-[var(--gold)] px-5 py-3 text-sm font-extrabold text-black hover:bg-[var(--gold-strong)]"
+                                    className="rounded-xl bg-[var(--gold)] px-5 py-3 text-sm font-extrabold text-black hover:bg-[var(--gold-strong)]"
                                 >
                                     Browse Packs
                                 </Link>
+
+                                <Link
+                                    href="/memberships"
+                                    className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-white hover:bg-white/10"
+                                >
+                                    View Memberships
+                                </Link>
                             </div>
-                        ) : (
-                            <div className="grid gap-4">
-                                {items.map((item) => (
-                                    <article
-                                        key={item.id}
-                                        className="rounded-2xl border border-white/8 bg-[var(--surface-2)] p-5"
-                                    >
-                                        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                                            <div>
-                                                <h3 className="text-xl font-bold">{item.title}</h3>
-                                                <p className="mt-2 text-sm text-[var(--muted)]">
-                                                    {item.price} each
-                                                </p>
+                        </div>
+                    ) : (
+                        <>
+                            <div className="mt-10 grid gap-4">
+                                {items.map((item) => {
+                                    const itemTotal = Number(item.price.replace("€", "").trim()) * item.quantity;
+
+                                    return (
+                                        <article
+                                            key={item.id}
+                                            className="rounded-[24px] border border-white/8 bg-[var(--surface)] p-5 md:p-6"
+                                        >
+                                            <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+                                                <div className="min-w-0">
+                                                    <h2 className="text-2xl font-black tracking-tight">{item.title}</h2>
+                                                    <p className="mt-2 text-sm text-[var(--muted)]">
+                                                        Unit price: {item.price}
+                                                    </p>
+                                                </div>
+
+                                                <div className="flex flex-col gap-4 md:items-end">
+                                                    <div className="flex items-center overflow-hidden rounded-xl border border-white/10 bg-white/5">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                                                            className="px-4 py-3 text-lg font-bold text-white hover:bg-white/10"
+                                                            aria-label={`Decrease quantity for ${item.title}`}
+                                                        >
+                                                            -
+                                                        </button>
+
+                                                        <input
+                                                            type="number"
+                                                            min={1}
+                                                            value={item.quantity}
+                                                            onChange={(event) =>
+                                                                updateQuantity(
+                                                                    item.id,
+                                                                    Math.max(1, Number(event.target.value) || 1)
+                                                                )
+                                                            }
+                                                            className="w-16 border-x border-white/10 bg-transparent px-2 py-3 text-center text-sm font-bold text-white outline-none"
+                                                            aria-label={`Quantity for ${item.title}`}
+                                                        />
+
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                                            className="px-4 py-3 text-lg font-bold text-white hover:bg-white/10"
+                                                            aria-label={`Increase quantity for ${item.title}`}
+                                                        >
+                                                            +
+                                                        </button>
+                                                    </div>
+
+                                                    <div className="flex items-center gap-3">
+                                                        <span className="text-xl font-black tracking-tight text-[var(--gold)]">
+                                                            {formatEuro(itemTotal)}
+                                                        </span>
+
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => removeItem(item.id)}
+                                                            className="rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-bold text-white hover:bg-white/10"
+                                                        >
+                                                            Remove
+                                                        </button>
+                                                    </div>
+                                                </div>
                                             </div>
-
-                                            <div className="flex flex-wrap items-center gap-3">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                                                    className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm font-bold hover:bg-white/10"
-                                                >
-                                                    −
-                                                </button>
-
-                                                <span className="min-w-8 text-center text-sm font-bold">
-                                                    {item.quantity}
-                                                </span>
-
-                                                <button
-                                                    type="button"
-                                                    onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                                                    className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm font-bold hover:bg-white/10"
-                                                >
-                                                    +
-                                                </button>
-
-                                                <button
-                                                    type="button"
-                                                    onClick={() => removeItem(item.id)}
-                                                    className="rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-2 text-sm font-bold text-red-300 hover:bg-red-500/15"
-                                                >
-                                                    Remove
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </article>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-
-                    <aside className="rounded-[28px] border border-white/8 bg-[var(--surface)] p-6 md:p-8">
-                        <h2 className="text-2xl font-black tracking-tight">Order summary</h2>
-
-                        <div className="mt-6 space-y-3 text-sm">
-                            <div className="flex items-center justify-between">
-                                <span className="text-[var(--muted)]">Items</span>
-                                <span>{items.reduce((sum, item) => sum + item.quantity, 0)}</span>
+                                        </article>
+                                    );
+                                })}
                             </div>
 
-                            <div className="flex items-center justify-between">
-                                <span className="text-[var(--muted)]">Total</span>
-                                <span className="text-xl font-black text-[var(--gold)]">
-                                    €{total.toFixed(2)}
+                            <div className="mt-8 flex flex-wrap gap-3">
+                                <Link
+                                    href="/#packs"
+                                    className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-white hover:bg-white/10"
+                                >
+                                    Continue Shopping
+                                </Link>
+
+                                <button
+                                    type="button"
+                                    onClick={clearCart}
+                                    className="rounded-xl border border-red-500/20 bg-red-500/10 px-5 py-3 text-sm font-bold text-red-300 hover:bg-red-500/15"
+                                >
+                                    Clear Cart
+                                </button>
+                            </div>
+                        </>
+                    )}
+                </div>
+            </section>
+
+            {items.length ? (
+                <div className="fixed inset-x-0 bottom-0 z-50 border-t border-white/8 bg-black/75 backdrop-blur-xl">
+                    <div className="container-shell flex flex-col gap-4 py-4 md:flex-row md:items-center md:justify-between">
+                        <div>
+                            <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-[var(--muted)]">
+                                Order Summary
+                            </p>
+                            <div className="mt-1 flex items-center gap-3">
+                                <span className="text-sm text-[var(--muted)]">
+                                    {items.length} item{items.length === 1 ? "" : "s"}
+                                </span>
+                                <span className="text-2xl font-black tracking-tight text-[var(--gold)]">
+                                    {formatEuro(total)}
                                 </span>
                             </div>
                         </div>
 
-                        <div className="mt-6 grid gap-3">
-                            <button
-                                type="button"
-                                onClick={handleCheckout}
-                                disabled={!items.length}
-                                className="rounded-xl bg-[var(--gold)] px-5 py-3 text-sm font-extrabold text-black hover:bg-[var(--gold-strong)] disabled:cursor-not-allowed disabled:opacity-60"
+                        <div className="flex flex-col gap-3 sm:flex-row">
+                            <Link
+                                href="/#packs"
+                                className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-center text-sm font-bold text-white hover:bg-white/10"
                             >
-                                Checkout
-                            </button>
+                                Continue Shopping
+                            </Link>
 
                             <button
                                 type="button"
-                                onClick={clearCart}
-                                disabled={!items.length}
-                                className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-white hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60"
+                                onClick={handleCheckout}
+                                className="rounded-xl bg-[var(--gold)] px-6 py-3 text-sm font-extrabold text-black hover:bg-[var(--gold-strong)]"
                             >
-                                Clear Cart
+                                Checkout Now
                             </button>
                         </div>
-                    </aside>
+                    </div>
                 </div>
-            </section>
+            ) : null}
 
             <Footer />
         </main>

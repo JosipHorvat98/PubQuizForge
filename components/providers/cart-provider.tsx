@@ -2,129 +2,199 @@
 "use client";
 
 import {
-    createContext,
-    useCallback,
-    useContext,
-    useMemo,
-    useState,
-    type ReactNode
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode
 } from "react";
 
 export type CartItem = {
-    id: string;
-    title: string;
-    price: string;
-    quantity: number;
+  id: string;
+  title: string;
+  price: string;
+  quantity: number;
 };
 
 type AddCartItemInput = {
-    id: string;
-    title: string;
-    price: string;
+  id: string;
+  title: string;
+  price: string;
 };
 
 type CartContextValue = {
-    items: CartItem[];
-    count: number;
-    total: number;
-    cartPulseKey: number;
-    addItem: (item: AddCartItemInput) => void;
-    removeItem: (id: string) => void;
-    updateQuantity: (id: string, quantity: number) => void;
-    clearCart: () => void;
+  items: CartItem[];
+  count: number;
+  total: number;
+  cartPulseKey: number;
+  isHydrated: boolean;
+  addItem: (item: AddCartItemInput) => void;
+  removeItem: (id: string) => void;
+  updateQuantity: (id: string, quantity: number) => void;
+  clearCart: () => void;
 };
 
 const CartContext = createContext<CartContextValue | undefined>(undefined);
 
-function parsePrice(price: string): number {
-    const numericValue = Number(price.replace("€", "").trim());
+const STORAGE_KEY = "pubquizforge_cart";
 
-    if (Number.isNaN(numericValue)) {
-        return 0;
+function parsePrice(price: string): number {
+  const numericValue = Number(price.replace("€", "").trim());
+
+  if (Number.isNaN(numericValue)) {
+    return 0;
+  }
+
+  return numericValue;
+}
+
+function isValidCartItem(value: unknown): value is CartItem {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const item = value as Record<string, unknown>;
+
+  return (
+    typeof item.id === "string" &&
+    typeof item.title === "string" &&
+    typeof item.price === "string" &&
+    typeof item.quantity === "number" &&
+    item.quantity >= 1
+  );
+}
+
+function readCartFromStorage(): CartItem[] {
+  if (typeof window === "undefined") {
+    return [];
+  }
+
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+
+    if (!raw) {
+      return [];
     }
 
-    return numericValue;
+    const parsed = JSON.parse(raw) as unknown;
+
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+
+    return parsed.filter(isValidCartItem);
+  } catch {
+    return [];
+  }
 }
 
 export function CartProvider({ children }: { children: ReactNode }) {
-    const [items, setItems] = useState<CartItem[]>([]);
-    const [cartPulseKey, setCartPulseKey] = useState(0);
+  const [items, setItems] = useState<CartItem[]>([]);
+  const [cartPulseKey, setCartPulseKey] = useState(0);
+  const [isHydrated, setIsHydrated] = useState(false);
 
-    const addItem = useCallback((item: AddCartItemInput) => {
-        setItems((current) => {
-            const existing = current.find((entry) => entry.id === item.id);
+  useEffect(() => {
+    setItems(readCartFromStorage());
+    setIsHydrated(true);
+  }, []);
 
-            if (existing) {
-                return current.map((entry) =>
-                    entry.id === item.id
-                        ? { ...entry, quantity: entry.quantity + 1 }
-                        : entry
-                );
-            }
+  useEffect(() => {
+    if (!isHydrated || typeof window === "undefined") {
+      return;
+    }
 
-            return [...current, { ...item, quantity: 1 }];
-        });
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+  }, [items, isHydrated]);
 
-        setCartPulseKey((value) => value + 1);
-    }, []);
+  const addItem = useCallback((item: AddCartItemInput) => {
+    setItems((current) => {
+      const existing = current.find((entry) => entry.id === item.id);
 
-    const removeItem = useCallback((id: string) => {
-        setItems((current) => current.filter((item) => item.id !== id));
-    }, []);
-
-    const updateQuantity = useCallback((id: string, quantity: number) => {
-        setItems((current) =>
-            current
-                .map((item) =>
-                    item.id === id
-                        ? { ...item, quantity: Math.max(1, quantity) }
-                        : item
-                )
-                .filter((item) => item.quantity > 0)
+      if (existing) {
+        return current.map((entry) =>
+          entry.id === item.id
+            ? { ...entry, quantity: entry.quantity + 1 }
+            : entry
         );
-    }, []);
+      }
 
-    const clearCart = useCallback(() => {
-        setItems([]);
-    }, []);
+      return [...current, { ...item, quantity: 1 }];
+    });
 
-    const count = useMemo(
-        () => items.reduce((total, item) => total + item.quantity, 0),
-        [items]
+    setCartPulseKey((value) => value + 1);
+  }, []);
+
+  const removeItem = useCallback((id: string) => {
+    setItems((current) => current.filter((item) => item.id !== id));
+  }, []);
+
+  const updateQuantity = useCallback((id: string, quantity: number) => {
+    setItems((current) =>
+      current
+        .map((item) =>
+          item.id === id
+            ? { ...item, quantity: Math.max(1, Math.floor(quantity || 1)) }
+            : item
+        )
+        .filter((item) => item.quantity > 0)
     );
+  }, []);
 
-    const total = useMemo(
-        () =>
-            items.reduce(
-                (sum, item) => sum + parsePrice(item.price) * item.quantity,
-                0
-            ),
-        [items]
-    );
+  const clearCart = useCallback(() => {
+    setItems([]);
+  }, []);
 
-    const value = useMemo<CartContextValue>(
-        () => ({
-            items,
-            count,
-            total,
-            cartPulseKey,
-            addItem,
-            removeItem,
-            updateQuantity,
-            clearCart
-        }),
-        [items, count, total, cartPulseKey, addItem, removeItem, updateQuantity, clearCart]
-    );
+  const count = useMemo(
+    () => items.reduce((total, item) => total + item.quantity, 0),
+    [items]
+  );
 
-    return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
+  const total = useMemo(
+    () =>
+      items.reduce(
+        (sum, item) => sum + parsePrice(item.price) * item.quantity,
+        0
+      ),
+    [items]
+  );
+
+  const value = useMemo<CartContextValue>(
+    () => ({
+      items,
+      count,
+      total,
+      cartPulseKey,
+      isHydrated,
+      addItem,
+      removeItem,
+      updateQuantity,
+      clearCart
+    }),
+    [
+      items,
+      count,
+      total,
+      cartPulseKey,
+      isHydrated,
+      addItem,
+      removeItem,
+      updateQuantity,
+      clearCart
+    ]
+  );
+
+  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }
 
 export function useCart() {
-    const context = useContext(CartContext);
+  const context = useContext(CartContext);
 
-    if (!context) {
-        throw new Error("useCart must be used inside CartProvider");
-    }
+  if (!context) {
+    throw new Error("useCart must be used inside CartProvider");
+  }
 
-    return context;
+  return context;
 }
+
