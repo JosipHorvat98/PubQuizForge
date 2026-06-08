@@ -7,9 +7,12 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode
 } from "react";
+import type { User } from "@supabase/supabase-js";
+import { createClient } from "@/utils/supabase/client";
 
 export type CartItem = {
   id: string;
@@ -38,10 +41,14 @@ type CartContextValue = {
 
 const CartContext = createContext<CartContextValue | undefined>(undefined);
 
-const STORAGE_KEY = "pubquizforge_cart";
+const GUEST_CART_KEY = "pubquizforge_cart_guest";
+
+function getUserCartKey(userId: string) {
+  return `pubquizforge_cart_user_${userId}`;
+}
 
 function parsePrice(price: string): number {
-  const numericValue = Number(price.replace("€", "").trim());
+  const numericValue = Number(price.replace("€", "").replace("EUR", "").trim());
 
   if (Number.isNaN(numericValue)) {
     return 0;
@@ -66,13 +73,13 @@ function isValidCartItem(value: unknown): value is CartItem {
   );
 }
 
-function readCartFromStorage(): CartItem[] {
+function readCartFromStorage(storageKey: string): CartItem[] {
   if (typeof window === "undefined") {
     return [];
   }
 
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
+    const raw = window.localStorage.getItem(storageKey);
 
     if (!raw) {
       return [];
@@ -90,23 +97,87 @@ function readCartFromStorage(): CartItem[] {
   }
 }
 
+function writeCartToStorage(storageKey: string, items: CartItem[]) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    window.localStorage.setItem(storageKey, JSON.stringify(items));
+  } catch {}
+}
+
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [cartPulseKey, setCartPulseKey] = useState(0);
   const [isHydrated, setIsHydrated] = useState(false);
+  const [activeStorageKey, setActiveStorageKey] = useState<string>(GUEST_CART_KEY);
+
+  const previousStorageKeyRef = useRef<string>(GUEST_CART_KEY);
+  const supabaseRef = useRef(createClient());
+
+  const switchCartScope = useCallback(
+    (user: User | null) => {
+      const nextStorageKey = user ? getUserCartKey(user.id) : GUEST_CART_KEY;
+      const previousStorageKey = previousStorageKeyRef.current;
+
+      writeCartToStorage(previousStorageKey, items);
+
+      const nextItems = readCartFromStorage(nextStorageKey);
+
+      previousStorageKeyRef.current = nextStorageKey;
+      setActiveStorageKey(nextStorageKey);
+      setItems(nextItems);
+      setIsHydrated(true);
+    },
+    [items]
+  );
 
   useEffect(() => {
-    setItems(readCartFromStorage());
-    setIsHydrated(true);
-  }, []);
+    let isMounted = true;
+
+    async function initializeCartScope() {
+      const supabase = supabaseRef.current;
+      const {
+        data: { user }
+      } = await supabase.auth.getUser();
+
+      if (!isMounted) {
+        return;
+      }
+
+      const initialStorageKey = user ? getUserCartKey(user.id) : GUEST_CART_KEY;
+      previousStorageKeyRef.current = initialStorageKey;
+      setActiveStorageKey(initialStorageKey);
+      setItems(readCartFromStorage(initialStorageKey));
+      setIsHydrated(true);
+    }
+
+    void initializeCartScope();
+
+    const {
+      data: { subscription }
+    } = supabaseRef.current.auth.onAuthStateChange((_event, session) => {
+      if (!isMounted) {
+        return;
+      }
+
+      switchCartScope(session?.user ?? null);
+    });
+
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
+  }, [switchCartScope]);
 
   useEffect(() => {
-    if (!isHydrated || typeof window === "undefined") {
+    if (!isHydrated) {
       return;
     }
 
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-  }, [items, isHydrated]);
+    writeCartToStorage(activeStorageKey, items);
+  }, [activeStorageKey, isHydrated, items]);
 
   const addItem = useCallback((item: AddCartItemInput) => {
     setItems((current) => {
@@ -197,4 +268,3 @@ export function useCart() {
 
   return context;
 }
-

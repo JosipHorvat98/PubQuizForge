@@ -8,9 +8,10 @@ import { login } from "./actions";
 export default async function LoginPage({
     searchParams
 }: {
-    searchParams: Promise<{ error?: string; message?: string }>;
+    searchParams: Promise<{ error?: string; message?: string; next?: string }>;
 }) {
     const params = await searchParams;
+    const next = params.next && params.next.startsWith("/") ? params.next : "/account";
 
     return (
         <main className="min-h-screen bg-[var(--bg)] text-[var(--text)]">
@@ -44,6 +45,8 @@ export default async function LoginPage({
                         ) : null}
 
                         <form action={login} className="grid gap-4">
+                            <input type="hidden" name="next" value={next} />
+
                             <div className="grid gap-2">
                                 <label htmlFor="email" className="text-sm font-semibold">
                                     Email
@@ -80,7 +83,7 @@ export default async function LoginPage({
                             <p>
                                 No account yet?{" "}
                                 <Link
-                                    href="/signup"
+                                    href={`/signup${next !== "/account" ? `?next=${encodeURIComponent(next)}` : ""}`}
                                     className="font-bold text-white hover:text-[var(--gold)]"
                                 >
                                     Create one

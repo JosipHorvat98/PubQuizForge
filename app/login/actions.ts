@@ -5,8 +5,9 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 
 export async function login(formData: FormData) {
-    const email = String(formData.get("email") ?? "");
+    const email = String(formData.get("email") ?? "").trim();
     const password = String(formData.get("password") ?? "");
+    const next = String(formData.get("next") ?? "/account").trim() || "/account";
 
     const supabase = await createClient();
 
@@ -16,8 +17,10 @@ export async function login(formData: FormData) {
     });
 
     if (error) {
-        redirect(`/login?error=${encodeURIComponent(error.message)}`);
+        redirect(
+            `/login?error=${encodeURIComponent(error.message)}&next=${encodeURIComponent(next)}`
+        );
     }
 
-    redirect("/account");
+    redirect(next.startsWith("/") ? next : "/account");
 }

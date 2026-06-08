@@ -8,9 +8,10 @@ import { signup } from "./actions";
 export default async function SignupPage({
     searchParams
 }: {
-    searchParams: Promise<{ error?: string }>;
+    searchParams: Promise<{ error?: string; next?: string }>;
 }) {
     const params = await searchParams;
+    const next = params.next && params.next.startsWith("/") ? params.next : "/account";
 
     return (
         <main className="min-h-screen bg-[var(--bg)] text-[var(--text)]">
@@ -38,6 +39,8 @@ export default async function SignupPage({
                         ) : null}
 
                         <form action={signup} className="grid gap-4">
+                            <input type="hidden" name="next" value={next} />
+
                             <div className="grid gap-2">
                                 <label htmlFor="email" className="text-sm font-semibold">
                                     Email
@@ -74,7 +77,7 @@ export default async function SignupPage({
                         <p className="mt-6 text-sm text-[var(--muted)]">
                             Already have an account?{" "}
                             <Link
-                                href="/login"
+                                href={`/login${next !== "/account" ? `?next=${encodeURIComponent(next)}` : ""}`}
                                 className="font-bold text-white hover:text-[var(--gold)]"
                             >
                                 Sign in

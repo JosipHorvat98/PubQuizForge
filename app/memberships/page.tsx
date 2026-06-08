@@ -1,10 +1,14 @@
 // file: app/memberships/page.tsx
 "use client";
-import { useEffect, useState } from "react";
+
+import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
+import type { User } from "@supabase/supabase-js";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 import { plans } from "@/data/site";
 import { startCheckout } from "@/lib/checkout";
+import { createClient } from "@/utils/supabase/client";
 
 const subscriptionPriceIds: Record<string, string> = {
     bronze: "price_1TKFNhEDQ5UIKPib0ICI1PuA",
@@ -17,6 +21,9 @@ const CHECKOUT_RETURN_KEY = "pqf_checkout_returned";
 
 export default function MembershipsPage() {
     const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+    const [user, setUser] = useState<User | null>(null);
+    const [isAuthReady, setIsAuthReady] = useState(false);
+    const supabase = useMemo(() => createClient(), []);
 
     useEffect(() => {
         const markReturnedAndReload = () => {
@@ -51,11 +58,40 @@ export default function MembershipsPage() {
         };
     }, []);
 
+    useEffect(() => {
+        async function loadUser() {
+            const {
+                data: { user }
+            } = await supabase.auth.getUser();
+
+            setUser(user);
+            setIsAuthReady(true);
+        }
+
+        void loadUser();
+
+        const {
+            data: { subscription }
+        } = supabase.auth.onAuthStateChange((_event, session) => {
+            setUser(session?.user ?? null);
+            setIsAuthReady(true);
+        });
+
+        return () => {
+            subscription.unsubscribe();
+        };
+    }, [supabase]);
+
     async function handleSubscribe(planId: string) {
         const priceId = subscriptionPriceIds[planId];
 
         if (!priceId) {
             alert(`Missing Stripe price ID for ${planId}`);
+            return;
+        }
+
+        if (!user) {
+            window.location.href = `/login?next=${encodeURIComponent("/memberships")}`;
             return;
         }
 
@@ -95,6 +131,10 @@ export default function MembershipsPage() {
                     <p className="mt-6 max-w-3xl text-lg leading-8 text-[var(--muted)]">
                         Subscribe for better value, faster access to new quiz packs, and more tools
                         for regular hosts. Upgrade anytime as your quiz nights grow.
+                    </p>
+
+                    <p className="mt-4 text-sm font-semibold text-[var(--gold)]">
+                        Quiz packs can be purchased as a guest. Memberships require an account.
                     </p>
                 </div>
             </section>
@@ -170,7 +210,7 @@ export default function MembershipsPage() {
                                                     !feature.included ? "bg-white/6 text-[var(--muted)]" : ""
                                                 ].join(" ")}
                                             >
-                                                {feature.included ? "✓" : "–"}
+                                                {feature.included ? "✓" : "-"}
                                             </span>
 
                                             <span className={feature.strong ? "font-semibold" : undefined}>
@@ -180,29 +220,59 @@ export default function MembershipsPage() {
                                     ))}
                                 </ul>
 
-                                <button
-                                    type="button"
-                                    onClick={() => handleSubscribe(plan.id)}
-                                    disabled={isLoading}
-                                    className={[
-                                        "mt-8 w-full rounded-xl px-4 py-3 text-sm font-extrabold disabled:cursor-not-allowed disabled:opacity-60",
-                                        plan.name === "Bronze"
-                                            ? "border border-[rgba(205,127,50,0.3)] bg-[var(--bronze-dim)] text-[var(--bronze)] hover:bg-[var(--bronze)] hover:text-white"
-                                            : "",
-                                        plan.name === "Silver"
-                                            ? "border border-[rgba(199,208,221,0.3)] bg-[var(--silver-dim)] text-[var(--silver)] hover:bg-[var(--silver)] hover:text-black"
-                                            : "",
-                                        plan.name === "Gold"
-                                            ? "bg-[var(--gold)] text-black hover:bg-[var(--gold-strong)]"
-                                            : ""
-                                    ].join(" ")}
-                                >
-                                    {isLoading
-                                        ? "Redirecting..."
-                                        : plan.name === "Gold"
-                                            ? "Start Gold — Best Value"
-                                            : `Start ${plan.name}`}
-                                </button>
+                                {isAuthReady ? (
+                                    user ? (
+                                        <button
+                                            type="button"
+                                            onClick={() => handleSubscribe(plan.id)}
+                                            disabled={isLoading}
+                                            className={[
+                                                "mt-8 w-full rounded-xl px-4 py-3 text-sm font-extrabold disabled:cursor-not-allowed disabled:opacity-60",
+                                                plan.name === "Bronze"
+                                                    ? "border border-[rgba(205,127,50,0.3)] bg-[var(--bronze-dim)] text-[var(--bronze)] hover:bg-[var(--bronze)] hover:text-white"
+                                                    : "",
+                                                plan.name === "Silver"
+                                                    ? "border border-[rgba(199,208,221,0.3)] bg-[var(--silver-dim)] text-[var(--silver)] hover:bg-[var(--silver)] hover:text-black"
+                                                    : "",
+                                                plan.name === "Gold"
+                                                    ? "bg-[var(--gold)] text-black hover:bg-[var(--gold-strong)]"
+                                                    : ""
+                                            ].join(" ")}
+                                        >
+                                            {isLoading
+                                                ? "Redirecting..."
+                                                : plan.name === "Gold"
+                                                    ? "Start Gold - Best Value"
+                                                    : `Start ${plan.name}`}
+                                        </button>
+                                    ) : (
+                                        <Link
+                                            href={`/login?next=${encodeURIComponent("/memberships")}`}
+                                            className={[
+                                                "mt-8 block w-full rounded-xl px-4 py-3 text-center text-sm font-extrabold",
+                                                plan.name === "Bronze"
+                                                    ? "border border-[rgba(205,127,50,0.3)] bg-[var(--bronze-dim)] text-[var(--bronze)] hover:bg-[var(--bronze)] hover:text-white"
+                                                    : "",
+                                                plan.name === "Silver"
+                                                    ? "border border-[rgba(199,208,221,0.3)] bg-[var(--silver-dim)] text-[var(--silver)] hover:bg-[var(--silver)] hover:text-black"
+                                                    : "",
+                                                plan.name === "Gold"
+                                                    ? "bg-[var(--gold)] text-black hover:bg-[var(--gold-strong)]"
+                                                    : ""
+                                            ].join(" ")}
+                                        >
+                                            Login to Subscribe
+                                        </Link>
+                                    )
+                                ) : (
+                                    <button
+                                        type="button"
+                                        disabled
+                                        className="mt-8 w-full rounded-xl px-4 py-3 text-sm font-extrabold opacity-60"
+                                    >
+                                        Loading...
+                                    </button>
+                                )}
                             </article>
                         );
                     })}
