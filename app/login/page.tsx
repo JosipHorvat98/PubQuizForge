@@ -8,10 +8,15 @@ import { login } from "./actions";
 export default async function LoginPage({
     searchParams
 }: {
-    searchParams: Promise<{ error?: string; message?: string; next?: string }>;
+    searchParams: Promise<{
+        error?: string;
+        message?: string;
+        next?: string;
+    }>;
 }) {
     const params = await searchParams;
     const next = params.next && params.next.startsWith("/") ? params.next : "/account";
+    const showMembershipMessage = next === "/memberships";
 
     return (
         <main className="min-h-screen bg-[var(--bg)] text-[var(--text)]">
@@ -32,6 +37,12 @@ export default async function LoginPage({
                     </p>
 
                     <div className="mt-10 rounded-[28px] border border-white/8 bg-[var(--surface)] p-8">
+                        {showMembershipMessage ? (
+                            <p className="mb-4 rounded-xl border border-[rgba(245,200,66,0.25)] bg-[var(--gold-dim)] px-4 py-3 text-sm text-[var(--gold)]">
+                                You need an account to subscribe.
+                            </p>
+                        ) : null}
+
                         {params.error ? (
                             <p className="mb-4 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">
                                 {params.error}
@@ -93,7 +104,7 @@ export default async function LoginPage({
                             <p>
                                 Forgot your password?{" "}
                                 <Link
-                                    href="/forgot-password"
+                                    href={`/forgot-password${next !== "/account" ? `?next=${encodeURIComponent(next)}` : ""}`}
                                     className="font-bold text-white hover:text-[var(--gold)]"
                                 >
                                     Reset it here
