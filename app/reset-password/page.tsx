@@ -8,9 +8,10 @@ import { updatePassword } from "./actions";
 export default async function ResetPasswordPage({
     searchParams
 }: {
-    searchParams: Promise<{ error?: string }>;
+    searchParams: Promise<{ error?: string; next?: string }>;
 }) {
     const params = await searchParams;
+    const next = params.next && params.next.startsWith("/") ? params.next : "/account";
 
     return (
         <main className="min-h-screen bg-[var(--bg)] text-[var(--text)]">
@@ -38,6 +39,8 @@ export default async function ResetPasswordPage({
                         ) : null}
 
                         <form action={updatePassword} className="grid gap-4">
+                            <input type="hidden" name="next" value={next} />
+
                             <div className="grid gap-2">
                                 <label htmlFor="password" className="text-sm font-semibold">
                                     New password
@@ -75,7 +78,7 @@ export default async function ResetPasswordPage({
                         <p className="mt-6 text-sm text-[var(--muted)]">
                             Back to{" "}
                             <Link
-                                href="/login"
+                                href={`/login${next !== "/account" ? `?next=${encodeURIComponent(next)}` : ""}`}
                                 className="font-bold text-white hover:text-[var(--gold)]"
                             >
                                 login
