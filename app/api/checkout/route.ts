@@ -1,8 +1,10 @@
 ﻿// file: app/api/checkout/route.ts
+
 export const dynamic = "force-dynamic";
 
 import Stripe from "stripe";
 import { NextResponse } from "next/server";
+import { createClient } from "@/utils/supabase/server";
 
 function getEnv(name: string): string {
     const value = process.env[name];
@@ -133,13 +135,33 @@ export async function POST(request: Request) {
 
         if (body.mode === "subscription") {
             if (!body.priceId) {
-                return NextResponse.json({ error: "Missing priceId" }, { status: 400 });
+                return NextResponse.json(
+                    { error: "Missing priceId" },
+                    { status: 400 }
+                );
             }
+
+            const supabase = await createClient();
+
+            const {
+                data: { user },
+                error: authError
+            } = await supabase.auth.getUser();
+
+            if (authError || !user?.email) {
+                return NextResponse.json(
+                    { error: "You must be signed in to start a membership." },
+                    { status: 401 }
+                );
+            }
+
+            const planId = body.slug ?? "";
 
             const session = await stripe.checkout.sessions.create({
                 mode: "subscription",
+                customer_email: user.email,
                 success_url: `${siteUrl}/success`,
-                cancel_url: `${siteUrl}/cancel`,
+                cancel_url: `${siteUrl}/memberships`,
                 line_items: [
                     {
                         price: body.priceId,
@@ -147,7 +169,18 @@ export async function POST(request: Request) {
                     }
                 ],
                 metadata: {
-                    slug: body.slug ?? ""
+                    user_id: user.id,
+                    email: user.email,
+                    plan_id: planId,
+                    slug: planId
+                },
+                subscription_data: {
+                    metadata: {
+                        user_id: user.id,
+                        email: user.email,
+                        plan_id: planId,
+                        slug: planId
+                    }
                 }
             });
 
@@ -160,6 +193,8 @@ export async function POST(request: Request) {
 
             return NextResponse.json({ url: session.url });
         }
+
+
 
         return NextResponse.json(
             { error: "Invalid checkout payload" },

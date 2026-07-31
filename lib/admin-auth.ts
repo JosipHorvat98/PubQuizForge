@@ -1,26 +1,38 @@
-﻿// file: lib/admin-auth.ts
-import { createClient } from "@/utils/supabase/server";
+﻿import { createClient } from "@/utils/supabase/server";
 
 function getAdminEmails(): string[] {
-    const raw = process.env.ADMIN_EMAILS ?? "";
-
-    return raw
+    return (process.env.ADMIN_EMAILS ?? "")
         .split(",")
-        .map((value) => value.trim().toLowerCase())
+        .map((email) => email.trim().toLowerCase())
         .filter(Boolean);
 }
 
 export async function requireAdmin() {
     const supabase = await createClient();
+
     const {
-        data: { user }
+        data: { user },
+        error
     } = await supabase.auth.getUser();
 
-    const adminEmails = getAdminEmails();
+    if (error || !user?.email) {
+        throw new Error("Unauthorized");
+    }
 
-    if (!user?.email || !adminEmails.includes(user.email.toLowerCase())) {
+    const isAdmin = getAdminEmails().includes(user.email.toLowerCase());
+
+    if (!isAdmin) {
         throw new Error("Forbidden");
     }
 
     return user;
+}
+
+export async function isAdminUser(): Promise<boolean> {
+    try {
+        await requireAdmin();
+        return true;
+    } catch {
+        return false;
+    }
 }

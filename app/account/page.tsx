@@ -1,9 +1,13 @@
-﻿// file: app/account/page.tsx
+﻿// 9. file: app/account/page.tsx
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
-import { ManageSubscriptionButton } from "@/components/manage-subscription-button";
+import {
+    SubscriptionStatusCard,
+    type AccountSubscription
+} from "@/components/subscription-status-card";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 import { createClient } from "@/utils/supabase/server";
 
 async function signOut() {
@@ -25,6 +29,25 @@ export default async function AccountPage() {
 
     if (error || !user) {
         redirect("/login?next=/account");
+    }
+
+    const { data: subscription, error: subscriptionError } =
+        await supabaseAdmin
+            .from("subscriptions")
+            .select(
+                "plan_id, status, cancel_at_period_end, current_period_end"
+            )
+            .eq("user_id", user.id)
+            .in("status", ["active", "trialing", "past_due"])
+            .order("updated_at", { ascending: false })
+            .limit(1)
+            .maybeSingle<AccountSubscription>();
+
+    if (subscriptionError) {
+        console.error(
+            "Unable to load account subscription:",
+            subscriptionError
+        );
     }
 
     return (
@@ -76,24 +99,9 @@ export default async function AccountPage() {
                             </div>
                         </section>
 
-                        <section className="border-t border-white/8 p-7 md:p-8">
-                            <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-[var(--gold)]">
-                                Billing
-                            </p>
-
-                            <h2 className="mt-3 text-2xl font-black tracking-tight">
-                                Manage your membership
-                            </h2>
-
-                            <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--muted)]">
-                                Update your payment method, review invoices, or cancel your
-                                membership through the secure Stripe Customer Portal.
-                            </p>
-
-                            <div className="mt-6">
-                                <ManageSubscriptionButton />
-                            </div>
-                        </section>
+                        <SubscriptionStatusCard
+                            subscription={subscription ?? null}
+                        />
 
                         <section className="border-t border-white/8 p-7 md:p-8">
                             <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-[var(--muted)]">
