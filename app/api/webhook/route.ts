@@ -157,6 +157,13 @@ async function saveMembershipDownload(
     }
 }
 
+async function saveSubscriptionById(
+    subscriptionId: string
+): Promise<void> {
+    const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+    await saveSubscription(subscription);
+}
+
 export async function POST(request: Request) {
     const signature = request.headers.get("stripe-signature");
 
@@ -197,6 +204,17 @@ export async function POST(request: Request) {
 
                 if (session.mode === "subscription") {
                     await saveMembershipDownload(session);
+
+                    // Persist the subscription row too, so the account page can
+                    // show it even if the lifecycle events are delayed/missed.
+                    if (session.subscription) {
+                        const subscriptionId =
+                            typeof session.subscription === "string"
+                                ? session.subscription
+                                : session.subscription.id;
+
+                        await saveSubscriptionById(subscriptionId);
+                    }
                 }
 
                 break;
@@ -209,6 +227,27 @@ export async function POST(request: Request) {
                     event.data.object as Stripe.Subscription;
 
                 await saveSubscription(subscription);
+                break;
+            }
+
+            case "invoice.paid": {
+                const invoice = event.data.object as Stripe.Invoice;
+
+                // The `subscription` reference is not always present on the
+                // typed Invoice in every API version, so access it defensively.
+                const invoiceWithSubscription = invoice as Stripe.Invoice & {
+                    subscription?: string | Stripe.Subscription | null;
+                };
+
+                if (invoiceWithSubscription.subscription) {
+                    const subscriptionId =
+                        typeof invoiceWithSubscription.subscription === "string"
+                            ? invoiceWithSubscription.subscription
+                            : invoiceWithSubscription.subscription.id;
+
+                    await saveSubscriptionById(subscriptionId);
+                }
+
                 break;
             }
 

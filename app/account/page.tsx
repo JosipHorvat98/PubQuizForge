@@ -8,6 +8,7 @@ import {
     type AccountSubscription
 } from "@/components/subscription-status-card";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { findActiveMembershipForEmail } from "@/lib/memberships";
 import { createClient } from "@/utils/supabase/server";
 
 async function signOut() {
@@ -48,6 +49,23 @@ export default async function AccountPage() {
             "Unable to load account subscription:",
             subscriptionError
         );
+    }
+
+    // Fallback: if no active subscription row was found in Supabase (e.g. a
+    // webhook event hasn't been delivered yet), ask Stripe directly so an
+    // active membership is still shown on the account page.
+    let activeSubscription = subscription ?? null;
+
+    if (!activeSubscription && user?.email) {
+        try {
+            activeSubscription =
+                (await findActiveMembershipForEmail(user.email)) ?? null;
+        } catch (error) {
+            console.error(
+                "Unable to fetch membership from Stripe:",
+                error
+            );
+        }
     }
 
     return (
@@ -100,7 +118,7 @@ export default async function AccountPage() {
                         </section>
 
                         <SubscriptionStatusCard
-                            subscription={subscription ?? null}
+                            subscription={activeSubscription}
                         />
 
                         <section className="border-t border-white/8 p-7 md:p-8">
