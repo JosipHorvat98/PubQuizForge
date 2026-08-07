@@ -57,14 +57,14 @@ export const stats = [
 
 export const packCategories: Array<{ id: PackCategory; label: string }> = [
     { id: "all", label: "All Packs" },
-    { id: "general", label: "đź§  General Knowledge" },
-    { id: "tv", label: "đź“ş TV & Film" },
-    { id: "music", label: "đźŽµ Music" },
-    { id: "geo", label: "đźŚŤ Geography" },
-    { id: "history", label: "đź“ś History" },
-    { id: "sport", label: "âš˝ Sport" },
-    { id: "science", label: "đź”¬ Science" },
-    { id: "themed", label: "đźŽ‰ Themed Nights" }
+    { id: "general", label: "🧠 General Knowledge" },
+    { id: "tv", label: "📺 TV & Film" },
+    { id: "music", label: "🎵 Music" },
+    { id: "geo", label: "🌍 Geography" },
+    { id: "history", label: "📖 History" },
+    { id: "sport", label: "⚽ Sport" },
+    { id: "science", label: "🔬 Science" },
+    { id: "themed", label: "🎉 Themed Nights" }
 ];
 
 export const packs: Pack[] = [
@@ -73,10 +73,10 @@ export const packs: Pack[] = [
         category: "general",
         categoryLabel: "General Knowledge",
         title: "General Knowledge Vol. 1",
-        emoji: "đź§ ",
-        price: "â‚¬4.99",
+        emoji: "🧠",
+        price: "€4.99",
         glow: "radial-gradient(circle at 50% 0%, #f59e0b, transparent 70%)",
-        badges: ["50 questions", "đź”Ą Bestseller"],
+        badges: ["50 questions", "🔥 Bestseller"],
         pdfPath: null
     },
     {
@@ -84,21 +84,21 @@ export const packs: Pack[] = [
         category: "general",
         categoryLabel: "General Knowledge",
         title: "General Knowledge Vol. 2",
-        emoji: "đźŽŻ",
-        price: "â‚¬4.99",
+        emoji: "🎯",
+        price: "€4.99",
         glow: "radial-gradient(circle at 50% 0%, #f97316, transparent 70%)",
-        badges: ["50 questions", "âś¦ New"],
+        badges: ["50 questions", "✦ New"],
         pdfPath: null
     },
     {
         id: "friends-ultimate-pack",
         category: "tv",
         categoryLabel: "TV & Film",
-        title: "F.R.I.E.N.D.S â€” Ultimate Pack",
-        emoji: "đź“ş",
-        price: "â‚¬4.99",
+        title: "F.R.I.E.N.D.S — Ultimate Pack",
+        emoji: "📺",
+        price: "€4.99",
         glow: "radial-gradient(circle at 50% 0%, #7c3aed, transparent 70%)",
-        badges: ["50 questions", "đź”Ą Bestseller"],
+        badges: ["50 questions", "🔥 Bestseller"],
         pdfPath: "/packs/friends-ultimate-pack.pdf"
     },
     {
@@ -106,8 +106,8 @@ export const packs: Pack[] = [
         category: "tv",
         categoryLabel: "TV & Film",
         title: "80s & 90s Movie Mix",
-        emoji: "đźŽ¬",
-        price: "â‚¬4.99",
+        emoji: "🎬",
+        price: "€4.99",
         glow: "radial-gradient(circle at 50% 0%, #dc2626, transparent 70%)",
         badges: ["50 questions"],
         pdfPath: "/packs/movie-mix-80s-90s.pdf"
@@ -117,10 +117,10 @@ export const packs: Pack[] = [
         category: "music",
         categoryLabel: "Music",
         title: "Music Through the Decades",
-        emoji: "đźŽµ",
-        price: "â‚¬4.99",
+        emoji: "🎵",
+        price: "€4.99",
         glow: "radial-gradient(circle at 50% 0%, #ec4899, transparent 70%)",
-        badges: ["50 questions", "đź”Ą Popular"],
+        badges: ["50 questions", "🔥 Popular"],
         pdfPath: null
     },
     {
@@ -128,19 +128,19 @@ export const packs: Pack[] = [
         category: "music",
         categoryLabel: "Music",
         title: "One Hit Wonders",
-        emoji: "đźŽ¤",
-        price: "â‚¬4.99",
+        emoji: "🎤",
+        price: "€4.99",
         glow: "radial-gradient(circle at 50% 0%, #a855f7, transparent 70%)",
-        badges: ["50 questions", "âś¦ New"],
+        badges: ["50 questions", "✦ New"],
         pdfPath: null
     },
     {
         id: "world-capitals-master-edition",
         category: "geo",
         categoryLabel: "Geography",
-        title: "World Capitals â€” Master Edition",
-        emoji: "đźŚŤ",
-        price: "â‚¬4.99",
+        title: "World Capitals — Master Edition",
+        emoji: "🌍",
+        price: "€4.99",
         glow: "radial-gradient(circle at 50% 0%, #22c55e, transparent 70%)",
         badges: ["50 questions"],
         pdfPath: "/packs/world-capitals-master-edition.pdf"
@@ -150,10 +150,10 @@ export const packs: Pack[] = [
         category: "geo",
         categoryLabel: "Geography",
         title: "Flags of the World",
-        emoji: "đźš©",
-        price: "â‚¬4.99",
+        emoji: "🚩",
+        price: "€4.99",
         glow: "radial-gradient(circle at 50% 0%, #14b8a6, transparent 70%)",
-        badges: ["50 questions", "đź”Ą Bestseller"],
+        badges: ["50 questions", "🔥 Bestseller"],
         pdfPath: "/packs/flags-of-the-world.pdf"
     },
     {
@@ -161,8 +161,8 @@ export const packs: Pack[] = [
         category: "history",
         categoryLabel: "History",
         title: "Ancient Civilisations",
-        emoji: "đźŹş",
-        price: "â‚¬4.99",
+        emoji: "🏺",
+        price: "€4.99",
         glow: "radial-gradient(circle at 50% 0%, #b45309, transparent 70%)",
         badges: ["50 questions"],
         pdfPath: null
@@ -171,22 +171,22 @@ export const packs: Pack[] = [
         id: "world-war-ii-full-story",
         category: "history",
         categoryLabel: "History",
-        title: "World War II â€” The Full Story",
-        emoji: "đź“ś",
-        price: "â‚¬4.99",
+        title: "World War II — The Full Story",
+        emoji: "📖",
+        price: "€4.99",
         glow: "radial-gradient(circle at 50% 0%, #f97316, transparent 70%)",
-        badges: ["50 questions", "đź”Ą Popular"],
+        badges: ["50 questions", "🔥 Popular"],
         pdfPath: null
     },
     {
         id: "football-world-cup-edition",
         category: "sport",
         categoryLabel: "Sport",
-        title: "Football â€” World Cup Edition",
-        emoji: "âš˝",
-        price: "â‚¬4.99",
+        title: "Football — World Cup Edition",
+        emoji: "⚽",
+        price: "€4.99",
         glow: "radial-gradient(circle at 50% 0%, #16a34a, transparent 70%)",
-        badges: ["50 questions", "đź”Ą Bestseller"],
+        badges: ["50 questions", "🔥 Bestseller"],
         pdfPath: null
     },
     {
@@ -194,8 +194,8 @@ export const packs: Pack[] = [
         category: "sport",
         categoryLabel: "Sport",
         title: "Olympics Quiz Pack",
-        emoji: "đźŹ…",
-        price: "â‚¬4.99",
+        emoji: "🏅",
+        price: "€4.99",
         glow: "radial-gradient(circle at 50% 0%, #10b981, transparent 70%)",
         badges: ["50 questions"],
         pdfPath: null
@@ -205,10 +205,10 @@ export const packs: Pack[] = [
         category: "science",
         categoryLabel: "Science",
         title: "Space & The Universe",
-        emoji: "đź”­",
-        price: "â‚¬4.99",
+        emoji: "🚀",
+        price: "€4.99",
         glow: "radial-gradient(circle at 50% 0%, #3b82f6, transparent 70%)",
-        badges: ["50 questions", "âś¦ New"],
+        badges: ["50 questions", "✦ New"],
         pdfPath: null
     },
     {
@@ -216,8 +216,8 @@ export const packs: Pack[] = [
         category: "science",
         categoryLabel: "Science",
         title: "Human Body Basics",
-        emoji: "đź§¬",
-        price: "â‚¬4.99",
+        emoji: "🧬",
+        price: "€4.99",
         glow: "radial-gradient(circle at 50% 0%, #2563eb, transparent 70%)",
         badges: ["50 questions"],
         pdfPath: null
@@ -227,10 +227,10 @@ export const packs: Pack[] = [
         category: "themed",
         categoryLabel: "Themed Nights",
         title: "Christmas Quiz Night",
-        emoji: "đźŽ„",
-        price: "â‚¬5.99",
+        emoji: "🎄",
+        price: "€5.99",
         glow: "radial-gradient(circle at 50% 0%, #ef4444, transparent 70%)",
-        badges: ["50 questions", "đź”Ą Seasonal"],
+        badges: ["50 questions", "🔥 Seasonal"],
         pdfPath: null
     },
     {
@@ -238,10 +238,10 @@ export const packs: Pack[] = [
         category: "themed",
         categoryLabel: "Themed Nights",
         title: "Halloween Special",
-        emoji: "đźŽ",
-        price: "â‚¬5.99",
+        emoji: "🎃",
+        price: "€5.99",
         glow: "radial-gradient(circle at 50% 0%, #f97316, transparent 70%)",
-        badges: ["50 questions", "âś¦ Special"],
+        badges: ["50 questions", "✦ Special"],
         pdfPath: null
     }
 ];
