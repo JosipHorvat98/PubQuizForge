@@ -1,12 +1,16 @@
 ﻿import Stripe from "stripe";
 import { NextResponse } from "next/server";
-import { packs, plans } from "@/data/site";
+import { packs, plans, type Pack } from "@/data/site";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import {
     getPlanIdFromSubscription,
     getSubscriptionPeriodEnd
 } from "@/lib/subscriptions";
 import { grantCreditsForSubscription } from "@/lib/membership-credits";
+import {
+    sendMembershipConfirmationEmail,
+    sendPackPurchaseEmail
+} from "@/lib/email";
 
 function getEnvironmentVariable(name: string): string {
     const value = process.env[name];
@@ -85,7 +89,7 @@ if (!userId || !email) {
 
 async function savePackDownloads(
     session: Stripe.Checkout.Session
-): Promise<void> {
+): Promise<Pack[]> {
     const email =
         session.customer_details?.email ??
         session.customer_email;
@@ -116,7 +120,7 @@ async function savePackDownloads(
     const matchedPacks = packs.filter((pack) => slugs.includes(pack.id));
 
     if (!matchedPacks.length) {
-        return;
+        return matchedPacks;
     }
 
     const rows = matchedPacks.map((pack) => ({
@@ -155,6 +159,79 @@ async function savePackDownloads(
                 `Unable to save downloads: ${fallbackError.message}`
             );
         }
+    }
+
+    return matchedPacks;
+}
+
+/** Best-effort purchase email: attaches the PDFs and the Stripe receipt. */
+async function sendPurchaseConfirmationEmail(
+    session: Stripe.Checkout.Session,
+    soldPacks: Pack[]
+): Promise<void> {
+    try {
+        const email =
+            session.customer_details?.email ?? session.customer_email;
+
+        if (!email || !soldPacks.length) {
+            return;
+        }
+
+        let receiptUrl: string | null = null;
+
+        if (typeof session.payment_intent === "string") {
+            try {
+                const paymentIntent = await stripe.paymentIntents.retrieve(
+                    session.payment_intent
+                );
+
+                receiptUrl =
+                    (
+                        paymentIntent as Stripe.PaymentIntent & {
+                            receipt_url?: string | null;
+                        }
+                    ).receipt_url ?? null;
+            } catch (error) {
+                console.error("Unable to fetch payment receipt:", error);
+            }
+        }
+
+        await sendPackPurchaseEmail({
+            to: email,
+            packs: soldPacks,
+            amountTotalCents: session.amount_total,
+            receiptUrl
+        });
+    } catch (error) {
+        console.error("Purchase confirmation email failed:", error);
+    }
+}
+
+/** Best-effort membership welcome email. */
+async function sendMembershipConfirmationEmailBestEffort(
+    session: Stripe.Checkout.Session
+): Promise<void> {
+    try {
+        const email =
+            session.customer_details?.email ??
+            session.customer_email ??
+            session.metadata?.email;
+
+        const planId =
+            session.metadata?.plan_id ?? session.metadata?.slug ?? "";
+
+        const plan = plans.find((candidate) => candidate.id === planId);
+
+        if (!email || !plan) {
+            return;
+        }
+
+        await sendMembershipConfirmationEmail({
+            to: email,
+            planName: `${plan.name} Membership`
+        });
+    } catch (error) {
+        console.error("Membership confirmation email failed:", error);
     }
 }
 
@@ -238,11 +315,13 @@ export async function POST(request: Request) {
                 const session = event.data.object as Stripe.Checkout.Session;
 
                 if (session.mode === "payment") {
-                    await savePackDownloads(session);
+                    const soldPacks = await savePackDownloads(session);
+                    await sendPurchaseConfirmationEmail(session, soldPacks);
                 }
 
                 if (session.mode === "subscription") {
                     await saveMembershipDownload(session);
+                    await sendMembershipConfirmationEmailBestEffort(session);
 
                     // Persist the subscription row too, so the account page can
                     // show it even if the lifecycle events are delayed/missed.

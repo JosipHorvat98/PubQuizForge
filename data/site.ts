@@ -46,6 +46,7 @@ export const navLinks = [
     { label: "Shop", href: "/#packs" },
     { label: "Memberships", href: "/memberships" },
     { label: "My Downloads", href: "/downloads" },
+    { label: "News", href: "/news" },
     { label: "About", href: "/about" }
 ];
 
