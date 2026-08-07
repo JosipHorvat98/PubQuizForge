@@ -8,6 +8,14 @@ import { useCart } from "@/components/providers/cart-provider";
 import { useMembership } from "@/components/providers/membership-provider";
 import { canRedeemWithCredits } from "@/lib/entitlements";
 
+function formatEuro(amount: number) {
+    return `€${amount.toFixed(2)}`;
+}
+
+function parsePrice(price: string): number {
+    return Number(price.replace("€", "").trim()) || 0;
+}
+
 type ProductCardProps = {
     pack: Pack;
 };
@@ -16,6 +24,7 @@ export function ProductCard({ pack }: ProductCardProps) {
     const { addItem } = useCart();
     const {
         isMember,
+        entitlements,
         creditsAvailable,
         loading: membershipLoading,
         reload: reloadMembership
@@ -24,6 +33,14 @@ export function ProductCard({ pack }: ProductCardProps) {
     const [downloadError, setDownloadError] = useState<string | null>(null);
 
     const hasPdf = canRedeemWithCredits(pack);
+
+    // Member a-la-carte price with the tier discount (mirrors the checkout API).
+    const discountPercent =
+        isMember && entitlements ? entitlements.extraPackDiscount : 0;
+    const hasDiscount = discountPercent > 0;
+    const memberPrice = hasDiscount
+        ? parsePrice(pack.price) * ((100 - discountPercent) / 100)
+        : parsePrice(pack.price);
 
     // A member can redeem the pack only when they have at least one credit
     // available and the pack actually ships a PDF.
@@ -101,6 +118,23 @@ export function ProductCard({ pack }: ProductCardProps) {
                         {pack.title}
                     </h3>
                 </Link>
+
+                <div className="mt-3 flex items-baseline gap-2">
+                    <span className="text-2xl font-black tracking-tight text-[var(--gold)]">
+                        {hasDiscount ? formatEuro(memberPrice) : pack.price}
+                    </span>
+
+                    {hasDiscount ? (
+                        <>
+                            <span className="text-sm font-semibold text-[var(--muted)] line-through">
+                                {pack.price}
+                            </span>
+                            <span className="rounded-full bg-green-500/12 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-green-300">
+                                {discountPercent}% off
+                            </span>
+                        </>
+                    ) : null}
+                </div>
 
                 <div className="mt-4 flex flex-wrap gap-2">
                     {pack.badges.map((badge) => {
