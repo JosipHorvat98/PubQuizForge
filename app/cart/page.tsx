@@ -5,14 +5,32 @@ import Link from "next/link";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 import { useCart } from "@/components/providers/cart-provider";
+import { useMembership } from "@/components/providers/membership-provider";
 import { startCheckout } from "@/lib/checkout";
 
 function formatEuro(amount: number) {
     return `€${amount.toFixed(2)}`;
 }
 
+function parsePrice(price: string): number {
+    return Number(price.replace("€", "").trim()) || 0;
+}
+
 export default function CartPage() {
-    const { items, total, removeItem, updateQuantity, clearCart } = useCart();
+    const { items, removeItem, updateQuantity, clearCart } = useCart();
+    const { isMember, entitlements } = useMembership();
+
+    const discountPercent =
+        isMember && entitlements ? entitlements.extraPackDiscount : 0;
+    const hasDiscount = discountPercent > 0;
+    const discountFactor = (100 - discountPercent) / 100;
+
+    const summaryOriginal = items.reduce(
+        (sum, item) => sum + parsePrice(item.price) * item.quantity,
+        0
+    );
+    const summaryTotal = summaryOriginal * discountFactor;
+    const savings = summaryOriginal - summaryTotal;
 
     async function handleCheckout() {
         if (!items.length) {
@@ -77,7 +95,8 @@ export default function CartPage() {
                         <>
                             <div className="mt-10 grid gap-4">
                                 {items.map((item) => {
-                                    const itemTotal = Number(item.price.replace("€", "").trim()) * item.quantity;
+                                    const itemTotal = parsePrice(item.price) * item.quantity;
+                                    const discountedTotal = itemTotal * discountFactor;
 
                                     return (
                                         <article
@@ -88,7 +107,22 @@ export default function CartPage() {
                                                 <div className="min-w-0">
                                                     <h2 className="text-2xl font-black tracking-tight">{item.title}</h2>
                                                     <p className="mt-2 text-sm text-[var(--muted)]">
-                                                        Unit price: {item.price}
+                                                        Unit price:{" "}
+                                                        {hasDiscount ? (
+                                                            <>
+                                                                <span className="line-through">{item.price}</span>{" "}
+                                                                <span className="font-semibold text-[var(--gold)]">
+                                                                    {formatEuro(
+                                                                        parsePrice(item.price) * discountFactor
+                                                                    )}
+                                                                </span>{" "}
+                                                                <span className="text-green-300">
+                                                                    ({discountPercent}% off)
+                                                                </span>
+                                                            </>
+                                                        ) : (
+                                                            item.price
+                                                        )}
                                                     </p>
                                                 </div>
 
@@ -128,8 +162,14 @@ export default function CartPage() {
                                                     </div>
 
                                                     <div className="flex items-center gap-3">
+                                                        {hasDiscount ? (
+                                                            <span className="text-sm font-semibold text-[var(--muted)] line-through">
+                                                                {formatEuro(itemTotal)}
+                                                            </span>
+                                                        ) : null}
+
                                                         <span className="text-xl font-black tracking-tight text-[var(--gold)]">
-                                                            {formatEuro(itemTotal)}
+                                                            {formatEuro(discountedTotal)}
                                                         </span>
 
                                                         <button
@@ -179,10 +219,24 @@ export default function CartPage() {
                                 <span className="text-sm text-[var(--muted)]">
                                     {items.length} item{items.length === 1 ? "" : "s"}
                                 </span>
+
+                                {hasDiscount ? (
+                                    <span className="text-lg font-semibold text-[var(--muted)] line-through">
+                                        {formatEuro(summaryOriginal)}
+                                    </span>
+                                ) : null}
+
                                 <span className="text-2xl font-black tracking-tight text-[var(--gold)]">
-                                    {formatEuro(total)}
+                                    {formatEuro(summaryTotal)}
                                 </span>
                             </div>
+
+                            {hasDiscount ? (
+                                <p className="mt-1 text-xs font-semibold text-green-300">
+                                    {discountPercent}% member discount — you save{" "}
+                                    {formatEuro(savings)}
+                                </p>
+                            ) : null}
                         </div>
 
                         <div className="flex flex-col gap-3 sm:flex-row">
