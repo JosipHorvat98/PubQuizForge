@@ -44,14 +44,14 @@ export function Header() {
       return;
     }
 
-    setIsCartBumping(true);
-
-    const timer = window.setTimeout(() => {
-      setIsCartBumping(false);
-    }, 280);
+    // Trigger the bump on the next event-loop tick (rather than synchronously)
+    // to keep the effect free of direct state mutations.
+    const bumpOn = window.setTimeout(() => setIsCartBumping(true), 0);
+    const bumpOff = window.setTimeout(() => setIsCartBumping(false), 280);
 
     return () => {
-      window.clearTimeout(timer);
+      window.clearTimeout(bumpOn);
+      window.clearTimeout(bumpOff);
     };
   }, [cartPulseKey]);
 

@@ -2,6 +2,7 @@
 import Stripe from "stripe";
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { withSignedDownloadUrls } from "@/lib/pack-files";
 
 function getEnv(name: string): string {
     const value = process.env[name];
@@ -48,9 +49,11 @@ export async function GET(request: NextRequest) {
             );
         }
 
+        const signedRows = await withSignedDownloadUrls(data ?? []);
+
         return NextResponse.json({
             email,
-            downloads: data ?? []
+            downloads: signedRows
         });
     } catch (error) {
         console.error("Downloads lookup error:", error);

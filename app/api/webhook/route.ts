@@ -6,6 +6,7 @@ import {
     getPlanIdFromSubscription,
     getSubscriptionPeriodEnd
 } from "@/lib/subscriptions";
+import { grantCreditsForSubscription } from "@/lib/membership-credits";
 
 function getEnvironmentVariable(name: string): string {
     const value = process.env[name];
@@ -30,7 +31,25 @@ async function saveSubscription(
             ? subscription.customer
             : subscription.customer.id;
 
-    if (!userId || !email) {
+        // Grant pack credits from the membership ledger whenever the subscription
+    // is in an active state (created, renewed or upgraded). Idempotent per
+    // billing period, so duplicate webhook deliveries are safe.
+    const activeStatuses = ["active", "trialing", "past_due"];
+    const periodStart = subscription.items.data[0]?.current_period_start;
+
+    if (activeStatuses.includes(subscription.status) && periodStart && email) {
+        try {
+            await grantCreditsForSubscription({
+                email,
+                planId: getPlanIdFromSubscription(subscription),
+                periodStart
+            });
+        } catch (error) {
+            console.error("Unable to grant membership credits:", error);
+        }
+    }
+
+if (!userId || !email) {
         console.error("Subscription metadata is incomplete:", {
             subscriptionId: subscription.id,
             hasUserId: Boolean(userId),
@@ -105,9 +124,12 @@ async function savePackDownloads(
         title: pack.title,
         email,
         type: "pack" as const,
+        source: "purchase" as const,
         created_at: new Date().toISOString(),
         pack_slug: pack.id,
-        download_url: pack.pdfPath ?? null
+        // Stored URL is intentionally null; the download endpoints re-sign a
+        // fresh private Storage URL for the owner on every request.
+        download_url: null
     }));
 
     const { error } = await supabaseAdmin
@@ -115,7 +137,24 @@ async function savePackDownloads(
         .upsert(rows);
 
     if (error) {
-        throw new Error(`Unable to save downloads: ${error.message}`);
+        // The `source` column is a newer migration. Fall back to inserting
+        // without it so existing deployments keep recording pack downloads
+        // even before the migration has been applied.
+        const rowsWithoutSource = rows.map(({ source: _source, ...rest }) => {
+            void _source;
+
+            return rest;
+        });
+
+        const { error: fallbackError } = await supabaseAdmin
+            .from("downloads")
+            .upsert(rowsWithoutSource);
+
+        if (fallbackError) {
+            throw new Error(
+                `Unable to save downloads: ${fallbackError.message}`
+            );
+        }
     }
 }
 

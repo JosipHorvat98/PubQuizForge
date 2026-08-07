@@ -5,6 +5,8 @@ export const dynamic = "force-dynamic";
 import Stripe from "stripe";
 import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
+import { findActiveMembershipForEmail } from "@/lib/memberships";
+import { getPlanEntitlements } from "@/lib/entitlements";
 
 function getEnv(name: string): string {
     const value = process.env[name];
@@ -54,6 +56,43 @@ function parseEuroPriceToCents(price: string): number {
     return Math.round(numericPrice * 100);
 }
 
+/**
+ * Returns the tier discount (percent) for the signed-in member, or 0 for
+ * guests and full-access plans. Bronze = 10, Silver = 20. Gold already has
+ * unlimited downloads so no a-la-carte discount is needed.
+ */
+async function getMemberDiscountPercent(): Promise<number> {
+    try {
+        const supabase = await createClient();
+
+        const {
+            data: { user }
+        } = await supabase.auth.getUser();
+
+        if (!user?.email) {
+            return 0;
+        }
+
+        const membership = await findActiveMembershipForEmail(user.email);
+
+        if (!membership) {
+            return 0;
+        }
+
+        const entitlements = getPlanEntitlements(membership.plan_id);
+
+        if (!entitlements || entitlements.extraPackDiscount >= 100) {
+            return 0;
+        }
+
+        return entitlements.extraPackDiscount;
+    } catch (error) {
+        console.error("Unable to resolve member discount:", error);
+
+        return 0;
+    }
+}
+
 export async function POST(request: Request) {
     try {
         const body = (await request.json()) as CheckoutRequestBody;
@@ -63,6 +102,9 @@ export async function POST(request: Request) {
                 return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
             }
 
+            const discount = await getMemberDiscountPercent();
+            const discountFactor = (100 - discount) / 100;
+
             const lineItems = body.items.map((item) => ({
                 quantity: item.quantity,
                 price_data: {
@@ -70,13 +112,15 @@ export async function POST(request: Request) {
                     product_data: {
                         name: item.title
                     },
-                    unit_amount: parseEuroPriceToCents(item.price)
+                    unit_amount: Math.round(
+                        parseEuroPriceToCents(item.price) * discountFactor
+                    )
                 }
             }));
 
             const session = await stripe.checkout.sessions.create({
                 mode: "payment",
-                success_url: `${siteUrl}/success`,
+                success_url: `${siteUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
                 cancel_url: `${siteUrl}/cart`,
                 line_items: lineItems,
                 metadata: {
@@ -102,9 +146,12 @@ export async function POST(request: Request) {
                 );
             }
 
+            const discount = await getMemberDiscountPercent();
+            const discountFactor = (100 - discount) / 100;
+
             const session = await stripe.checkout.sessions.create({
                 mode: "payment",
-                success_url: `${siteUrl}/success`,
+                success_url: `${siteUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
                 cancel_url: `${siteUrl}/cancel`,
                 line_items: [
                     {
@@ -114,7 +161,7 @@ export async function POST(request: Request) {
                             product_data: {
                                 name: body.productName
                             },
-                            unit_amount: body.unitAmount
+                            unit_amount: Math.round(body.unitAmount * discountFactor)
                         }
                     }
                 ],

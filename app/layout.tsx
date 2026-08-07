@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { CartProvider } from "@/components/providers/cart-provider";
+import { MembershipProvider } from "@/components/providers/membership-provider";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://pubquizforge.com"),
@@ -31,7 +32,9 @@ export default function RootLayout({
     return (
         <html lang="hr">
             <body>
-                <CartProvider>{children}</CartProvider>
+                <CartProvider>
+                    <MembershipProvider>{children}</MembershipProvider>
+                </CartProvider>
             </body>
         </html>
     );

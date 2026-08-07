@@ -14,7 +14,7 @@ export default function ContactPage() {
                     </div>
 
                     <h1 className="max-w-4xl text-5xl font-black leading-tight tracking-tight md:text-7xl">
-                        Let's talk about your next quiz night.
+                        Let&apos;s talk about your next quiz night.
                     </h1>
 
                     <p className="mt-6 max-w-3xl text-lg leading-8 text-[var(--muted)]">

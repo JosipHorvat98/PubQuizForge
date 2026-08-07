@@ -42,3 +42,8 @@ next-env.d.ts
 
 #vs
 .vs
+
+# local runtime artifacts (not for source control)
+dev-server.log
+home.html
+*.log

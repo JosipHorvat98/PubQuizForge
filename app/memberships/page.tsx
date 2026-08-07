@@ -90,7 +90,9 @@ export default function MembershipsPage() {
     }
 
     if (!user) {
-      window.location.href = `/login?next=${encodeURIComponent("/memberships")}`;
+      window.location.assign(
+        `/login?next=${encodeURIComponent("/memberships")}`
+      );
       return;
     }
 

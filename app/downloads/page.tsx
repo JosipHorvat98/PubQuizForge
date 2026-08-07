@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 import { createClient } from "@/utils/supabase/server";
+import { CreditsCard } from "@/components/credits-card";
 import { DownloadsClient } from "./downloads-client";
 
 export default async function DownloadsPage() {
@@ -36,8 +37,12 @@ export default async function DownloadsPage() {
       </section>
 
       <section className="pb-20">
-        <div className="container-shell rounded-[28px] border border-white/8 bg-[var(--surface)] p-6 md:p-8">
-          <DownloadsClient />
+        <div className="container-shell space-y-6">
+          <CreditsCard />
+
+          <div className="rounded-[28px] border border-white/8 bg-[var(--surface)] p-6 md:p-8">
+            <DownloadsClient />
+          </div>
         </div>
       </section>
 

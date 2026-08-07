@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { withSignedDownloadUrls } from "@/lib/pack-files";
 
 export async function GET() {
   try {
@@ -28,9 +29,11 @@ export async function GET() {
       );
     }
 
+    const signedRows = await withSignedDownloadUrls(data ?? []);
+
     return NextResponse.json({
       email: user.email,
-      downloads: data ?? []
+      downloads: signedRows
     });
   } catch (error) {
     console.error("Downloads me error:", error);

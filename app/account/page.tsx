@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
+import { CreditsCard } from "@/components/credits-card";
 import {
     SubscriptionStatusCard,
     type AccountSubscription
@@ -120,6 +121,8 @@ export default async function AccountPage() {
                         <SubscriptionStatusCard
                             subscription={activeSubscription}
                         />
+
+                        <CreditsCard />
 
                         <section className="border-t border-white/8 p-7 md:p-8">
                             <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-[var(--muted)]">
