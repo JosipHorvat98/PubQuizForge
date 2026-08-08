@@ -10,6 +10,7 @@ import { useCart } from "@/components/providers/cart-provider";
 
 export function Header() {
   const [user, setUser] = useState<User | null>(null);
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [isAuthReady, setIsAuthReady] = useState(false);
   const [isCartBumping, setIsCartBumping] = useState(false);
   const { count, cartPulseKey, isHydrated } = useCart();
@@ -23,6 +24,16 @@ export function Header() {
 
       setUser(user);
       setIsAuthReady(true);
+
+      if (user) {
+        try {
+          const res = await fetch("/api/admin/me");
+          const json = (await res.json()) as { isAdmin?: boolean };
+          setIsAdmin(Boolean(json.isAdmin));
+        } catch {
+          setIsAdmin(false);
+        }
+      }
     }
 
     void loadUser();
@@ -32,6 +43,15 @@ export function Header() {
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
       setIsAuthReady(true);
+
+      if (session?.user) {
+        fetch("/api/admin/me")
+          .then((res) => res.json() as Promise<{ isAdmin?: boolean }>)
+          .then((json) => setIsAdmin(Boolean(json.isAdmin)))
+          .catch(() => setIsAdmin(false));
+      } else {
+        setIsAdmin(false);
+      }
     });
 
     return () => {
@@ -105,6 +125,15 @@ export function Header() {
                 >
                   Account
                 </Link>
+
+                {isAdmin ? (
+                  <Link
+                    href="/admin"
+                    className="text-sm font-semibold text-[var(--gold)] hover:text-white"
+                  >
+                    Admin
+                  </Link>
+                ) : null}
 
                 <button
                   type="button"
