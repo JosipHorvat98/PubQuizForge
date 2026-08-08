@@ -92,6 +92,25 @@ async function getMemberDiscountPercent(): Promise<number> {
         return 0;
     }
 }
+/**
+ * Returns the signed-in user's email, or null for guests. Used to prefill the
+ * Stripe checkout email so it always matches the logged-in account instead of
+ * whatever Stripe remembered in the browser.
+ */
+async function getLoggedInEmail(): Promise<string | null> {
+    try {
+        const supabase = await createClient();
+
+        const {
+            data: { user }
+        } = await supabase.auth.getUser();
+
+        return user?.email ?? null;
+    } catch (error) {
+        console.error("Unable to resolve logged-in email:", error);
+        return null;
+    }
+}
 
 export async function POST(request: Request) {
     try {
@@ -104,6 +123,7 @@ export async function POST(request: Request) {
 
             const discount = await getMemberDiscountPercent();
             const discountFactor = (100 - discount) / 100;
+            const customerEmail = await getLoggedInEmail();
 
             const lineItems = body.items.map((item) => ({
                 quantity: item.quantity,
@@ -120,6 +140,7 @@ export async function POST(request: Request) {
 
             const session = await stripe.checkout.sessions.create({
                 mode: "payment",
+                ...(customerEmail ? { customer_email: customerEmail } : {}),
                 success_url: `${siteUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
                 cancel_url: `${siteUrl}/cart`,
                 line_items: lineItems,
@@ -148,9 +169,11 @@ export async function POST(request: Request) {
 
             const discount = await getMemberDiscountPercent();
             const discountFactor = (100 - discount) / 100;
+            const customerEmail = await getLoggedInEmail();
 
             const session = await stripe.checkout.sessions.create({
                 mode: "payment",
+                ...(customerEmail ? { customer_email: customerEmail } : {}),
                 success_url: `${siteUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
                 cancel_url: `${siteUrl}/cancel`,
                 line_items: [
