@@ -11,6 +11,7 @@ import {
     useState,
     type ReactNode
 } from "react";
+import { usePathname } from "next/navigation";
 import {
     createClient
 } from "@/utils/supabase/client";
@@ -55,6 +56,7 @@ export function MembershipProvider({ children }: { children: ReactNode }) {
     const [info, setInfo] = useState<MembershipInfo>(EMPTY);
     const [loading, setLoading] = useState(true);
     const supabaseRef = useRef(createClient());
+    const pathname = usePathname();
 
     const reload = useCallback(async () => {
         try {
@@ -115,6 +117,13 @@ export function MembershipProvider({ children }: { children: ReactNode }) {
             subscription.unsubscribe();
         };
     }, [reload]);
+
+    // Refetch whenever the route changes so membership data (credits & discount)
+    // appears right after a client-side navigation, e.g. immediately after the
+    // login redirect — without needing a manual page refresh.
+    useEffect(() => {
+        void reload();
+    }, [pathname, reload]);
 
     const value = useMemo<MembershipContextValue>(
         () => ({ ...info, loading, reload }),
