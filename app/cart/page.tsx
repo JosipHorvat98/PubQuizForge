@@ -2,7 +2,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 import { useCart } from "@/components/providers/cart-provider";
@@ -13,6 +13,18 @@ import {
     packsFreeCount,
     packsPromoFactor
 } from "@/lib/promo";
+
+const PROMO_KEY = "pubquizforge_promo_code";
+
+function readPromoCode(): string | null {
+    if (typeof window === "undefined") {
+        return null;
+    }
+
+    const value = window.sessionStorage.getItem(PROMO_KEY);
+
+    return value && isPackPromoCode(value) ? value : null;
+}
 
 function formatEuro(amount: number) {
     return `€${amount.toFixed(2)}`;
@@ -25,8 +37,8 @@ function parsePrice(price: string): number {
 export default function CartPage() {
     const { items, removeItem, updateQuantity, clearCart } = useCart();
     const { isMember, entitlements } = useMembership();
-    const [promoInput, setPromoInput] = useState("");
-    const [appliedCode, setAppliedCode] = useState<string | null>(null);
+    const [promoInput, setPromoInput] = useState<string>(() => readPromoCode() ?? "");
+    const [appliedCode, setAppliedCode] = useState<string | null>(readPromoCode);
     const [promoError, setPromoError] = useState<string | null>(null);
 
     const discountPercent =
@@ -63,6 +75,15 @@ export default function CartPage() {
             setPromoError("Invalid promo code");
         }
     }
+
+    // Persist the applied code so it survives navigating away and back.
+    useEffect(() => {
+        if (appliedCode && isPackPromoCode(appliedCode)) {
+            window.sessionStorage.setItem(PROMO_KEY, appliedCode);
+        } else {
+            window.sessionStorage.removeItem(PROMO_KEY);
+        }
+    }, [appliedCode]);
 
     async function handleCheckout() {
         if (!items.length) {
