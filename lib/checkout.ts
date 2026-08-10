@@ -15,6 +15,7 @@ export type CheckoutPayload =
             price: string;
             quantity: number;
         }>;
+        promoCode?: string;
     }
     | {
         mode: "subscription";

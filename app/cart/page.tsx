@@ -2,11 +2,17 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 import { useCart } from "@/components/providers/cart-provider";
 import { useMembership } from "@/components/providers/membership-provider";
 import { startCheckout } from "@/lib/checkout";
+import {
+    isPackPromoCode,
+    packsFreeCount,
+    packsPromoFactor
+} from "@/lib/promo";
 
 function formatEuro(amount: number) {
     return `€${amount.toFixed(2)}`;
@@ -19,19 +25,27 @@ function parsePrice(price: string): number {
 export default function CartPage() {
     const { items, removeItem, updateQuantity, clearCart } = useCart();
     const { isMember, entitlements } = useMembership();
+    const [promoInput, setPromoInput] = useState("");
+    const [appliedCode, setAppliedCode] = useState<string | null>(null);
+    const [promoError, setPromoError] = useState<string | null>(null);
 
     const discountPercent =
         isMember && entitlements ? entitlements.extraPackDiscount : 0;
     const hasMemberDiscount = discountPercent > 0;
 
-    // "3 for the price of 2": 3+ packs in the cart -> pay for 2 (2/3 total).
-    const hasDeal = items.length >= 3;
-    const dealFactor = hasDeal ? 2 / 3 : 1;
+    // "3 for 2" deal only applies once a valid promo code is entered.
+    const promoActive = appliedCode !== null && isPackPromoCode(appliedCode);
+    const totalPacks = items.reduce(
+        (sum, item) => sum + (item.quantity || 1),
+        0
+    );
+    const promoFactor = promoActive ? packsPromoFactor(totalPacks) : 1;
+    const freePacks = promoActive ? packsFreeCount(totalPacks) : 0;
 
-    const hasDiscount = hasMemberDiscount || hasDeal;
+    const hasDiscount = hasMemberDiscount || promoActive;
 
     const memberFactor = (100 - discountPercent) / 100;
-    const discountFactor = memberFactor * dealFactor;
+    const discountFactor = memberFactor * promoFactor;
 
     const summaryOriginal = items.reduce(
         (sum, item) => sum + parsePrice(item.price) * item.quantity,
@@ -39,6 +53,16 @@ export default function CartPage() {
     );
     const summaryTotal = summaryOriginal * discountFactor;
     const savings = summaryOriginal - summaryTotal;
+
+    function handleApplyPromo() {
+        if (isPackPromoCode(promoInput)) {
+            setAppliedCode(promoInput.trim());
+            setPromoError(null);
+        } else {
+            setAppliedCode(null);
+            setPromoError("Invalid promo code");
+        }
+    }
 
     async function handleCheckout() {
         if (!items.length) {
@@ -53,7 +77,8 @@ export default function CartPage() {
                     title: item.title,
                     price: item.price,
                     quantity: item.quantity
-                }))
+                })),
+                promoCode: appliedCode ?? undefined
             });
         } catch (error) {
             console.error(error);
@@ -195,6 +220,49 @@ export default function CartPage() {
                                 })}
                             </div>
 
+                            <div className="mt-8 rounded-2xl border border-white/8 bg-[var(--surface-2)] p-5">
+                                <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-[var(--muted)]">
+                                    Promo code
+                                </label>
+                                <div className="flex flex-col gap-3 sm:flex-row">
+                                    <input
+                                        value={promoInput}
+                                        onChange={(event) => {
+                                            setPromoInput(event.target.value);
+                                            setPromoError(null);
+                                        }}
+                                        placeholder="Enter code (e.g. TRIVIA3)"
+                                        className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none focus:border-white/25"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={handleApplyPromo}
+                                        className="shrink-0 rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-white hover:bg-white/10"
+                                    >
+                                        Apply
+                                    </button>
+                                </div>
+
+                                {promoError ? (
+                                    <p className="mt-2 text-xs font-semibold text-red-300">
+                                        {promoError}
+                                    </p>
+                                ) : null}
+
+                                {promoActive ? (
+                                    <p className="mt-2 text-xs font-semibold text-green-300">
+                                        Code applied — {freePacks} free pack
+                                        {freePacks === 1 ? "" : "s"} (one free
+                                        for every 3).
+                                    </p>
+                                ) : (
+                                    <p className="mt-2 text-xs text-[var(--muted)]">
+                                        One free pack for every 3 with code{" "}
+                                        <span className="font-bold text-white">TRIVIA3</span>.
+                                    </p>
+                                )}
+                            </div>
+
                             <div className="mt-8 flex flex-wrap gap-3">
                                 <Link
                                     href="/#packs"
@@ -241,7 +309,9 @@ export default function CartPage() {
 
                             {hasDiscount ? (
                                 <p className="mt-1 text-xs font-semibold text-green-300">
-                                    {hasDeal ? "3 for the price of 2 · " : ""}
+                                    {promoActive
+                                        ? `${freePacks} free pack${freePacks === 1 ? "" : "s"} · `
+                                        : ""}
                                     {hasMemberDiscount
                                         ? `${discountPercent}% member discount · `
                                         : ""}

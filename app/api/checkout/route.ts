@@ -7,6 +7,10 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 import { findActiveMembershipForEmail } from "@/lib/memberships";
 import { getPlanEntitlements } from "@/lib/entitlements";
+import {
+    isPackPromoCode,
+    packsPromoFactor
+} from "@/lib/promo";
 
 function getEnv(name: string): string {
     const value = process.env[name];
@@ -39,6 +43,7 @@ type CheckoutRequestBody =
     | {
         mode: "payment";
         items: PaymentItem[];
+        promoCode?: string;
     }
     | {
         mode: "subscription";
@@ -124,10 +129,26 @@ export async function POST(request: Request) {
             const discount = await getMemberDiscountPercent();
             const memberFactor = (100 - discount) / 100;
 
-            // "3 for the price of 2": when the cart has 3 or more packs, the
-            // customer pays for 2 of them (2/3 of the total).
-            const dealFactor = body.items.length >= 3 ? 2 / 3 : 1;
-            const discountFactor = memberFactor * dealFactor;
+            // The "3 for 2" deal only applies when a valid promo code is sent.
+            const promoCode = (body.promoCode ?? "").trim();
+
+            if (promoCode && !isPackPromoCode(promoCode)) {
+                return NextResponse.json(
+                    { error: "Invalid promo code" },
+                    { status: 400 }
+                );
+            }
+
+            const totalPacks = body.items.reduce(
+                (sum, item) => sum + (item.quantity || 1),
+                0
+            );
+
+            const promoFactor = isPackPromoCode(promoCode)
+                ? packsPromoFactor(totalPacks)
+                : 1;
+
+            const discountFactor = memberFactor * promoFactor;
 
             const customerEmail = await getLoggedInEmail();
 
