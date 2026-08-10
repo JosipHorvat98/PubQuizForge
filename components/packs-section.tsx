@@ -1,13 +1,17 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { packCategories, packs, type PackCategory } from "@/data/site";
 import { ProductCard } from "@/components/product-card";
+import { useCart } from "@/components/providers/cart-provider";
 import { SectionHeading } from "@/components/section-heading";
 import { cx } from "@/lib/utils";
 
 export function PacksSection() {
   const [activeCategory, setActiveCategory] = useState<PackCategory>("all");
+  const { addItem } = useCart();
+  const router = useRouter();
 
   const filteredPacks = useMemo(() => {
     if (activeCategory === "all") {
@@ -16,6 +20,21 @@ export function PacksSection() {
 
     return packs.filter((pack) => pack.category === activeCategory);
   }, [activeCategory]);
+
+  function handleGrabDeal() {
+    // Add 3 downloadable packs (the "3 for the price of 2" deal).
+    const dealPacks = packs.filter((pack) => pack.pdfPath).slice(0, 3);
+
+    dealPacks.forEach((pack) =>
+      addItem({
+        id: pack.id,
+        title: pack.title,
+        price: pack.price
+      })
+    );
+
+    router.push("/cart");
+  }
 
   return (
     <section id="packs" className="section-space">
@@ -38,7 +57,11 @@ export function PacksSection() {
             </div>
           </div>
 
-          <button className="rounded-lg bg-red-500 px-4 py-2 text-sm font-bold text-white hover:opacity-90">
+          <button
+            type="button"
+            onClick={handleGrabDeal}
+            className="rounded-lg bg-red-500 px-4 py-2 text-sm font-bold text-white hover:opacity-90"
+          >
             Grab the deal →
           </button>
         </div>

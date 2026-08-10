@@ -22,8 +22,16 @@ export default function CartPage() {
 
     const discountPercent =
         isMember && entitlements ? entitlements.extraPackDiscount : 0;
-    const hasDiscount = discountPercent > 0;
-    const discountFactor = (100 - discountPercent) / 100;
+    const hasMemberDiscount = discountPercent > 0;
+
+    // "3 for the price of 2": 3+ packs in the cart -> pay for 2 (2/3 total).
+    const hasDeal = items.length >= 3;
+    const dealFactor = hasDeal ? 2 / 3 : 1;
+
+    const hasDiscount = hasMemberDiscount || hasDeal;
+
+    const memberFactor = (100 - discountPercent) / 100;
+    const discountFactor = memberFactor * dealFactor;
 
     const summaryOriginal = items.reduce(
         (sum, item) => sum + parsePrice(item.price) * item.quantity,
@@ -233,8 +241,11 @@ export default function CartPage() {
 
                             {hasDiscount ? (
                                 <p className="mt-1 text-xs font-semibold text-green-300">
-                                    {discountPercent}% member discount — you save{" "}
-                                    {formatEuro(savings)}
+                                    {hasDeal ? "3 for the price of 2 · " : ""}
+                                    {hasMemberDiscount
+                                        ? `${discountPercent}% member discount · `
+                                        : ""}
+                                    you save {formatEuro(savings)}
                                 </p>
                             ) : null}
                         </div>

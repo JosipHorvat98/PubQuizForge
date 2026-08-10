@@ -122,7 +122,13 @@ export async function POST(request: Request) {
             }
 
             const discount = await getMemberDiscountPercent();
-            const discountFactor = (100 - discount) / 100;
+            const memberFactor = (100 - discount) / 100;
+
+            // "3 for the price of 2": when the cart has 3 or more packs, the
+            // customer pays for 2 of them (2/3 of the total).
+            const dealFactor = body.items.length >= 3 ? 2 / 3 : 1;
+            const discountFactor = memberFactor * dealFactor;
+
             const customerEmail = await getLoggedInEmail();
 
             const lineItems = body.items.map((item) => ({
