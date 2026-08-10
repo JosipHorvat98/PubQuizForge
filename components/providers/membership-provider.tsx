@@ -58,15 +58,11 @@ export function MembershipProvider({ children }: { children: ReactNode }) {
 
     const reload = useCallback(async () => {
         try {
-            const {
-                data: { user }
-            } = await supabaseRef.current.auth.getUser();
-
-            if (!user?.email) {
-                setInfo(EMPTY);
-                return;
-            }
-
+            // Do not gate on the client-side auth session here. After a
+            // server-action login the cookie is set but the browser Supabase
+            // client may not have synced yet, so `client.auth.getUser()` can
+            // return null and skip the fetch. The server route reads the auth
+            // cookie itself and returns the correct membership state.
             const response = await fetch("/api/membership/me");
             const data = (await response.json()) as MembershipInfo;
 
