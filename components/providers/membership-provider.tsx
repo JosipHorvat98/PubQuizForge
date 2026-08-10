@@ -92,25 +92,22 @@ export function MembershipProvider({ children }: { children: ReactNode }) {
 
         const {
             data: { subscription }
-        } = supabaseRef.current.auth.onAuthStateChange((_event, session) => {
-            const user = session?.user ?? null;
-
+        } = supabaseRef.current.auth.onAuthStateChange(() => {
             if (!isMounted) {
                 return;
             }
 
+            // Always re-fetch from the server route. Right after a server-action
+            // login the browser Supabase client can still report a null session
+            // even though the auth cookie is valid, so we must not gate on the
+            // client session here.
             setLoading(true);
-            setInfo(EMPTY);
 
-            if (user) {
-                void reload().then(() => {
-                    if (isMounted) {
-                        setLoading(false);
-                    }
-                });
-            } else {
-                setLoading(false);
-            }
+            void reload().then(() => {
+                if (isMounted) {
+                    setLoading(false);
+                }
+            });
         });
 
         return () => {
