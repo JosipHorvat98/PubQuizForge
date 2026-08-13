@@ -77,7 +77,7 @@ export const packs: Pack[] = [
         price: "€4.99",
         glow: "radial-gradient(circle at 50% 0%, #f59e0b, transparent 70%)",
         badges: ["50 questions", "🔥 Bestseller"],
-        pdfPath: null
+        pdfPath: "/packs/general-knowledge-vol-1.pdf"
     },
     {
         id: "general-knowledge-vol-2",

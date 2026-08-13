@@ -12,6 +12,7 @@
 // SQL in the Supabase dashboard (see supabase/migrations/001_pack_pdf_storage.sql).
 
 import { readdir, readFile } from "node:fs/promises";
+import { readFileSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createClient } from "@supabase/supabase-js";
@@ -19,9 +20,28 @@ import { createClient } from "@supabase/supabase-js";
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const sourceDir = join(root, "public", "packs");
 
-const url = process.env.SUPABASE_URL;
-const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const bucket = process.env.PACK_STORAGE_BUCKET || "pack-pdfs";
+// Load .env.local so this script works without manually setting env vars.
+function loadEnvLocal() {
+  const envPath = join(root, ".env.local");
+  const out = {};
+  if (!existsSync(envPath)) return out;
+  try {
+    const text = readFileSync(envPath, "utf8");
+    for (const rawLine of text.split(/\r?\n/)) {
+      const line = rawLine.trim();
+      if (!line || line.startsWith("#")) continue;
+      const eq = line.indexOf("=");
+      if (eq === -1) continue;
+      out[line.slice(0, eq).trim()] = line.slice(eq + 1).trim();
+    }
+  } catch {}
+  return out;
+}
+
+const env = { ...process.env, ...loadEnvLocal() };
+const url = env.SUPABASE_URL || env.NEXT_PUBLIC_SUPABASE_URL;
+const key = env.SUPABASE_SERVICE_ROLE_KEY;
+const bucket = env.PACK_STORAGE_BUCKET || "pack-pdfs";
 
 if (!url || !key) {
     console.error("Missing SUPABASE_URL and/or SUPABASE_SERVICE_ROLE_KEY env vars.");
