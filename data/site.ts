@@ -45,6 +45,7 @@ export type Plan = {
 export const navLinks = [
     { label: "Shop", href: "/#packs" },
     { label: "Memberships", href: "/memberships" },
+    { label: "Custom Questions", href: "/custom-questions" },
     { label: "News", href: "/news" },
     { label: "About", href: "/about" }
 ];
@@ -88,7 +89,7 @@ export const packs: Pack[] = [
         price: "€4.99",
         glow: "radial-gradient(circle at 50% 0%, #f97316, transparent 70%)",
         badges: ["50 questions", "✦ New"],
-        pdfPath: null
+        pdfPath: "/packs/general-knowledge-vol-2.pdf"
     },
     {
         id: "friends-ultimate-pack",
