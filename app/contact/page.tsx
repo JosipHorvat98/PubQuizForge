@@ -34,7 +34,7 @@ export default function ContactPage() {
                                 <div className="text-xs font-extrabold uppercase tracking-[0.18em] text-[var(--gold)]">
                                     Email
                                 </div>
-                                <p className="mt-2 text-base text-white">support@pubquizforge.com</p>
+                                <p className="mt-2 text-base text-white">jojohorvat@gmail.com</p>
                             </div>
 
                             <div>
