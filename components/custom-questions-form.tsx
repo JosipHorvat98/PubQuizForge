@@ -3,25 +3,13 @@
 
 import { useState } from "react";
 
-const THEMES = [
-    "General Knowledge",
-    "TV & Film",
-    "Music",
-    "Geography",
-    "History",
-    "Sport",
-    "Science",
-    "Themed Night",
-    "Something else"
-];
-
 const inputClass =
     "w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none focus:border-white/25";
 
 export function CustomQuestionsForm() {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
-    const [theme, setTheme] = useState("General Knowledge");
+    const [theme, setTheme] = useState("");
     const [questionCount, setQuestionCount] = useState(10);
     const [details, setDetails] = useState("");
     const [submitting, setSubmitting] = useState(false);
@@ -121,17 +109,13 @@ export function CustomQuestionsForm() {
                     <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[var(--muted)]">
                         Theme
                     </label>
-                    <select
+                    <input
+                        type="text"
                         className={inputClass}
                         value={theme}
                         onChange={(event) => setTheme(event.target.value)}
-                    >
-                        {THEMES.map((value) => (
-                            <option key={value} value={value}>
-                                {value}
-                            </option>
-                        ))}
-                    </select>
+                        placeholder="e.g. General Knowledge, TV & Film, or describe your theme..."
+                    />
                 </div>
 
                 <div>
