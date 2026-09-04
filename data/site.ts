@@ -122,7 +122,7 @@ export const packs: Pack[] = [
         price: "€4.99",
         glow: "radial-gradient(circle at 50% 0%, #ec4899, transparent 70%)",
         badges: ["50 questions", "🔥 Popular"],
-        pdfPath: null
+        pdfPath: "/packs/music-through-the-decades.pdf"
     },
     {
         id: "one-hit-wonders",
