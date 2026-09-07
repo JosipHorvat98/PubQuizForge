@@ -133,7 +133,7 @@ export const packs: Pack[] = [
         price: "€4.99",
         glow: "radial-gradient(circle at 50% 0%, #a855f7, transparent 70%)",
         badges: ["50 questions", "✦ New"],
-        pdfPath: null
+        pdfPath: "/packs/one-hit-wonders.pdf"
     },
     {
         id: "world-capitals-master-edition",
