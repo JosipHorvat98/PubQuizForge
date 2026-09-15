@@ -23,6 +23,15 @@ export function updateSession(request: NextRequest) {
         }
     });
 
+    // Supabase's session is stored in a cookie named `sb-<ref>-auth-token`.
+    // Only validate/refresh the session when such a cookie is actually present.
+    // Calling `getUser()` here for every request (including anonymous visitors
+    // and public pages) triggered a flood of `/auth/v1/user` calls because Next.js
+    // prefetches all visible <Link> routes through the middleware.
+    const hasSessionCookie = request.cookies
+        .getAll()
+        .some((cookie) => cookie.name.startsWith("sb-") && cookie.name.includes("auth-token"));
+
     const supabase = createServerClient(supabaseUrl, supabasePublishableKey, {
         cookies: {
             getAll() {
@@ -44,7 +53,9 @@ export function updateSession(request: NextRequest) {
         }
     });
 
-    void supabase.auth.getUser();
+    if (hasSessionCookie) {
+        void supabase.auth.getUser();
+    }
 
     return response;
 }
