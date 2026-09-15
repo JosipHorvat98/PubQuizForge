@@ -3,6 +3,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import type { Pack } from "@/data/site";
 import { useCart } from "@/components/providers/cart-provider";
 import { useMembership } from "@/components/providers/membership-provider";
@@ -82,13 +83,25 @@ export function ProductCard({ pack }: ProductCardProps) {
         <article className="overflow-hidden rounded-3xl border border-white/8 bg-[var(--surface)] transition duration-200 hover:-translate-y-1 hover:border-[rgba(245,200,66,0.24)] hover:shadow-[0_24px_64px_rgba(0,0,0,0.35)]">
             <Link href={`/packs/${pack.id}`} className="block">
                 <div className="relative flex h-36 items-center justify-center overflow-hidden">
-                    <div
-                        className="absolute inset-0 opacity-35"
-                        style={{ background: pack.glow }}
-                    />
-                    <span className="relative text-6xl drop-shadow-[0_8px_18px_rgba(0,0,0,0.45)]">
-                        {pack.emoji}
-                    </span>
+                    {pack.image ? (
+                        <Image
+                            src={pack.image}
+                            alt={pack.title}
+                            fill
+                            sizes="(min-width: 1280px) 25vw, (min-width: 640px) 50vw, 100vw"
+                            className="object-cover transition duration-300 hover:scale-105"
+                        />
+                    ) : (
+                        <>
+                            <div
+                                className="absolute inset-0 opacity-35"
+                                style={{ background: pack.glow }}
+                            />
+                            <span className="relative text-6xl drop-shadow-[0_8px_18px_rgba(0,0,0,0.45)]">
+                                {pack.emoji}
+                            </span>
+                        </>
+                    )}
                 </div>
             </Link>
 

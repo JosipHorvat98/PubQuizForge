@@ -19,6 +19,8 @@ export type Pack = {
     price: string;
     glow: string;
     badges: string[];
+    /** Optional themed cover photo (Unsplash). Falls back to the emoji when unset. */
+    image?: string | null;
     pdfPath?: string | null;
 };
 
@@ -78,6 +80,7 @@ export const packs: Pack[] = [
         price: "€4.99",
         glow: "radial-gradient(circle at 50% 0%, #f59e0b, transparent 70%)",
         badges: ["50 questions", "🔥 Bestseller"],
+        image: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=1000&q=80",
         pdfPath: "/packs/general-knowledge-vol-1.pdf"
     },
     {
@@ -89,6 +92,7 @@ export const packs: Pack[] = [
         price: "€4.99",
         glow: "radial-gradient(circle at 50% 0%, #f97316, transparent 70%)",
         badges: ["50 questions", "✦ New"],
+        image: "https://images.unsplash.com/photo-1742031893752-87b2539a071b?auto=format&fit=crop&w=1000&q=80",
         pdfPath: "/packs/general-knowledge-vol-2.pdf"
     },
     {
@@ -100,6 +104,7 @@ export const packs: Pack[] = [
         price: "€4.99",
         glow: "radial-gradient(circle at 50% 0%, #7c3aed, transparent 70%)",
         badges: ["50 questions", "🔥 Bestseller"],
+        image: "https://images.unsplash.com/photo-1640248471910-4a66d9f8b400?auto=format&fit=crop&w=1000&q=80",
         pdfPath: "/packs/friends-ultimate-pack.pdf"
     },
     {
@@ -111,6 +116,7 @@ export const packs: Pack[] = [
         price: "€4.99",
         glow: "radial-gradient(circle at 50% 0%, #dc2626, transparent 70%)",
         badges: ["50 questions"],
+        image: "https://images.unsplash.com/photo-1609753833670-9c6e07b52084?auto=format&fit=crop&w=1000&q=80",
         pdfPath: "/packs/movie-mix-80s-90s.pdf"
     },
     {
@@ -122,6 +128,7 @@ export const packs: Pack[] = [
         price: "€4.99",
         glow: "radial-gradient(circle at 50% 0%, #ec4899, transparent 70%)",
         badges: ["50 questions", "🔥 Popular"],
+        image: "https://images.unsplash.com/photo-1619983081563-430f63602796?auto=format&fit=crop&w=1000&q=80",
         pdfPath: "/packs/music-through-the-decades.pdf"
     },
     {
@@ -133,6 +140,7 @@ export const packs: Pack[] = [
         price: "€4.99",
         glow: "radial-gradient(circle at 50% 0%, #a855f7, transparent 70%)",
         badges: ["50 questions", "✦ New"],
+        image: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1000&q=80",
         pdfPath: "/packs/one-hit-wonders.pdf"
     },
     {
@@ -144,6 +152,7 @@ export const packs: Pack[] = [
         price: "€4.99",
         glow: "radial-gradient(circle at 50% 0%, #22c55e, transparent 70%)",
         badges: ["50 questions"],
+        image: "https://images.unsplash.com/photo-1579525612525-053cd3e8cbd7?auto=format&fit=crop&w=1000&q=80",
         pdfPath: "/packs/world-capitals-master-edition.pdf"
     },
     {
@@ -155,6 +164,7 @@ export const packs: Pack[] = [
         price: "€4.99",
         glow: "radial-gradient(circle at 50% 0%, #14b8a6, transparent 70%)",
         badges: ["50 questions", "🔥 Bestseller"],
+        image: "https://images.unsplash.com/photo-1633095975779-fd354aa0dc95?auto=format&fit=crop&w=1000&q=80",
         pdfPath: "/packs/flags-of-the-world.pdf"
     },
     {
@@ -166,6 +176,7 @@ export const packs: Pack[] = [
         price: "€4.99",
         glow: "radial-gradient(circle at 50% 0%, #b45309, transparent 70%)",
         badges: ["50 questions"],
+        image: "https://images.unsplash.com/photo-1580706486641-ebec9f673d36?auto=format&fit=crop&w=1000&q=80",
         pdfPath: null
     },
     {
@@ -177,6 +188,7 @@ export const packs: Pack[] = [
         price: "€4.99",
         glow: "radial-gradient(circle at 50% 0%, #f97316, transparent 70%)",
         badges: ["50 questions", "🔥 Popular"],
+        image: "https://images.unsplash.com/photo-1494972688394-4cc796f9e4c5?auto=format&fit=crop&w=1000&q=80",
         pdfPath: null
     },
     {
@@ -188,6 +200,7 @@ export const packs: Pack[] = [
         price: "€4.99",
         glow: "radial-gradient(circle at 50% 0%, #16a34a, transparent 70%)",
         badges: ["50 questions", "🔥 Bestseller"],
+        image: "https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&w=1000&q=80",
         pdfPath: null
     },
     {
@@ -199,6 +212,7 @@ export const packs: Pack[] = [
         price: "€4.99",
         glow: "radial-gradient(circle at 50% 0%, #10b981, transparent 70%)",
         badges: ["50 questions"],
+        image: "https://images.unsplash.com/photo-1630484174614-f9176ca48dd5?auto=format&fit=crop&w=1000&q=80",
         pdfPath: null
     },
     {
@@ -210,6 +224,7 @@ export const packs: Pack[] = [
         price: "€4.99",
         glow: "radial-gradient(circle at 50% 0%, #3b82f6, transparent 70%)",
         badges: ["50 questions", "✦ New"],
+        image: "https://images.unsplash.com/photo-1464802686167-b939a6910659?auto=format&fit=crop&w=1000&q=80",
         pdfPath: null
     },
     {
@@ -221,6 +236,7 @@ export const packs: Pack[] = [
         price: "€4.99",
         glow: "radial-gradient(circle at 50% 0%, #2563eb, transparent 70%)",
         badges: ["50 questions"],
+        image: "https://images.unsplash.com/photo-1530210124550-912dc1381cb8?auto=format&fit=crop&w=1000&q=80",
         pdfPath: null
     },
     {
@@ -232,6 +248,7 @@ export const packs: Pack[] = [
         price: "€5.99",
         glow: "radial-gradient(circle at 50% 0%, #ef4444, transparent 70%)",
         badges: ["50 questions", "🔥 Seasonal"],
+        image: "https://images.unsplash.com/photo-1612979168796-bcae1575b8c5?auto=format&fit=crop&w=1000&q=80",
         pdfPath: null
     },
     {
@@ -243,6 +260,7 @@ export const packs: Pack[] = [
         price: "€5.99",
         glow: "radial-gradient(circle at 50% 0%, #f97316, transparent 70%)",
         badges: ["50 questions", "✦ Special"],
+        image: "https://images.unsplash.com/photo-1477516561410-f0b5dd8319e4?auto=format&fit=crop&w=1000&q=80",
         pdfPath: null
     }
 ];

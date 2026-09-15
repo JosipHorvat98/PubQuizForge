@@ -2,6 +2,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { notFound, useParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Footer } from "@/components/footer";
@@ -132,11 +133,23 @@ export default function PackPage() {
 
                     <aside className="rounded-[28px] border border-white/8 bg-[var(--surface)] p-6 md:p-8">
                         <div className="relative flex h-52 items-center justify-center overflow-hidden rounded-[24px] border border-white/8 bg-[var(--surface-2)]">
-                            <div
-                                className="absolute inset-0 opacity-35"
-                                style={{ background: pack.glow }}
-                            />
-                            <span className="relative text-8xl">{pack.emoji}</span>
+                            {pack.image ? (
+                                <Image
+                                    src={pack.image}
+                                    alt={pack.title}
+                                    fill
+                                    sizes="(min-width: 768px) 40vw, 90vw"
+                                    className="object-cover"
+                                />
+                            ) : (
+                                <>
+                                    <div
+                                        className="absolute inset-0 opacity-35"
+                                        style={{ background: pack.glow }}
+                                    />
+                                    <span className="relative text-8xl">{pack.emoji}</span>
+                                </>
+                            )}
                         </div>
 
                         <div className="mt-6 text-5xl font-black tracking-tight text-[var(--gold)]">
@@ -214,12 +227,24 @@ export default function PackPage() {
                                 className="overflow-hidden rounded-3xl border border-white/8 bg-[var(--surface)]"
                             >
                                 <div className="relative flex h-36 items-center justify-center overflow-hidden">
-                                    <div
-                                        className="absolute inset-0 opacity-35"
-                                        style={{ background: item.glow }}
+                                {item.image ? (
+                                    <Image
+                                        src={item.image}
+                                        alt={item.title}
+                                        fill
+                                        sizes="(min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw"
+                                        className="object-cover"
                                     />
-                                    <span className="relative text-6xl">{item.emoji}</span>
-                                </div>
+                                ) : (
+                                    <>
+                                        <div
+                                            className="absolute inset-0 opacity-35"
+                                            style={{ background: item.glow }}
+                                        />
+                                        <span className="relative text-6xl">{item.emoji}</span>
+                                    </>
+                                )}
+                            </div>
 
                                 <div className="p-5">
                                     <div className="text-xs font-extrabold uppercase tracking-[0.18em] text-[var(--muted)]">
