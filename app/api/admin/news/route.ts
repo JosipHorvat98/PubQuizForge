@@ -1,6 +1,7 @@
 // file: app/api/admin/news/route.ts
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
+import { logAdminAction } from "@/lib/admin-audit";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 
 function slugify(value: string): string {
@@ -35,7 +36,7 @@ async function uniqueSlug(base: string): Promise<string> {
 
 export async function POST(request: Request) {
     try {
-        await requireAdmin();
+        const admin = await requireAdmin();
 
         const body = (await request.json()) as {
             title?: string;
@@ -76,6 +77,14 @@ export async function POST(request: Request) {
         if (error) {
             throw error;
         }
+
+        await logAdminAction({
+            adminEmail: admin.email ?? "unknown",
+            action: "news_post_create",
+            entityType: "news_post",
+            entityId: data.id,
+            meta: { title, is_published: isPublished }
+        });
 
         return NextResponse.json({ post: data });
     } catch (error) {

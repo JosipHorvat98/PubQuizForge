@@ -7,6 +7,10 @@ import { Header } from "@/components/header";
 import { requireAdmin } from "@/lib/admin-auth";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { countActiveNewsletterSubscribers } from "@/lib/newsletter";
+import {
+    listRecentAdminActions,
+    describeAuditAction
+} from "@/lib/admin-audit";
 
 export const dynamic = "force-dynamic";
 
@@ -103,8 +107,9 @@ export default async function AdminDashboardPage() {
 
     const revenueCents = await getStripeRevenueCents();
 
-    const [activeSubscriberCount] = await Promise.all([
-        countActiveNewsletterSubscribers()
+    const [activeSubscriberCount, auditEntries] = await Promise.all([
+        countActiveNewsletterSubscribers(),
+        listRecentAdminActions(10)
     ]);
 
     const activeStatuses = ["active", "trialing", "past_due"];
@@ -185,6 +190,42 @@ export default async function AdminDashboardPage() {
                             <Link href="/admin/news" className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-white transition hover:bg-white/10">News</Link>
                             <Link href="/admin/custom-questions" className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-white transition hover:bg-white/10">Custom questions</Link>
                             <Link href="/admin/newsletter" className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-white transition hover:bg-white/10">Newsletter</Link>
+                        </div>
+                    </section>
+
+                    <section className="mt-10 rounded-[22px] border border-white/8 bg-[var(--surface)] p-6">
+                        <h2 className="text-xl font-black tracking-tight">Recent admin actions</h2>
+                        <div className="mt-5">
+                            {auditEntries.length === 0 ? (
+                                <p className="text-sm text-[var(--muted)]">
+                                    No admin actions yet. They appear here once you
+                                    start deleting users/posts or sending broadcasts.
+                                </p>
+                            ) : (
+                                <div className="grid gap-3">
+                                    {auditEntries.map((entry) => (
+                                        <article
+                                            key={entry.id}
+                                            className="flex flex-col gap-1 border-b border-white/5 pb-3 last:border-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between"
+                                        >
+                                            <div className="min-w-0">
+                                                <p className="truncate text-sm font-bold text-white">
+                                                    {describeAuditAction(entry.action)}
+                                                </p>
+                                                <p className="truncate text-xs text-[var(--muted)]">
+                                                    {entry.admin_email}
+                                                    {entry.entity_id
+                                                        ? ` · ${entry.entity_id.slice(0, 24)}`
+                                                        : ""}
+                                                </p>
+                                            </div>
+                                            <div className="shrink-0 text-right text-xs text-[var(--muted)]">
+                                                {formatDate(entry.created_at)}
+                                            </div>
+                                        </article>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     </section>
                 </div>
