@@ -81,7 +81,7 @@ export function ProductCard({ pack }: ProductCardProps) {
 
     return (
         <article className="overflow-hidden rounded-3xl border border-white/8 bg-[var(--surface)] transition duration-200 hover:-translate-y-1 hover:border-[rgba(245,200,66,0.24)] hover:shadow-[0_24px_64px_rgba(0,0,0,0.35)]">
-            <Link href={`/packs/${pack.id}`} className="block">
+            <Link href={`/packs/${pack.id}`} prefetch={false} className="block">
                 <div className="relative flex h-36 items-center justify-center overflow-hidden">
                     {pack.image ? (
                         <Image
@@ -126,7 +126,7 @@ export function ProductCard({ pack }: ProductCardProps) {
                     ) : null}
                 </div>
 
-                <Link href={`/packs/${pack.id}`} className="mt-2 block">
+                <Link href={`/packs/${pack.id}`} prefetch={false} className="mt-2 block">
                     <h3 className="flex-1 text-xl font-bold leading-7 hover:text-[var(--gold)]">
                         {pack.title}
                     </h3>
@@ -205,6 +205,7 @@ export function ProductCard({ pack }: ProductCardProps) {
 
                     <Link
                         href={`/packs/${pack.id}`}
+                        prefetch={false}
                         className="rounded-xl bg-[var(--gold)] px-4 py-2.5 text-sm font-extrabold text-black hover:bg-[var(--gold-strong)]"
                     >
                         View Pack

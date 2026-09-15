@@ -92,6 +92,7 @@ export function Header() {
             <Link
               key={link.href}
               href={link.href}
+              prefetch={false}
               className={
                 index === 0
                   ? "text-sm font-semibold text-white"
@@ -104,6 +105,7 @@ export function Header() {
 
           <Link
             href="/contact"
+            prefetch={false}
             className="text-sm font-medium text-[var(--muted)] hover:text-white"
           >
             Contact
@@ -114,6 +116,7 @@ export function Header() {
               <>
                 <Link
                   href="/downloads"
+                  prefetch={false}
                   className="text-sm font-medium text-[var(--muted)] hover:text-white"
                 >
                   My Downloads
@@ -121,6 +124,7 @@ export function Header() {
 
                 <Link
                   href="/account"
+                  prefetch={false}
                   className="text-sm font-semibold text-white hover:text-[var(--gold)]"
                 >
                   Account
@@ -129,6 +133,7 @@ export function Header() {
                 {isAdmin ? (
                   <Link
                     href="/admin"
+                    prefetch={false}
                     className="text-sm font-semibold text-[var(--gold)] hover:text-white"
                   >
                     Admin
@@ -147,6 +152,7 @@ export function Header() {
               <>
                 <Link
                   href="/login"
+                  prefetch={false}
                   className="text-sm font-semibold text-white hover:text-[var(--gold)]"
                 >
                   Login
@@ -154,6 +160,7 @@ export function Header() {
 
                 <Link
                   href="/signup"
+                  prefetch={false}
                   className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm font-bold text-white hover:bg-white/10"
                 >
                   Sign Up

@@ -14,13 +14,13 @@ export function Footer() {
         </div>
 
         <nav className="flex flex-wrap justify-center gap-6">
-          <Link href="/news" className="font-medium text-white/70 hover:text-white">
+          <Link href="/news" prefetch={false} className="font-medium text-white/70 hover:text-white">
             News
           </Link>
-          <Link href="/custom-questions" className="font-medium text-white/70 hover:text-white">
+          <Link href="/custom-questions" prefetch={false} className="font-medium text-white/70 hover:text-white">
             Custom Questions
           </Link>
-          <Link href="/contact" className="font-medium text-white/70 hover:text-white">
+          <Link href="/contact" prefetch={false} className="font-medium text-white/70 hover:text-white">
             Contact
           </Link>
         </nav>
