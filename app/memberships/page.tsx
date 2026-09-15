@@ -2,13 +2,12 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
-import type { User } from "@supabase/supabase-js";
+import { useEffect, useState } from "react";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 import { plans } from "@/data/site";
 import { startCheckout } from "@/lib/checkout";
-import { createClient } from "@/utils/supabase/client";
+import { useAuth } from "@/components/providers/auth-provider";
 
 const subscriptionPriceIds: Record<string, string> = {
   bronze: "price_1TKFNhEDQ5UIKPib0ICI1PuA",
@@ -21,9 +20,7 @@ const CHECKOUT_RETURN_KEY = "pqf_checkout_returned";
 
 export default function MembershipsPage() {
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
-  const [user, setUser] = useState<User | null>(null);
-  const [isAuthReady, setIsAuthReady] = useState(false);
-  const supabase = useMemo(() => createClient(), []);
+  const { user, isAuthReady } = useAuth();
 
   useEffect(() => {
     const markReturnedAndReload = () => {
@@ -56,30 +53,6 @@ export default function MembershipsPage() {
       window.removeEventListener("pageshow", handlePageShow);
     };
   }, []);
-
-  useEffect(() => {
-    async function loadUser() {
-      const {
-        data: { user }
-      } = await supabase.auth.getUser();
-
-      setUser(user);
-      setIsAuthReady(true);
-    }
-
-    void loadUser();
-
-    const {
-      data: { subscription }
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-      setIsAuthReady(true);
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [supabase]);
 
   async function handleSubscribe(planId: string) {
     const priceId = subscriptionPriceIds[planId];

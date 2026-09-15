@@ -2,62 +2,16 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
-import type { User } from "@supabase/supabase-js";
+import { useEffect, useState } from "react";
 import { navLinks } from "@/data/site";
 import { createClient } from "@/utils/supabase/client";
 import { useCart } from "@/components/providers/cart-provider";
+import { useAuth } from "@/components/providers/auth-provider";
 
 export function Header() {
-  const [user, setUser] = useState<User | null>(null);
-  const [isAdmin, setIsAdmin] = useState<boolean>(false);
-  const [isAuthReady, setIsAuthReady] = useState(false);
+  const { user, isAuthReady, isAdmin } = useAuth();
   const [isCartBumping, setIsCartBumping] = useState(false);
   const { count, cartPulseKey, isHydrated } = useCart();
-  const supabase = useMemo(() => createClient(), []);
-
-  useEffect(() => {
-    async function loadUser() {
-      const {
-        data: { user }
-      } = await supabase.auth.getUser();
-
-      setUser(user);
-      setIsAuthReady(true);
-
-      if (user) {
-        try {
-          const res = await fetch("/api/admin/me");
-          const json = (await res.json()) as { isAdmin?: boolean };
-          setIsAdmin(Boolean(json.isAdmin));
-        } catch {
-          setIsAdmin(false);
-        }
-      }
-    }
-
-    void loadUser();
-
-    const {
-      data: { subscription }
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-      setIsAuthReady(true);
-
-      if (session?.user) {
-        fetch("/api/admin/me")
-          .then((res) => res.json() as Promise<{ isAdmin?: boolean }>)
-          .then((json) => setIsAdmin(Boolean(json.isAdmin)))
-          .catch(() => setIsAdmin(false));
-      } else {
-        setIsAdmin(false);
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [supabase]);
 
   useEffect(() => {
     if (cartPulseKey === 0) {
@@ -76,7 +30,7 @@ export function Header() {
   }, [cartPulseKey]);
 
   async function handleLogout() {
-    await supabase.auth.signOut();
+    await createClient().auth.signOut();
     window.location.href = "/";
   }
 

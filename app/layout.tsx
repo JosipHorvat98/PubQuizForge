@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { AuthProvider } from "@/components/providers/auth-provider";
 import { CartProvider } from "@/components/providers/cart-provider";
 import { MembershipProvider } from "@/components/providers/membership-provider";
 
@@ -32,9 +33,11 @@ export default function RootLayout({
     return (
         <html lang="hr">
             <body>
-                <CartProvider>
-                    <MembershipProvider>{children}</MembershipProvider>
-                </CartProvider>
+                <AuthProvider>
+                    <CartProvider>
+                        <MembershipProvider>{children}</MembershipProvider>
+                    </CartProvider>
+                </AuthProvider>
             </body>
         </html>
     );

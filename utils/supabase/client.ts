@@ -15,6 +15,15 @@ if (!envSupabasePublishableKey) {
 const supabaseUrl: string = envSupabaseUrl;
 const supabasePublishableKey: string = envSupabasePublishableKey;
 
+// Single shared browser client for the whole tab. Components used to call
+// createClient() individually, spawning a fresh Supabase instance (and another
+// /auth/v1/user round-trip) per mounted component. One instance, one session.
+let cachedClient: ReturnType<typeof createBrowserClient> | null = null;
+
 export function createClient() {
-    return createBrowserClient(supabaseUrl, supabasePublishableKey);
+    if (!cachedClient) {
+        cachedClient = createBrowserClient(supabaseUrl, supabasePublishableKey);
+    }
+
+    return cachedClient;
 }

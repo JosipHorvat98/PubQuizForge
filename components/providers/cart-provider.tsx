@@ -12,7 +12,7 @@ import {
   type ReactNode
 } from "react";
 import type { User } from "@supabase/supabase-js";
-import { createClient } from "@/utils/supabase/client";
+import { useAuth } from "@/components/providers/auth-provider";
 
 export type CartItem = {
   id: string;
@@ -113,12 +113,17 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [isHydrated, setIsHydrated] = useState(false);
   const [activeStorageKey, setActiveStorageKey] = useState<string>(GUEST_CART_KEY);
 
+  // Auth state comes from the single shared AuthProvider — no extra getUser()
+  // call here, and the cart switches scopes as the user signs in/out.
+  const { user, isAuthReady } = useAuth();
+
   const previousStorageKeyRef = useRef<string>(GUEST_CART_KEY);
-  const supabaseRef = useRef(createClient());
 
   const switchCartScope = useCallback(
-    (user: User | null) => {
-      const nextStorageKey = user ? getUserCartKey(user.id) : GUEST_CART_KEY;
+    (currentUser: User | null) => {
+      const nextStorageKey = currentUser
+        ? getUserCartKey(currentUser.id)
+        : GUEST_CART_KEY;
       const previousStorageKey = previousStorageKeyRef.current;
 
       writeCartToStorage(previousStorageKey, items);
@@ -134,42 +139,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
   );
 
   useEffect(() => {
-    let isMounted = true;
-
-    async function initializeCartScope() {
-      const supabase = supabaseRef.current;
-      const {
-        data: { user }
-      } = await supabase.auth.getUser();
-
-      if (!isMounted) {
-        return;
-      }
-
-      const initialStorageKey = user ? getUserCartKey(user.id) : GUEST_CART_KEY;
-      previousStorageKeyRef.current = initialStorageKey;
-      setActiveStorageKey(initialStorageKey);
-      setItems(readCartFromStorage(initialStorageKey));
-      setIsHydrated(true);
+    if (!isAuthReady) {
+      return;
     }
 
-    void initializeCartScope();
-
-    const {
-      data: { subscription }
-    } = supabaseRef.current.auth.onAuthStateChange((_event, session) => {
-      if (!isMounted) {
-        return;
-      }
-
-      switchCartScope(session?.user ?? null);
-    });
-
-    return () => {
-      isMounted = false;
-      subscription.unsubscribe();
-    };
-  }, [switchCartScope]);
+    switchCartScope(user);
+  }, [user, isAuthReady, switchCartScope]);
 
   useEffect(() => {
     if (!isHydrated) {

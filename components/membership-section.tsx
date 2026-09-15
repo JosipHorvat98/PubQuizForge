@@ -1,14 +1,13 @@
 // file: components/membership-section.tsx
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import type { User } from "@supabase/supabase-js";
 import { plans } from "@/data/site";
 import { SectionHeading } from "@/components/section-heading";
 import { cx } from "@/lib/utils";
 import { startCheckout } from "@/lib/checkout";
-import { createClient } from "@/utils/supabase/client";
+import { useAuth } from "@/components/providers/auth-provider";
 
 const subscriptionPriceIds: Record<string, string> = {
     bronze: "price_1TKFNhEDQ5UIKPib0ICI1PuA",
@@ -17,31 +16,8 @@ const subscriptionPriceIds: Record<string, string> = {
 };
 
 export function MembershipSection() {
-    const [user, setUser] = useState<User | null>(null);
-    const supabase = useMemo(() => createClient(), []);
+    const { user } = useAuth();
     const router = useRouter();
-
-    useEffect(() => {
-        async function loadUser() {
-            const {
-                data: { user: currentUser }
-            } = await supabase.auth.getUser();
-
-            setUser(currentUser);
-        }
-
-        void loadUser();
-
-        const {
-            data: { subscription }
-        } = supabase.auth.onAuthStateChange((_event, session) => {
-            setUser(session?.user ?? null);
-        });
-
-        return () => {
-            subscription.unsubscribe();
-        };
-    }, [supabase]);
 
     async function handleSubscribe(planId: string) {
         const priceId = subscriptionPriceIds[planId];
