@@ -6,6 +6,7 @@ import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 import { requireAdmin } from "@/lib/admin-auth";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { countActiveNewsletterSubscribers } from "@/lib/newsletter";
 
 export const dynamic = "force-dynamic";
 
@@ -102,6 +103,10 @@ export default async function AdminDashboardPage() {
 
     const revenueCents = await getStripeRevenueCents();
 
+    const [activeSubscriberCount] = await Promise.all([
+        countActiveNewsletterSubscribers()
+    ]);
+
     const activeStatuses = ["active", "trialing", "past_due"];
     const activeSubscriptions = (subscriptions ?? []).filter((item) => activeStatuses.includes(item.status));
 
@@ -131,6 +136,7 @@ export default async function AdminDashboardPage() {
                         <StatCard label="Pending questions" value={String(pendingQuestions)} hint="Custom question requests to handle" />
                         <StatCard label="Published news" value={`${publishedNews} / ${newsPosts.length}`} hint="Live posts on /news" />
                         <StatCard label="Pack orders" value={String((downloads ?? []).length)} hint="Recent downloads only" />
+                        <StatCard label="Newsletter subs" value={String(activeSubscriberCount)} hint="Active opt-in subscribers" />
                     </div>
 
                     <div className="mt-10 grid gap-6 lg:grid-cols-2">
@@ -178,6 +184,7 @@ export default async function AdminDashboardPage() {
                             <Link href="/admin/users" className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-white transition hover:bg-white/10">Users</Link>
                             <Link href="/admin/news" className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-white transition hover:bg-white/10">News</Link>
                             <Link href="/admin/custom-questions" className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-white transition hover:bg-white/10">Custom questions</Link>
+                            <Link href="/admin/newsletter" className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-white transition hover:bg-white/10">Newsletter</Link>
                         </div>
                     </section>
                 </div>

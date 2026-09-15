@@ -1,6 +1,7 @@
 // file: app/api/admin/users/[id]/route.ts
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
+import { logAdminAction } from "@/lib/admin-audit";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { isActiveSubscriptionStatus } from "@/lib/subscriptions";
 
@@ -82,6 +83,14 @@ export async function DELETE(
         if (deleteUserError) {
             throw deleteUserError;
         }
+
+        await logAdminAction({
+            adminEmail: admin.email ?? "unknown",
+            action: "delete_user",
+            entityType: "user",
+            entityId: id,
+            meta: { email: email ?? "" }
+        });
 
         return NextResponse.json({ success: true });
     } catch (error) {

@@ -229,6 +229,54 @@ export type ContactMessageSubmission = {
     message: string;
 };
 
+/** Optional confirmation sent to a new newsletter subscriber. */
+export async function sendNewsletterConfirmationEmail(to: string): Promise<void> {
+    const resend = resendOrNull();
+
+    if (!resend) {
+        return;
+    }
+
+    const html = [
+        `<h2>You're on the list! 🎉</h2>`,
+        `<p>Thanks for subscribing to the PubQuizForge newsletter.</p>`,
+        `<p>You'll hear about new packs, member offers and quiz-night tips — no spam, and you can unsubscribe at any time.</p>`,
+        `<p>Happy quizzing! — PubQuizForge</p>`
+    ].join("\n");
+
+    await resend.emails.send({
+        from: EMAIL_FROM,
+        to: [to],
+        subject: "You're subscribed to PubQuizForge 🎉",
+        html
+    });
+}
+
+/** Broadcasts a newsletter edition to all active subscribers via Resend. */
+export async function sendNewsletterBroadcastEmail(opts: {
+    to: string[];
+    subject: string;
+    html: string;
+}): Promise<void> {
+    const resend = resendOrNull();
+
+    if (!resend) {
+        return;
+    }
+
+    if (!opts.to.length) {
+        console.warn("[email] broadcast skipped: no recipients");
+        return;
+    }
+
+    await resend.emails.send({
+        from: EMAIL_FROM,
+        to: opts.to,
+        subject: opts.subject,
+        html: opts.html
+    });
+}
+
 /** Notifies the publisher (you) about a contact form message. */
 export async function sendContactMessageEmail(
     submission: ContactMessageSubmission

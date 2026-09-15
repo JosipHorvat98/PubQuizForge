@@ -1,6 +1,7 @@
 // file: app/api/admin/custom-questions/[id]/route.ts
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
+import { logAdminAction } from "@/lib/admin-audit";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 
 export async function PATCH(
@@ -8,7 +9,7 @@ export async function PATCH(
     context: { params: Promise<{ id: string }> }
 ) {
     try {
-        await requireAdmin();
+        const admin = await requireAdmin();
 
         const { id } = await context.params;
 
@@ -31,6 +32,13 @@ export async function PATCH(
         if (error) {
             throw error;
         }
+
+        await logAdminAction({
+            adminEmail: admin.email ?? "unknown",
+            action: body.is_handled ? "custom_question_handled" : "custom_question_reopened",
+            entityType: "custom_question",
+            entityId: id
+        });
 
         return NextResponse.json({ row: data });
     } catch (error) {
@@ -55,7 +63,7 @@ export async function DELETE(
     context: { params: Promise<{ id: string }> }
 ) {
     try {
-        await requireAdmin();
+        const admin = await requireAdmin();
 
         const { id } = await context.params;
 
@@ -74,6 +82,13 @@ export async function DELETE(
         if (error) {
             throw error;
         }
+
+        await logAdminAction({
+            adminEmail: admin.email ?? "unknown",
+            action: "delete_custom_question",
+            entityType: "custom_question",
+            entityId: id
+        });
 
         return NextResponse.json({ success: true });
     } catch (error) {

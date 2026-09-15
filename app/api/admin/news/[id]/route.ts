@@ -1,6 +1,7 @@
 // file: app/api/admin/news/[id]/route.ts
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
+import { logAdminAction } from "@/lib/admin-audit";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 
 function slugify(value: string): string {
@@ -18,7 +19,7 @@ export async function PATCH(
     context: { params: Promise<{ id: string }> }
 ) {
     try {
-        await requireAdmin();
+        const admin = await requireAdmin();
 
         const { id } = await context.params;
 
@@ -97,6 +98,14 @@ export async function PATCH(
             throw error;
         }
 
+        await logAdminAction({
+            adminEmail: admin.email ?? "unknown",
+            action: "update_news_post",
+            entityType: "news_post",
+            entityId: id,
+            meta: { title, is_published: isPublished }
+        });
+
         return NextResponse.json({ post: data });
     } catch (error) {
         console.error("Admin update news error:", error);
@@ -120,7 +129,7 @@ export async function DELETE(
     context: { params: Promise<{ id: string }> }
 ) {
     try {
-        await requireAdmin();
+        const admin = await requireAdmin();
 
         const { id } = await context.params;
 
@@ -139,6 +148,13 @@ export async function DELETE(
         if (error) {
             throw error;
         }
+
+        await logAdminAction({
+            adminEmail: admin.email ?? "unknown",
+            action: "delete_news_post",
+            entityType: "news_post",
+            entityId: id
+        });
 
         return NextResponse.json({ success: true });
     } catch (error) {
