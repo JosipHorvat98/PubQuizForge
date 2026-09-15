@@ -1,6 +1,7 @@
 // file: app/contact/page.tsx
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
+import { ContactForm } from "@/components/contact-form";
 
 export default function ContactPage() {
     return (
@@ -60,66 +61,7 @@ export default function ContactPage() {
                     <div className="rounded-[28px] border border-white/8 bg-[var(--surface)] p-8">
                         <h2 className="text-2xl font-black tracking-tight">Send a message</h2>
 
-                        <form className="mt-6 grid gap-4">
-                            <div className="grid gap-2">
-                                <label htmlFor="name" className="text-sm font-semibold text-white">
-                                    Name
-                                </label>
-                                <input
-                                    id="name"
-                                    name="name"
-                                    type="text"
-                                    placeholder="Your name"
-                                    className="rounded-xl border border-white/10 bg-[var(--surface-2)] px-4 py-3 text-white outline-none placeholder:text-[var(--muted)] focus:border-[var(--gold)]"
-                                />
-                            </div>
-
-                            <div className="grid gap-2">
-                                <label htmlFor="email" className="text-sm font-semibold text-white">
-                                    Email
-                                </label>
-                                <input
-                                    id="email"
-                                    name="email"
-                                    type="email"
-                                    placeholder="you@example.com"
-                                    className="rounded-xl border border-white/10 bg-[var(--surface-2)] px-4 py-3 text-white outline-none placeholder:text-[var(--muted)] focus:border-[var(--gold)]"
-                                />
-                            </div>
-
-                            <div className="grid gap-2">
-                                <label htmlFor="subject" className="text-sm font-semibold text-white">
-                                    Subject
-                                </label>
-                                <input
-                                    id="subject"
-                                    name="subject"
-                                    type="text"
-                                    placeholder="What can we help with?"
-                                    className="rounded-xl border border-white/10 bg-[var(--surface-2)] px-4 py-3 text-white outline-none placeholder:text-[var(--muted)] focus:border-[var(--gold)]"
-                                />
-                            </div>
-
-                            <div className="grid gap-2">
-                                <label htmlFor="message" className="text-sm font-semibold text-white">
-                                    Message
-                                </label>
-                                <textarea
-                                    id="message"
-                                    name="message"
-                                    rows={6}
-                                    placeholder="Write your message..."
-                                    className="rounded-xl border border-white/10 bg-[var(--surface-2)] px-4 py-3 text-white outline-none placeholder:text-[var(--muted)] focus:border-[var(--gold)]"
-                                />
-                            </div>
-
-                            <button
-                                type="submit"
-                                className="mt-2 rounded-xl bg-[var(--gold)] px-5 py-3 text-sm font-extrabold text-black hover:bg-[var(--gold-strong)]"
-                            >
-                                Send Message
-                            </button>
-                        </form>
+                        <ContactForm />
                     </div>
                 </div>
             </section>

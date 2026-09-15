@@ -221,3 +221,49 @@ export async function sendCustomQuestionConfirmationEmail(
         html
     });
 }
+
+export type ContactMessageSubmission = {
+    name: string;
+    email: string;
+    subject: string;
+    message: string;
+};
+
+/** Notifies the publisher (you) about a contact form message. */
+export async function sendContactMessageEmail(
+    submission: ContactMessageSubmission
+): Promise<void> {
+    const resend = resendOrNull();
+
+    if (!resend) {
+        return;
+    }
+
+    if (!PUBLISHER_EMAIL) {
+        console.warn(
+            "[email] PUBLISHER_EMAIL is not set; contact email not sent."
+        );
+        return;
+    }
+
+    const html = [
+        `<h2>New contact message 📬</h2>`,
+        `<p><strong>Name:</strong> ${submission.name}</p>`,
+        `<p><strong>Email:</strong> ${submission.email}</p>`,
+        `<p><strong>Subject:</strong> ${submission.subject}</p>`,
+        `<p><strong>Message:</strong><br/>${submission.message.replace(
+            /\n/g,
+            "<br/>"
+        )}</p>`,
+        `<hr/>`,
+        `<p>Reply directly to this email or use the reply-to address to contact the sender.</p>`
+    ].join("\n");
+
+    await resend.emails.send({
+        from: EMAIL_FROM,
+        to: [PUBLISHER_EMAIL],
+        replyTo: submission.email,
+        subject: `New contact message from ${submission.name}: ${submission.subject}`,
+        html
+    });
+}
