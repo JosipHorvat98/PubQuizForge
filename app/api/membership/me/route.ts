@@ -1,6 +1,7 @@
 // file: app/api/membership/me/route.ts
 import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
+import { hasSessionCookie } from "@/lib/session-cookie";
 import { findActiveMembershipForEmail } from "@/lib/memberships";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import {
@@ -15,6 +16,21 @@ import {
 export const dynamic = "force-dynamic";
 
 export async function GET() {
+    // Cheap gate: no session cookie -> anonymous browser, don't hit the auth
+    // endpoint at all. This is THE hot endpoint (every page load asks it once),
+    // so guarding it here stops pointless /auth/v1/user calls for guests.
+    if (!(await hasSessionCookie())) {
+        return NextResponse.json({
+            isMember: false,
+            membership: null,
+            entitlements: null,
+            usageThisPeriod: 0,
+            creditsAvailable: null,
+            creditsUsed: 0,
+            creditsLedgerReady: false
+        });
+    }
+
     try {
         const supabase = await createClient();
 
