@@ -12,9 +12,7 @@ import {
     type ReactNode
 } from "react";
 import { usePathname } from "next/navigation";
-import {
-    createClient
-} from "@/utils/supabase/client";
+import { useAuth } from "@/components/providers/auth-provider";
 import type { PlanEntitlements } from "@/lib/entitlements";
 import type { StripeMembership } from "@/lib/memberships";
 
@@ -55,8 +53,14 @@ const EMPTY: MembershipInfo = {
 export function MembershipProvider({ children }: { children: ReactNode }) {
     const [info, setInfo] = useState<MembershipInfo>(EMPTY);
     const [loading, setLoading] = useState(true);
-    const supabaseRef = useRef(createClient());
     const pathname = usePathname();
+
+    // Auth comes from the single shared AuthProvider — no extra client/
+    // getUser here. Reloads below are debounced so mounting + pathname +
+    // auth events collapse into ONE /api/membership/me call instead of 3-4.
+    const { isAuthReady } = useAuth();
+    const scheduleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const inFlightRef = useRef(false);
 
     const reload = useCallback(async () => {
         try {
@@ -65,6 +69,7 @@ export function MembershipProvider({ children }: { children: ReactNode }) {
             // client may not have synced yet, so `client.auth.getUser()` can
             // return null and skip the fetch. The server route reads the auth
             // cookie itself and returns the correct membership state.
+            inFlightRef.current = true;
             const response = await fetch("/api/membership/me");
             const data = (await response.json()) as MembershipInfo;
 
@@ -76,54 +81,55 @@ export function MembershipProvider({ children }: { children: ReactNode }) {
             setInfo(data);
         } catch {
             setInfo({ ...EMPTY, lookupFailed: true });
+        } finally {
+            inFlightRef.current = false;
+            setLoading(false);
         }
     }, []);
 
-    useEffect(() => {
-        let isMounted = true;
+    const debouncedReload = useCallback(() => {
+        if (scheduleTimerRef.current) {
+            clearTimeout(scheduleTimerRef.current);
+        }
 
-        const refresh = async () => {
-            await reload();
+        if (inFlightRef.current) {
+            return;
+        }
 
-            if (isMounted) {
-                setLoading(false);
-            }
-        };
-
-        void refresh();
-
-        const {
-            data: { subscription }
-        } = supabaseRef.current.auth.onAuthStateChange(() => {
-            if (!isMounted) {
-                return;
-            }
-
-            // Always re-fetch from the server route. Right after a server-action
-            // login the browser Supabase client can still report a null session
-            // even though the auth cookie is valid, so we must not gate on the
-            // client session here.
-            setLoading(true);
-
-            void reload().then(() => {
-                if (isMounted) {
-                    setLoading(false);
-                }
-            });
-        });
-
-        return () => {
-            isMounted = false;
-            subscription.unsubscribe();
-        };
+        scheduleTimerRef.current = setTimeout(() => {
+            void reload();
+        }, 120);
     }, [reload]);
 
-    // Refetch whenever the route changes so membership data (credits & discount)
-    // appears right after a client-side navigation, e.g. immediately after the
-    // login redirect — without needing a manual page refresh.
     useEffect(() => {
-        void reload();
-    }, [pathname, reload]);
+        return () => {
+            if (scheduleTimerRef.current) {
+                clearTimeout(scheduleTimerRef.current);
+            }
+        };
+    }, []);
+
+    useEffect(() => {
+        if (!isAuthReady) {
+            return;
+        }
+
+        // Initial load once auth is known.
+        debouncedReload();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isAuthReady]);
+
+    useEffect(() => {
+        if (!isAuthReady) {
+            return;
+        }
+
+        // Refetch whenever the route changes so membership data (credits &
+        // discount) appears right after a client-side navigation, e.g. after
+        // the login redirect — without needing a manual page refresh.
+        debouncedReload();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [pathname, isAuthReady]);
 
     const value = useMemo<MembershipContextValue>(
         () => ({ ...info, loading, reload }),
