@@ -177,7 +177,7 @@ export const packs: Pack[] = [
         glow: "radial-gradient(circle at 50% 0%, #b45309, transparent 70%)",
         badges: ["50 questions"],
         image: "https://images.unsplash.com/photo-1580706486641-ebec9f673d36?auto=format&fit=crop&w=1000&q=80",
-        pdfPath: null
+        pdfPath: "/packs/ancient-civilisations.pdf"
     },
     {
         id: "world-war-ii-full-story",
