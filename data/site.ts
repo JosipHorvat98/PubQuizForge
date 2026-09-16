@@ -189,7 +189,7 @@ export const packs: Pack[] = [
         glow: "radial-gradient(circle at 50% 0%, #f97316, transparent 70%)",
         badges: ["50 questions", "🔥 Popular"],
         image: "https://images.unsplash.com/photo-1494972688394-4cc796f9e4c5?auto=format&fit=crop&w=1000&q=80",
-        pdfPath: null
+        pdfPath: "/packs/world-war-ii-full-story.pdf"
     },
     {
         id: "football-world-cup-edition",
