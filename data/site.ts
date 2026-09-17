@@ -201,7 +201,7 @@ export const packs: Pack[] = [
         glow: "radial-gradient(circle at 50% 0%, #16a34a, transparent 70%)",
         badges: ["50 questions", "🔥 Bestseller"],
         image: "https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&w=1000&q=80",
-        pdfPath: null
+        pdfPath: "/packs/football-world-cup-edition.pdf"
     },
     {
         id: "olympics-quiz-pack",
