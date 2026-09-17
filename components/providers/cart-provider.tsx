@@ -119,24 +119,29 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const previousStorageKeyRef = useRef<string>(GUEST_CART_KEY);
 
-  const switchCartScope = useCallback(
-    (currentUser: User | null) => {
-      const nextStorageKey = currentUser
-        ? getUserCartKey(currentUser.id)
-        : GUEST_CART_KEY;
-      const previousStorageKey = previousStorageKeyRef.current;
+  // Keep the current items reachable from a stable callback without recreating
+  // switchCartScope on every cart change (which previously caused a loop:
+  // addItem → callback identity change → effect re-runs → reads stale storage
+  // and resets the cart to []).
+  const itemsRef = useRef<CartItem[]>(items);
 
-      writeCartToStorage(previousStorageKey, items);
+  useEffect(() => {
+    itemsRef.current = items;
+  }, [items]);
 
-      const nextItems = readCartFromStorage(nextStorageKey);
+  const switchCartScope = useCallback((currentUser: User | null) => {
+    const nextStorageKey = currentUser ? getUserCartKey(currentUser.id) : GUEST_CART_KEY;
+    const previousStorageKey = previousStorageKeyRef.current;
 
-      previousStorageKeyRef.current = nextStorageKey;
-      setActiveStorageKey(nextStorageKey);
-      setItems(nextItems);
-      setIsHydrated(true);
-    },
-    [items]
-  );
+    writeCartToStorage(previousStorageKey, itemsRef.current);
+
+    const nextItems = readCartFromStorage(nextStorageKey);
+
+    previousStorageKeyRef.current = nextStorageKey;
+    setActiveStorageKey(nextStorageKey);
+    setItems(nextItems);
+    setIsHydrated(true);
+  }, []);
 
   useEffect(() => {
     if (!isAuthReady) {
@@ -144,7 +149,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
 
     switchCartScope(user);
-  }, [user, isAuthReady, switchCartScope]);
+    // Intentionally only on auth changes — NOT on switchCartScope identity.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, isAuthReady]);
 
   useEffect(() => {
     if (!isHydrated) {
