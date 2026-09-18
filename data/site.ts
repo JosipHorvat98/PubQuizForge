@@ -213,7 +213,7 @@ export const packs: Pack[] = [
         glow: "radial-gradient(circle at 50% 0%, #10b981, transparent 70%)",
         badges: ["50 questions"],
         image: "https://images.unsplash.com/photo-1630484174614-f9176ca48dd5?auto=format&fit=crop&w=1000&q=80",
-        pdfPath: null
+        pdfPath: "/packs/olympics-quiz-pack.pdf"
     },
     {
         id: "space-and-the-universe",
