@@ -237,7 +237,7 @@ export const packs: Pack[] = [
         glow: "radial-gradient(circle at 50% 0%, #2563eb, transparent 70%)",
         badges: ["50 questions"],
         image: "https://images.unsplash.com/photo-1530210124550-912dc1381cb8?auto=format&fit=crop&w=1000&q=80",
-        pdfPath: null
+        pdfPath: "/packs/human-body-basics.pdf"
     },
     {
         id: "christmas-quiz-night",
