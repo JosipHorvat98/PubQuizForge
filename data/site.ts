@@ -225,7 +225,7 @@ export const packs: Pack[] = [
         glow: "radial-gradient(circle at 50% 0%, #3b82f6, transparent 70%)",
         badges: ["50 questions", "✦ New"],
         image: "https://images.unsplash.com/photo-1464802686167-b939a6910659?auto=format&fit=crop&w=1000&q=80",
-        pdfPath: null
+        pdfPath: "/packs/space-and-the-universe.pdf"
     },
     {
         id: "human-body-basics",
