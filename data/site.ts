@@ -8,7 +8,10 @@ export type PackCategory =
     | "history"
     | "sport"
     | "science"
-    | "themed";
+    | "themed"
+    | "pop"
+    | "food"
+    | "culture";
 
 export type Pack = {
     id: string;
@@ -67,7 +70,10 @@ export const packCategories: Array<{ id: PackCategory; label: string }> = [
     { id: "history", label: "📖 History" },
     { id: "sport", label: "⚽ Sport" },
     { id: "science", label: "🔬 Science" },
-    { id: "themed", label: "🎉 Themed Nights" }
+    { id: "themed", label: "🎉 Themed Nights" },
+    { id: "pop", label: "🎮 Pop Culture" },
+    { id: "food", label: "🍕 Food & Drink" },
+    { id: "culture", label: "🎨 Arts & Culture" }
 ];
 
 export const packs: Pack[] = [
@@ -262,6 +268,426 @@ export const packs: Pack[] = [
         badges: ["50 questions", "✦ Special"],
         image: "https://images.unsplash.com/photo-1477516561410-f0b5dd8319e4?auto=format&fit=crop&w=1000&q=80",
         pdfPath: "/packs/halloween-special.pdf"
+    },
+    {
+        id: "dinosaurs-prehistoric-earth",
+        category: "science",
+        categoryLabel: "Science",
+        title: "Dinosaurs & Prehistoric Earth",
+        emoji: "🦖",
+        price: "€4.99",
+        glow: "radial-gradient(circle at 50% 0%, #16a34a, transparent 70%)",
+        badges: ["50 questions"],
+        image: "https://images.unsplash.com/photo-1661518282703-9ae6ffaf82eb?auto=format&fit=crop&w=1000&q=80",
+        pdfPath: null
+    },
+    {
+        id: "oceans-deep-sea",
+        category: "geo",
+        categoryLabel: "Geography",
+        title: "Oceans & Deep Sea",
+        emoji: "🌊",
+        price: "€4.99",
+        glow: "radial-gradient(circle at 50% 0%, #0ea5e9, transparent 70%)",
+        badges: ["50 questions"],
+        image: "https://images.unsplash.com/photo-1530053969600-caed2596d242?auto=format&fit=crop&w=1000&q=80",
+        pdfPath: null
+    },
+    {
+        id: "animal-kingdom",
+        category: "science",
+        categoryLabel: "Science",
+        title: "Animal Kingdom",
+        emoji: "🐾",
+        price: "€4.99",
+        glow: "radial-gradient(circle at 50% 0%, #22c55e, transparent 70%)",
+        badges: ["50 questions"],
+        image: "https://images.unsplash.com/photo-1557050543-4d5f4e07ef46?auto=format&fit=crop&w=1000&q=80",
+        pdfPath: null
+    },
+    {
+        id: "human-brain-psychology",
+        category: "science",
+        categoryLabel: "Science",
+        title: "Human Brain & Psychology",
+        emoji: "🧠",
+        price: "€4.99",
+        glow: "radial-gradient(circle at 50% 0%, #8b5cf6, transparent 70%)",
+        badges: ["50 questions"],
+        image: "https://images.unsplash.com/photo-1617791160536-598cf32026fb?auto=format&fit=crop&w=1000&q=80",
+        pdfPath: null
+    },
+    {
+        id: "medicine-diseases-discoveries",
+        category: "science",
+        categoryLabel: "Science",
+        title: "Medicine, Diseases & Discoveries",
+        emoji: "🦠",
+        price: "€4.99",
+        glow: "radial-gradient(circle at 50% 0%, #14b8a6, transparent 70%)",
+        badges: ["50 questions"],
+        image: "https://images.unsplash.com/photo-1602052577122-f73b9710adba?auto=format&fit=crop&w=1000&q=80",
+        pdfPath: null
+    },
+    {
+        id: "science-weird-but-true",
+        category: "science",
+        categoryLabel: "Science",
+        title: "Science: Weird but True",
+        emoji: "🔬",
+        price: "€4.99",
+        glow: "radial-gradient(circle at 50% 0%, #3b82f6, transparent 70%)",
+        badges: ["50 questions"],
+        image: "https://images.unsplash.com/photo-1618053448492-2b629c2c912c?auto=format&fit=crop&w=1000&q=80",
+        pdfPath: null
+    },
+    {
+        id: "chemistry-everyday-life",
+        category: "science",
+        categoryLabel: "Science",
+        title: "Chemistry in Everyday Life",
+        emoji: "⚗️",
+        price: "€4.99",
+        glow: "radial-gradient(circle at 50% 0%, #7c3aed, transparent 70%)",
+        badges: ["50 questions"],
+        image: "https://images.unsplash.com/photo-1761095596584-34731de3e568?auto=format&fit=crop&w=1000&q=80",
+        pdfPath: null
+    },
+    {
+        id: "natural-disasters",
+        category: "geo",
+        categoryLabel: "Geography",
+        title: "Natural Disasters",
+        emoji: "🌋",
+        price: "€4.99",
+        glow: "radial-gradient(circle at 50% 0%, #ef4444, transparent 70%)",
+        badges: ["50 questions"],
+        image: "https://images.unsplash.com/photo-1619266465172-02a857c3556d?auto=format&fit=crop&w=1000&q=80",
+        pdfPath: null
+    },
+    {
+        id: "extreme-weather",
+        category: "geo",
+        categoryLabel: "Geography",
+        title: "Extreme Weather",
+        emoji: "🌦️",
+        price: "€4.99",
+        glow: "radial-gradient(circle at 50% 0%, #0ea5e9, transparent 70%)",
+        badges: ["50 questions"],
+        image: "https://images.unsplash.com/photo-1429552077091-836152271555?auto=format&fit=crop&w=1000&q=80",
+        pdfPath: null
+    },
+    {
+        id: "geography-around-the-world",
+        category: "geo",
+        categoryLabel: "Geography",
+        title: "Geography: Around the World",
+        emoji: "🗺️",
+        price: "€4.99",
+        glow: "radial-gradient(circle at 50% 0%, #10b981, transparent 70%)",
+        badges: ["50 questions"],
+        image: "https://images.unsplash.com/photo-1521295121783-8a321d551ad2?auto=format&fit=crop&w=1000&q=80",
+        pdfPath: null
+    },
+    {
+        id: "islands-of-the-world",
+        category: "geo",
+        categoryLabel: "Geography",
+        title: "Islands of the World",
+        emoji: "🏝️",
+        price: "€4.99",
+        glow: "radial-gradient(circle at 50% 0%, #06b6d4, transparent 70%)",
+        badges: ["50 questions"],
+        image: "https://images.unsplash.com/photo-1483683804023-6ccdb62f86ef?auto=format&fit=crop&w=1000&q=80",
+        pdfPath: null
+    },
+    {
+        id: "mountains-rivers-lakes",
+        category: "geo",
+        categoryLabel: "Geography",
+        title: "Mountains, Rivers & Lakes",
+        emoji: "🏔️",
+        price: "€4.99",
+        glow: "radial-gradient(circle at 50% 0%, #38bdf8, transparent 70%)",
+        badges: ["50 questions"],
+        image: "https://images.unsplash.com/photo-1596003903067-bf5762ad5c19?auto=format&fit=crop&w=1000&q=80",
+        pdfPath: null
+    },
+    {
+        id: "famous-landmarks",
+        category: "geo",
+        categoryLabel: "Geography",
+        title: "Famous Landmarks",
+        emoji: "🏛️",
+        price: "€4.99",
+        glow: "radial-gradient(circle at 50% 0%, #f59e0b, transparent 70%)",
+        badges: ["50 questions"],
+        image: "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=1000&q=80",
+        pdfPath: null
+    },
+    {
+        id: "europe",
+        category: "geo",
+        categoryLabel: "Geography",
+        title: "Europe",
+        emoji: "🇪🇺",
+        price: "€4.99",
+        glow: "radial-gradient(circle at 50% 0%, #3b82f6, transparent 70%)",
+        badges: ["50 questions"],
+        image: "https://images.unsplash.com/photo-1562923928-6078542d1ad1?auto=format&fit=crop&w=1000&q=80",
+        pdfPath: null
+    },
+    {
+        id: "usa-50-states",
+        category: "geo",
+        categoryLabel: "Geography",
+        title: "USA: 50 States",
+        emoji: "🇺🇸",
+        price: "€4.99",
+        glow: "radial-gradient(circle at 50% 0%, #dc2626, transparent 70%)",
+        badges: ["50 questions"],
+        image: "https://images.unsplash.com/photo-1580586047177-eaa155789eb4?auto=format&fit=crop&w=1000&q=80",
+        pdfPath: null
+    },
+    {
+        id: "kings-queens-royalty",
+        category: "history",
+        categoryLabel: "History",
+        title: "Kings, Queens & Royalty",
+        emoji: "👑",
+        price: "€4.99",
+        glow: "radial-gradient(circle at 50% 0%, #b45309, transparent 70%)",
+        badges: ["50 questions"],
+        image: "https://images.unsplash.com/photo-1630397794941-46ed66b8fbca?auto=format&fit=crop&w=1000&q=80",
+        pdfPath: null
+    },
+    {
+        id: "empires-conquerors",
+        category: "history",
+        categoryLabel: "History",
+        title: "Empires & Conquerors",
+        emoji: "⚔️",
+        price: "€4.99",
+        glow: "radial-gradient(circle at 50% 0%, #a16207, transparent 70%)",
+        badges: ["50 questions"],
+        image: "https://images.unsplash.com/photo-1621427260125-3cbe2d07e0f4?auto=format&fit=crop&w=1000&q=80",
+        pdfPath: null
+    },
+    {
+        id: "spies-codes-secret-operations",
+        category: "history",
+        categoryLabel: "History",
+        title: "Spies, Codes & Secret Operations",
+        emoji: "🕵️",
+        price: "€4.99",
+        glow: "radial-gradient(circle at 50% 0%, #64748b, transparent 70%)",
+        badges: ["50 questions"],
+        image: "https://images.unsplash.com/photo-1618371690240-e0d46eead4b8?auto=format&fit=crop&w=1000&q=80",
+        pdfPath: null
+    },
+    {
+        id: "shipwrecks-maritime-disasters",
+        category: "history",
+        categoryLabel: "History",
+        title: "Shipwrecks & Maritime Disasters",
+        emoji: "🚢",
+        price: "€4.99",
+        glow: "radial-gradient(circle at 50% 0%, #0891b2, transparent 70%)",
+        badges: ["50 questions"],
+        image: "https://images.unsplash.com/photo-1558256708-bc39e034b935?auto=format&fit=crop&w=1000&q=80",
+        pdfPath: null
+    },
+    {
+        id: "aviation-wright-to-concorde",
+        category: "history",
+        categoryLabel: "History",
+        title: "Aviation: From Wright Brothers to Concorde",
+        emoji: "✈️",
+        price: "€4.99",
+        glow: "radial-gradient(circle at 50% 0%, #2563eb, transparent 70%)",
+        badges: ["50 questions"],
+        image: "https://images.unsplash.com/photo-1628354215124-dd0ab72828ac?auto=format&fit=crop&w=1000&q=80",
+        pdfPath: null
+    },
+    {
+        id: "inventions-changed-the-world",
+        category: "history",
+        categoryLabel: "History",
+        title: "Inventions That Changed the World",
+        emoji: "💡",
+        price: "€4.99",
+        glow: "radial-gradient(circle at 50% 0%, #eab308, transparent 70%)",
+        badges: ["50 questions"],
+        image: "https://images.unsplash.com/photo-1522832712787-3fbd36c9fe2d?auto=format&fit=crop&w=1000&q=80",
+        pdfPath: null
+    },
+    {
+        id: "money-millionaires-fortunes",
+        category: "general",
+        categoryLabel: "General Knowledge",
+        title: "Money, Millionaires & Famous Fortunes",
+        emoji: "💰",
+        price: "€4.99",
+        glow: "radial-gradient(circle at 50% 0%, #16a34a, transparent 70%)",
+        badges: ["50 questions"],
+        image: "https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&w=1000&q=80",
+        pdfPath: null
+    },
+    {
+        id: "brands-logos-slogans",
+        category: "general",
+        categoryLabel: "General Knowledge",
+        title: "Brands, Logos & Slogans",
+        emoji: "🏢",
+        price: "€4.99",
+        glow: "radial-gradient(circle at 50% 0%, #f97316, transparent 70%)",
+        badges: ["50 questions"],
+        image: "https://images.unsplash.com/photo-1781768526555-d3c895f08ee3?auto=format&fit=crop&w=1000&q=80",
+        pdfPath: null
+    },
+    {
+        id: "beer-wine-spirits",
+        category: "food",
+        categoryLabel: "Food & Drink",
+        title: "Beer, Wine & Spirits",
+        emoji: "🍺",
+        price: "€4.99",
+        glow: "radial-gradient(circle at 50% 0%, #f59e0b, transparent 70%)",
+        badges: ["50 questions"],
+        image: "https://images.unsplash.com/photo-1600788886242-5c96aabe3757?auto=format&fit=crop&w=1000&q=80",
+        pdfPath: null
+    },
+    {
+        id: "food-around-the-world",
+        category: "food",
+        categoryLabel: "Food & Drink",
+        title: "Food Around the World",
+        emoji: "🍕",
+        price: "€4.99",
+        glow: "radial-gradient(circle at 50% 0%, #ef4444, transparent 70%)",
+        badges: ["50 questions"],
+        image: "https://images.unsplash.com/photo-1547573854-74d2a71d0826?auto=format&fit=crop&w=1000&q=80",
+        pdfPath: null
+    },
+    {
+        id: "coffee-tea-chocolate",
+        category: "food",
+        categoryLabel: "Food & Drink",
+        title: "Coffee, Tea & Chocolate",
+        emoji: "☕",
+        price: "€4.99",
+        glow: "radial-gradient(circle at 50% 0%, #92400e, transparent 70%)",
+        badges: ["50 questions"],
+        image: "https://images.unsplash.com/photo-1447933601403-0c6688de566e?auto=format&fit=crop&w=1000&q=80",
+        pdfPath: null
+    },
+    {
+        id: "video-games",
+        category: "pop",
+        categoryLabel: "Pop Culture",
+        title: "Video Games",
+        emoji: "🎮",
+        price: "€4.99",
+        glow: "radial-gradient(circle at 50% 0%, #7c3aed, transparent 70%)",
+        badges: ["50 questions"],
+        image: "https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?auto=format&fit=crop&w=1000&q=80",
+        pdfPath: null
+    },
+    {
+        id: "classic-tv",
+        category: "tv",
+        categoryLabel: "TV & Film",
+        title: "Classic TV",
+        emoji: "📺",
+        price: "€4.99",
+        glow: "radial-gradient(circle at 50% 0%, #ec4899, transparent 70%)",
+        badges: ["50 questions"],
+        image: "https://images.unsplash.com/photo-1509281373149-e957c6296406?auto=format&fit=crop&w=1000&q=80",
+        pdfPath: null
+    },
+    {
+        id: "sitcoms",
+        category: "tv",
+        categoryLabel: "TV & Film",
+        title: "Sitcoms",
+        emoji: "😂",
+        price: "€4.99",
+        glow: "radial-gradient(circle at 50% 0%, #f59e0b, transparent 70%)",
+        badges: ["50 questions"],
+        image: "https://images.unsplash.com/photo-1577462637488-d74f6206201e?auto=format&fit=crop&w=1000&q=80",
+        pdfPath: null
+    },
+    {
+        id: "superheroes-comic-books",
+        category: "pop",
+        categoryLabel: "Pop Culture",
+        title: "Superheroes & Comic Books",
+        emoji: "🦸",
+        price: "€4.99",
+        glow: "radial-gradient(circle at 50% 0%, #dc2626, transparent 70%)",
+        badges: ["50 questions"],
+        image: "https://images.unsplash.com/photo-1601645191163-3fc0d5d64e35?auto=format&fit=crop&w=1000&q=80",
+        pdfPath: null
+    },
+    {
+        id: "fantasy-worlds",
+        category: "pop",
+        categoryLabel: "Pop Culture",
+        title: "Fantasy Worlds",
+        emoji: "🧙",
+        price: "€4.99",
+        glow: "radial-gradient(circle at 50% 0%, #8b5cf6, transparent 70%)",
+        badges: ["50 questions"],
+        image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1000&q=80",
+        pdfPath: null
+    },
+    {
+        id: "books-literature",
+        category: "culture",
+        categoryLabel: "Arts & Culture",
+        title: "Books & Literature",
+        emoji: "📚",
+        price: "€4.99",
+        glow: "radial-gradient(circle at 50% 0%, #a855f7, transparent 70%)",
+        badges: ["50 questions"],
+        image: "https://images.unsplash.com/photo-1603058817990-2b9a9abbce86?auto=format&fit=crop&w=1000&q=80",
+        pdfPath: null
+    },
+    {
+        id: "art-famous-masterpieces",
+        category: "culture",
+        categoryLabel: "Arts & Culture",
+        title: "Art & Famous Masterpieces",
+        emoji: "🎨",
+        price: "€4.99",
+        glow: "radial-gradient(circle at 50% 0%, #ec4899, transparent 70%)",
+        badges: ["50 questions"],
+        image: "https://images.unsplash.com/photo-1606819717115-9159c900370b?auto=format&fit=crop&w=1000&q=80",
+        pdfPath: null
+    },
+    {
+        id: "sports-records-legends",
+        category: "sport",
+        categoryLabel: "Sport",
+        title: "Sports: Records & Legends",
+        emoji: "🏆",
+        price: "€4.99",
+        glow: "radial-gradient(circle at 50% 0%, #16a34a, transparent 70%)",
+        badges: ["50 questions"],
+        image: "https://images.unsplash.com/photo-1667983088885-226788e18a6e?auto=format&fit=crop&w=1000&q=80",
+        pdfPath: null
+    },
+    {
+        id: "formula-1",
+        category: "sport",
+        categoryLabel: "Sport",
+        title: "Formula 1",
+        emoji: "🏎️",
+        price: "€4.99",
+        glow: "radial-gradient(circle at 50% 0%, #dc2626, transparent 70%)",
+        badges: ["50 questions"],
+        image: "https://images.unsplash.com/photo-1635414764966-682bd029bb01?auto=format&fit=crop&w=1000&q=80",
+        pdfPath: null
     }
 ];
 
