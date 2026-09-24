@@ -249,7 +249,7 @@ export const packs: Pack[] = [
         glow: "radial-gradient(circle at 50% 0%, #ef4444, transparent 70%)",
         badges: ["50 questions", "🔥 Seasonal"],
         image: "https://images.unsplash.com/photo-1612979168796-bcae1575b8c5?auto=format&fit=crop&w=1000&q=80",
-        pdfPath: null
+        pdfPath: "/packs/christmas-quiz-night.pdf"
     },
     {
         id: "halloween-special",
