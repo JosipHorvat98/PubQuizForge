@@ -261,7 +261,7 @@ export const packs: Pack[] = [
         glow: "radial-gradient(circle at 50% 0%, #f97316, transparent 70%)",
         badges: ["50 questions", "✦ Special"],
         image: "https://images.unsplash.com/photo-1477516561410-f0b5dd8319e4?auto=format&fit=crop&w=1000&q=80",
-        pdfPath: null
+        pdfPath: "/packs/halloween-special.pdf"
     }
 ];
 
