@@ -34,6 +34,7 @@ export function ProductCard({ pack }: ProductCardProps) {
     const [downloadError, setDownloadError] = useState<string | null>(null);
 
     const hasPdf = canRedeemWithCredits(pack);
+    const unavailable = !hasPdf;
 
     // Member a-la-carte price with the tier discount (mirrors the checkout API).
     const discountPercent =
@@ -150,6 +151,11 @@ export function ProductCard({ pack }: ProductCardProps) {
                 </div>
 
                 <div className="mt-4 flex flex-wrap gap-2">
+                    {unavailable ? (
+                        <span className="rounded-full bg-amber-500/15 px-3 py-1 text-xs font-semibold text-amber-300">
+                            Temporarily unavailable
+                        </span>
+                    ) : null}
                     {pack.badges.map((badge) => {
                         const isHot = badge.includes("🔥");
                         const isNew = badge.includes("✦");
@@ -178,7 +184,15 @@ export function ProductCard({ pack }: ProductCardProps) {
                 ) : null}
 
                 <div className="mt-5 flex items-center gap-3">
-                    {isMember && !membershipLoading && canRedeem ? (
+                    {unavailable ? (
+                        <button
+                            type="button"
+                            disabled
+                            className="cursor-not-allowed rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-[var(--muted)] opacity-70"
+                        >
+                            Temporarily unavailable
+                        </button>
+                    ) : isMember && !membershipLoading && canRedeem ? (
                         <button
                             type="button"
                             onClick={handleMemberDownload}

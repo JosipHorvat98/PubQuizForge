@@ -9,6 +9,7 @@ import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 import { useCart } from "@/components/providers/cart-provider";
 import { packs } from "@/data/site";
+import { packHasPdf } from "@/lib/entitlements";
 import { startCheckout } from "@/lib/checkout";
 
 export default function PackPage() {
@@ -27,6 +28,7 @@ export default function PackPage() {
     }
 
     const pack = foundPack;
+    const unavailable = !packHasPdf(pack);
 
     const relatedPacks = packs
         .filter((item) => item.category === pack.category && item.id !== pack.id)
@@ -191,22 +193,39 @@ export default function PackPage() {
                         </div>
 
                         <div className="mt-6 grid gap-3">
-                            <button
-                                type="button"
-                                onClick={handleAddToCart}
-                                disabled={isAdded}
-                                className="rounded-xl bg-[var(--gold)] px-5 py-3 text-sm font-extrabold text-black transition duration-150 hover:bg-[var(--gold-strong)] disabled:cursor-not-allowed disabled:opacity-80"
-                            >
-                                {isAdded ? "Added!" : `Add ${quantity} to Cart`}
-                            </button>
+                            {unavailable ? (
+                                <>
+                                    <p className="rounded-xl border border-amber-400/20 bg-amber-400/10 px-4 py-3 text-sm font-semibold text-amber-200">
+                                        Temporarily unavailable — this pack isn&apos;t ready to buy yet.
+                                    </p>
+                                    <button
+                                        type="button"
+                                        disabled
+                                        className="cursor-not-allowed rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-[var(--muted)] opacity-70"
+                                    >
+                                        Temporarily unavailable
+                                    </button>
+                                </>
+                            ) : (
+                                <>
+                                    <button
+                                        type="button"
+                                        onClick={handleAddToCart}
+                                        disabled={isAdded}
+                                        className="rounded-xl bg-[var(--gold)] px-5 py-3 text-sm font-extrabold text-black transition duration-150 hover:bg-[var(--gold-strong)] disabled:cursor-not-allowed disabled:opacity-80"
+                                    >
+                                        {isAdded ? "Added!" : `Add ${quantity} to Cart`}
+                                    </button>
 
-                            <button
-                                type="button"
-                                onClick={handleBuyNow}
-                                className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-white hover:bg-white/10"
-                            >
-                                Buy Now
-                            </button>
+                                    <button
+                                        type="button"
+                                        onClick={handleBuyNow}
+                                        className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-white hover:bg-white/10"
+                                    >
+                                        Buy Now
+                                    </button>
+                                </>
+                            )}
                         </div>
                     </aside>
                 </div>

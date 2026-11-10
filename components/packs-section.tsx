@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { packCategories, packs, type PackCategory } from "@/data/site";
+import { packHasPdf } from "@/lib/entitlements";
 import { ProductCard } from "@/components/product-card";
 import { useCart } from "@/components/providers/cart-provider";
 import { SectionHeading } from "@/components/section-heading";
@@ -29,6 +30,12 @@ export function PacksSection() {
   }
 
   function handleTogglePack(id: string) {
+    const pack = packs.find((candidate) => candidate.id === id);
+
+    if (!pack || !packHasPdf(pack)) {
+      return;
+    }
+
     setSelectedIds((current) =>
       current.includes(id)
         ? current.filter((entry) => entry !== id)
@@ -138,13 +145,14 @@ export function PacksSection() {
               <div className="mt-6 grid gap-2 sm:grid-cols-2">
                 {packs.map((pack) => {
                   const selected = selectedIds.includes(pack.id);
+                  const unavailable = !packHasPdf(pack);
 
                   return (
                     <button
                       key={pack.id}
                       type="button"
                       onClick={() => handleTogglePack(pack.id)}
-                      disabled={!selected && selectedIds.length >= 3}
+                      disabled={unavailable || (!selected && selectedIds.length >= 3)}
                       className={[
                         "flex items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm",
                         selected
@@ -152,15 +160,18 @@ export function PacksSection() {
                           : "border-white/10 bg-white/5 hover:border-white/25",
                         !selected && selectedIds.length >= 3
                           ? "opacity-50"
+                          : "",
+                        unavailable
+                          ? "cursor-not-allowed opacity-50"
                           : ""
                       ].join(" ")}
                     >
                       <span className="text-xl">{pack.emoji}</span>
                       <span className="flex-1 font-semibold text-white">
-                        {pack.title}
+                        {unavailable ? `${pack.title} (unavailable)` : pack.title}
                       </span>
                       <span className="text-xs font-bold text-[var(--muted)]">
-                        {selected ? "✓" : pack.price}
+                        {selected ? "✓" : unavailable ? "Unavailable" : pack.price}
                       </span>
                     </button>
                   );
