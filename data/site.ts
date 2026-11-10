@@ -279,7 +279,7 @@ export const packs: Pack[] = [
         glow: "radial-gradient(circle at 50% 0%, #16a34a, transparent 70%)",
         badges: ["50 questions"],
         image: "https://images.unsplash.com/photo-1661518282703-9ae6ffaf82eb?auto=format&fit=crop&w=1000&q=80",
-        pdfPath: null
+        pdfPath: "/packs/dinosaurs-prehistoric-earth.pdf"
     },
     {
         id: "oceans-deep-sea",
