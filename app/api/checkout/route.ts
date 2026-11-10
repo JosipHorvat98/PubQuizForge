@@ -6,7 +6,11 @@ import Stripe from "stripe";
 import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 import { findActiveMembershipForEmail } from "@/lib/memberships";
-import { getPlanEntitlements } from "@/lib/entitlements";
+import {
+    getPlanEntitlements,
+    packBySlug,
+    packHasPdf
+} from "@/lib/entitlements";
 import {
     isPackPromoCode,
     packsPromoFactor
@@ -59,6 +63,16 @@ function parseEuroPriceToCents(price: string): number {
     }
 
     return Math.round(numericPrice * 100);
+}
+
+/**
+ * A pack slug can be purchased only when it resolves to a real pack that
+ * actually ships a PDF (i.e. is currently available on the site).
+ */
+function isSlugPurchasable(slug: string): boolean {
+    const pack = packBySlug(slug);
+
+    return Boolean(pack && packHasPdf(pack));
 }
 
 /**
@@ -126,6 +140,21 @@ export async function POST(request: Request) {
                 return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
             }
 
+            // Refuse any pack that is marked unavailable (no PDF attached yet).
+            const unavailableItem = body.items.find(
+                (item) => !isSlugPurchasable(item.id)
+            );
+
+            if (unavailableItem) {
+                return NextResponse.json(
+                    {
+                        error: `"${unavailableItem.title}" is temporarily unavailable. Please remove it from your cart.`,
+                        unavailableSlug: unavailableItem.id
+                    },
+                    { status: 400 }
+                );
+            }
+
             const discount = await getMemberDiscountPercent();
             const memberFactor = (100 - discount) / 100;
 
@@ -190,6 +219,13 @@ export async function POST(request: Request) {
             if (!body.productName || !body.unitAmount) {
                 return NextResponse.json(
                     { error: "Missing productName or unitAmount" },
+                    { status: 400 }
+                );
+            }
+
+            if (body.slug && !isSlugPurchasable(body.slug)) {
+                return NextResponse.json(
+                    { error: "This pack is temporarily unavailable." },
                     { status: 400 }
                 );
             }

@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { packs, plans, type Pack } from "@/data/site";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { packHasPdf } from "@/lib/entitlements";
 import {
     getPlanIdFromSubscription,
     getSubscriptionPeriodEnd
@@ -117,7 +118,9 @@ async function savePackDownloads(
     }
 
     const slugs = singleSlug ? [singleSlug] : multiSlugs;
-    const matchedPacks = packs.filter((pack) => slugs.includes(pack.id));
+    const matchedPacks = packs.filter(
+        (pack) => slugs.includes(pack.id) && packHasPdf(pack)
+    );
 
     if (!matchedPacks.length) {
         return matchedPacks;
