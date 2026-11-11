@@ -247,6 +247,7 @@ export async function sendNewsletterConfirmationEmail(to: string): Promise<void>
     await resend.emails.send({
         from: EMAIL_FROM,
         to: [to],
+        ...(PUBLISHER_EMAIL ? { replyTo: PUBLISHER_EMAIL } : {}),
         subject: "You're subscribed to PubQuizForge 🎉",
         html
     });
@@ -345,6 +346,9 @@ export async function sendNewsletterBroadcastEmail(opts: {
                     const { error } = await resend.emails.send({
                         from: EMAIL_FROM,
                         to: [email],
+                        ...(PUBLISHER_EMAIL
+                            ? { replyTo: PUBLISHER_EMAIL }
+                            : {}),
                         subject: opts.subject,
                         html: opts.html
                     });
