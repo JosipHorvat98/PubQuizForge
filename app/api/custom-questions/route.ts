@@ -46,9 +46,13 @@ export async function POST(request: Request) {
             details
         };
 
-        const { error } = await supabaseAdmin
-            .from("custom_questions")
-            .insert(submission);
+        const { error } = await supabaseAdmin.from("custom_questions").insert({
+            name: submission.name,
+            email: submission.email,
+            theme: submission.theme,
+            question_count: submission.questionCount,
+            details: submission.details
+        });
 
         if (error) {
             throw error;

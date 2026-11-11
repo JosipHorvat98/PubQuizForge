@@ -1,10 +1,21 @@
 ﻿import { createClient } from "@/utils/supabase/server";
 
 function getAdminEmails(): string[] {
-    return (process.env.ADMIN_EMAILS ?? "")
+    const configured = (process.env.ADMIN_EMAILS ?? "")
         .split(",")
         .map((email) => email.trim().toLowerCase())
         .filter(Boolean);
+
+    // The publisher (owner) is always an admin, even if ADMIN_EMAILS is not
+    // configured in a given environment. This keeps the dashboard reachable
+    // on production where only PUBLISHER_EMAIL might be set.
+    const publisher = (process.env.PUBLISHER_EMAIL ?? "").trim().toLowerCase();
+
+    if (publisher && !configured.includes(publisher)) {
+        configured.push(publisher);
+    }
+
+    return configured;
 }
 
 export async function requireAdmin() {
