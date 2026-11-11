@@ -1,7 +1,7 @@
 // file: components/news-admin-client.tsx
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 export type NewsAdminPost = {
@@ -22,6 +22,12 @@ const inputClass =
 
 export function NewsAdminClient({ posts }: { posts: NewsAdminPost[] }) {
     const router = useRouter();
+    const [list, setList] = useState<NewsAdminPost[]>(posts);
+
+    // Keep the rendered list in sync when the server sends fresh data.
+    useEffect(() => {
+        setList(posts);
+    }, [posts]);
     const [title, setTitle] = useState("");
     const [category, setCategory] = useState("Update");
     const [content, setContent] = useState("");
@@ -37,7 +43,6 @@ export function NewsAdminClient({ posts }: { posts: NewsAdminPost[] }) {
         setContent("");
         setIsPublished(true);
         setEditingId(null);
-        setMessage(null);
         setError(null);
     }
 
@@ -47,6 +52,8 @@ export function NewsAdminClient({ posts }: { posts: NewsAdminPost[] }) {
         setCategory(post.category);
         setContent(post.content);
         setIsPublished(post.is_published);
+        setMessage(null);
+        setError(null);
         document.getElementById("news-form")?.scrollIntoView({ behavior: "smooth" });
     }
 
@@ -78,15 +85,31 @@ export function NewsAdminClient({ posts }: { posts: NewsAdminPost[] }) {
                 })
             });
 
-            const result = (await response.json()) as { error?: string };
+            const result = (await response.json()) as {
+                error?: string;
+                post?: NewsAdminPost;
+            };
 
             if (!response.ok) {
                 throw new Error(result.error ?? "Unable to save post");
             }
 
-            setMessage(editingId ? "Post updated." : "Post published.");
-            router.refresh();
+            const wasEditing = Boolean(editingId);
+            const savedPost = result.post;
+
+            if (savedPost) {
+                setList((previous) =>
+                    wasEditing
+                        ? previous.map((item) =>
+                              item.id === savedPost.id ? savedPost : item
+                          )
+                        : [savedPost, ...previous]
+                );
+            }
+
             resetForm();
+            setMessage(wasEditing ? "Post updated." : "Post published.");
+            router.refresh();
         } catch (e) {
             setError(e instanceof Error ? e.message : "Unable to save post");
         } finally {
@@ -112,11 +135,16 @@ export function NewsAdminClient({ posts }: { posts: NewsAdminPost[] }) {
                 throw new Error(result.error ?? "Unable to delete post");
             }
 
+            setList((previous) =>
+                previous.filter((item) => item.id !== post.id)
+            );
             router.refresh();
 
             if (editingId === post.id) {
                 resetForm();
             }
+
+            setMessage("Post deleted.");
         } catch (e) {
             alert(e instanceof Error ? e.message : "Unable to delete post");
         }
@@ -229,16 +257,16 @@ export function NewsAdminClient({ posts }: { posts: NewsAdminPost[] }) {
 
             <div>
                 <h2 className="text-xl font-black tracking-tight">
-                    All posts ({posts.length})
+                    All posts ({list.length})
                 </h2>
 
-                {posts.length === 0 ? (
+                {list.length === 0 ? (
                     <p className="mt-4 rounded-2xl border border-white/8 bg-[var(--surface-2)] p-5 text-sm text-[var(--muted)]">
                         No posts yet. Create your first post above.
                     </p>
                 ) : (
                     <div className="mt-4 grid gap-3">
-                        {posts.map((post) => (
+                        {list.map((post) => (
                             <article
                                 key={post.id}
                                 className="rounded-2xl border border-white/8 bg-[var(--surface)] p-4"

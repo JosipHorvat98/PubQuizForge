@@ -11,6 +11,7 @@ import {
     type ReactNode
 } from "react";
 import type { User, Session, AuthChangeEvent } from "@supabase/supabase-js";
+import { usePathname } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 
 type AuthContextValue = {
@@ -32,6 +33,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
     const [isAuthReady, setIsAuthReady] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false);
+    const pathname = usePathname();
 
     useEffect(() => {
         let isMounted = true;
@@ -94,6 +96,53 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             subscription.unsubscribe();
         };
     }, []);
+
+    // Re-sync the user + admin flag after client-side navigations. When the
+    // user logs in through a server action the cookie is set on the server and
+    // the browser Supabase client is not notified, so without this the header
+    // (and the Admin link) would stay stale until a full page refresh.
+    useEffect(() => {
+        if (!isAuthReady) {
+            return;
+        }
+
+        let active = true;
+
+        const timer = setTimeout(async () => {
+            const {
+                data: { user: currentUser }
+            } = await supabaseRef.current.auth.getUser();
+
+            if (!active) {
+                return;
+            }
+
+            setUser(currentUser);
+
+            if (!currentUser?.email) {
+                setIsAdmin(false);
+                return;
+            }
+
+            try {
+                const response = await fetch("/api/admin/me");
+                const json = (await response.json()) as { isAdmin?: boolean };
+
+                if (active) {
+                    setIsAdmin(Boolean(json.isAdmin));
+                }
+            } catch {
+                if (active) {
+                    setIsAdmin(false);
+                }
+            }
+        }, 120);
+
+        return () => {
+            active = false;
+            clearTimeout(timer);
+        };
+    }, [pathname, isAuthReady]);
 
     const value = useMemo<AuthContextValue>(
         () => ({ user, isAuthReady, isAdmin }),

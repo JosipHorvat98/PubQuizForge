@@ -17,12 +17,12 @@ function blocksPublicPackPdf(request: NextRequest): boolean {
     return isPdf && isProduction && !allowFallback;
 }
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
     if (blocksPublicPackPdf(request)) {
         return new NextResponse("Not Found", { status: 404 });
     }
 
-    return updateSession(request);
+    return await updateSession(request);
 }
 
 export const config = {

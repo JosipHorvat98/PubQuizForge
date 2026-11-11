@@ -16,7 +16,7 @@ if (!envSupabasePublishableKey) {
 const supabaseUrl: string = envSupabaseUrl;
 const supabasePublishableKey: string = envSupabasePublishableKey;
 
-export function updateSession(request: NextRequest) {
+export async function updateSession(request: NextRequest) {
     let response = NextResponse.next({
         request: {
             headers: request.headers
@@ -54,7 +54,11 @@ export function updateSession(request: NextRequest) {
     });
 
     if (hasSessionCookie) {
-        void supabase.auth.getUser();
+        try {
+            await supabase.auth.getUser();
+        } catch (error) {
+            console.error("Supabase session refresh failed:", error);
+        }
     }
 
     return response;
