@@ -252,29 +252,133 @@ export async function sendNewsletterConfirmationEmail(to: string): Promise<void>
     });
 }
 
-/** Broadcasts a newsletter edition to all active subscribers via Resend. */
+export type NewsletterBroadcastResult = {
+    sent: number;
+    failed: number;
+    errors: string[];
+};
+
+function escapeHtml(value: string): string {
+    return value
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
+
+/**
+ * Converts a plain-text newsletter message into a simple, safe HTML email.
+ * Line breaks are preserved and all input is HTML-escaped, so the admin can
+ * type normal text instead of hand-writing HTML.
+ */
+export function newsletterTextToHtml(text: string): string {
+    const paragraphs = text
+        .replace(/\r\n/g, "\n")
+        .split(/\n{2,}/)
+        .map((block) => block.trim())
+        .filter(Boolean)
+        .map(
+            (block) =>
+                `<p style="margin:0 0 16px;">${escapeHtml(block).replace(
+                    /\n/g,
+                    "<br/>"
+                )}</p>`
+        )
+        .join("");
+
+    return [
+        `<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.6;color:#111818;">`,
+        paragraphs,
+        `<hr style="border:none;border-top:1px solid #e5e5e5;margin:24px 0;" />`,
+        `<p style="font-size:12px;color:#888;">You are receiving this email because you subscribed to the PubQuizForge newsletter. Visit <a href="${SITE_URL}">${SITE_URL}</a> to manage your subscription.</p>`,
+        `</div>`
+    ].join("");
+}
+
+type NewsletterSendOutcome =
+    | { ok: true; email: string }
+    | { ok: false; email: string; message: string };
+
+/**
+ * Broadcasts a newsletter edition to every active subscriber via Resend, one
+ * email per recipient so a single bad address never blocks the rest.
+ *
+ * Resend's SDK does NOT throw on delivery errors — it resolves with
+ * `{ data, error }` — so each response is inspected explicitly and the caller
+ * gets accurate sent/failed counts instead of a false "success".
+ */
 export async function sendNewsletterBroadcastEmail(opts: {
     to: string[];
     subject: string;
     html: string;
-}): Promise<void> {
+}): Promise<NewsletterBroadcastResult> {
     const resend = resendOrNull();
 
     if (!resend) {
-        return;
+        throw new Error(
+            "Email is not configured: RESEND_API_KEY is missing on the server."
+        );
     }
 
-    if (!opts.to.length) {
-        console.warn("[email] broadcast skipped: no recipients");
-        return;
+    const recipients = Array.from(
+        new Set(
+            opts.to.map((email) => email.trim().toLowerCase()).filter(Boolean)
+        )
+    );
+
+    const result: NewsletterBroadcastResult = {
+        sent: 0,
+        failed: 0,
+        errors: []
+    };
+
+    // Send in small parallel chunks: fast, but gentle on the API/rate limits.
+    const CHUNK_SIZE = 8;
+
+    for (let index = 0; index < recipients.length; index += CHUNK_SIZE) {
+        const chunk = recipients.slice(index, index + CHUNK_SIZE);
+
+        const settled = await Promise.all<NewsletterSendOutcome>(
+            chunk.map(async (email): Promise<NewsletterSendOutcome> => {
+                try {
+                    const { error } = await resend.emails.send({
+                        from: EMAIL_FROM,
+                        to: [email],
+                        subject: opts.subject,
+                        html: opts.html
+                    });
+
+                    return error
+                        ? { ok: false, email, message: error.message }
+                        : { ok: true, email };
+                } catch (caught) {
+                    return {
+                        ok: false,
+                        email,
+                        message:
+                            caught instanceof Error
+                                ? caught.message
+                                : "Unknown error"
+                    };
+                }
+            })
+        );
+
+        for (const entry of settled) {
+            if (entry.ok) {
+                result.sent += 1;
+            } else {
+                result.failed += 1;
+
+                if (result.errors.length < 5) {
+                    result.errors.push(`${entry.email}: ${entry.message}`);
+                }
+            }
+        }
     }
 
-    await resend.emails.send({
-        from: EMAIL_FROM,
-        to: opts.to,
-        subject: opts.subject,
-        html: opts.html
-    });
+    return result;
 }
 
 /** Notifies the publisher (you) about a contact form message. */

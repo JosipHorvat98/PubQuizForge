@@ -41,7 +41,10 @@ export default async function AdminNewsletterPage() {
                     </p>
 
                     <div className="mt-10">
-                        <NewsletterAdminClient subscribers={subscribers} />
+                        <NewsletterAdminClient
+                            subscribers={subscribers}
+                            emailFrom={process.env.EMAIL_FROM ?? ""}
+                        />
                     </div>
                 </div>
             </section>

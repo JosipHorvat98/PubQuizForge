@@ -17,15 +17,18 @@ const inputClass =
     "w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none focus:border-white/25";
 
 export function NewsletterAdminClient({
-    subscribers
+    subscribers,
+    emailFrom = ""
 }: {
     subscribers: NewsletterAdminSubscriber[];
+    emailFrom?: string;
 }) {
     const router = useRouter();
     const activeCount = subscribers.filter((entry) => entry.is_active).length;
+    const usesSandboxFrom = /resend\.dev/i.test(emailFrom);
 
     const [subject, setSubject] = useState("");
-    const [html, setHtml] = useState("");
+    const [text, setText] = useState("");
     const [sending, setSending] = useState(false);
     const [message, setMessage] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
@@ -56,8 +59,8 @@ export function NewsletterAdminClient({
         URL.revokeObjectURL(url);
     }
 async function handleBroadcast() {
-        if (!subject.trim() || !html.trim()) {
-            setError("Subject and content are required.");
+        if (!subject.trim() || !text.trim()) {
+            setError("Subject and message are required.");
             return;
         }
 
@@ -82,21 +85,43 @@ async function handleBroadcast() {
             const response = await fetch("/api/admin/newsletter", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ subject, html })
+                body: JSON.stringify({ subject, text })
             });
 
             const result = (await response.json()) as {
                 error?: string;
                 sent?: number;
+                failed?: number;
+                errors?: string[];
             };
 
             if (!response.ok) {
-                throw new Error(result.error ?? "Unable to send broadcast.");
+                const detail = result.errors?.length
+                    ? ` ${result.errors[0]}`
+                    : "";
+                throw new Error(
+                    `${result.error ?? "Unable to send broadcast."}${detail}`
+                );
             }
 
-            setMessage(`Sent to ${result.sent ?? 0} subscribers.`);
-            setSubject("");
-            setHtml("");
+            const sent = result.sent ?? 0;
+            const failed = result.failed ?? 0;
+
+            if (failed > 0) {
+                setMessage(
+                    `Sent to ${sent} subscriber(s), ${failed} failed.` +
+                        (result.errors?.length
+                            ? ` First error — ${result.errors[0]}`
+                            : "")
+                );
+            } else {
+                setMessage(`Sent to ${sent} subscriber(s).`);
+            }
+
+            if (sent > 0) {
+                setSubject("");
+                setText("");
+            }
         } catch (e) {
             setError(e instanceof Error ? e.message : "Unable to send broadcast.");
         } finally {
@@ -137,6 +162,17 @@ return (
                 <div className="rounded-[28px] border border-white/8 bg-[var(--surface)] p-6 md:p-8">
                     <h2 className="text-xl font-black tracking-tight">Send an edition</h2>
 
+                    {usesSandboxFrom ? (
+                        <p className="mt-3 rounded-xl border border-amber-400/25 bg-amber-400/10 px-4 py-3 text-xs leading-6 text-amber-200">
+                            Emails are sent from Resend&apos;s test address{" "}
+                            (<code className="break-all">{emailFrom}</code>). Resend
+                            only delivers test emails to your own Resend account
+                            address. To email real subscribers, verify a domain at
+                            resend.com/domains and set EMAIL_FROM to an address on
+                            that domain.
+                        </p>
+                    ) : null}
+
                     <div className="mt-4 grid gap-4">
                         <div>
                             <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[var(--muted)]">
@@ -152,14 +188,18 @@ return (
 
                         <div>
                             <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[var(--muted)]">
-                                Content (HTML)
+                                Message
                             </label>
                             <textarea
-                                className={`${inputClass} min-h-[160px] font-mono text-xs`}
-                                value={html}
-                                onChange={(event) => setHtml(event.target.value)}
-                                placeholder={"<h2>Hello!</h2><p>Write your newsletter here.</p>"}
+                                className={`${inputClass} min-h-[160px]`}
+                                value={text}
+                                onChange={(event) => setText(event.target.value)}
+                                placeholder={"Write your newsletter in plain text.\n\nLine breaks are preserved — no HTML needed."}
                             />
+                            <p className="mt-2 text-xs text-[var(--muted)]">
+                                Plain text only. Formatting and line breaks are
+                                handled automatically.
+                            </p>
                         </div>
 
                         <button

@@ -6,7 +6,11 @@ import {
     listNewsletterSubscribers,
     unsubscribeNewsletter
 } from "@/lib/newsletter";
-import { sendNewsletterBroadcastEmail } from "@/lib/email";
+import {
+    sendNewsletterBroadcastEmail,
+    newsletterTextToHtml,
+    type NewsletterBroadcastResult
+} from "@/lib/email";
 
 export const dynamic = "force-dynamic";
 
@@ -35,14 +39,17 @@ export async function POST(request: Request) {
     const body = (await request.json()) as {
         subject?: string;
         html?: string;
+        text?: string;
     };
 
     const subject = (body.subject ?? "").trim();
-    const html = (body.html ?? "").trim();
+    const providedHtml = (body.html ?? "").trim();
+    const text = (body.text ?? "").trim();
+    const html = providedHtml || (text ? newsletterTextToHtml(text) : "");
 
     if (!subject || !html) {
         return NextResponse.json(
-            { error: "Subject and content are required" },
+            { error: "Subject and message are required" },
             { status: 400 }
         );
     }
@@ -59,12 +66,24 @@ export async function POST(request: Request) {
         );
     }
 
+    let outcome: NewsletterBroadcastResult;
+
     try {
-        await sendNewsletterBroadcastEmail({ to: recipients, subject, html });
+        outcome = await sendNewsletterBroadcastEmail({
+            to: recipients,
+            subject,
+            html
+        });
     } catch (error) {
         console.error("Newsletter broadcast failed:", error);
+
         return NextResponse.json(
-            { error: "Unable to send the broadcast. Check the EMAIL_FROM domain setup." },
+            {
+                error:
+                    error instanceof Error
+                        ? error.message
+                        : "Unable to send the broadcast."
+            },
             { status: 500 }
         );
     }
@@ -73,10 +92,34 @@ export async function POST(request: Request) {
         adminEmail,
         action: "newsletter_broadcast",
         entityType: "newsletter",
-        meta: { subject, recipientCount: recipients.length }
+        meta: {
+            subject,
+            recipientCount: recipients.length,
+            sent: outcome.sent,
+            failed: outcome.failed
+        }
     });
 
-    return NextResponse.json({ success: true, sent: recipients.length });
+    if (outcome.sent === 0) {
+        return NextResponse.json(
+            {
+                error:
+                    outcome.errors[0] ??
+                    "Unable to deliver the broadcast to any subscriber.",
+                sent: outcome.sent,
+                failed: outcome.failed,
+                errors: outcome.errors
+            },
+            { status: 502 }
+        );
+    }
+
+    return NextResponse.json({
+        success: true,
+        sent: outcome.sent,
+        failed: outcome.failed,
+        errors: outcome.errors
+    });
 }
 
 export async function DELETE(request: Request) {
