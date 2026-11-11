@@ -5,6 +5,7 @@ import "server-only";
 import { Resend } from "resend";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import type { Pack } from "@/data/site";
+import { unsubscribeUrl } from "@/lib/unsubscribe";
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY ?? "";
 const EMAIL_FROM =
@@ -244,12 +245,17 @@ export async function sendNewsletterConfirmationEmail(to: string): Promise<void>
         `<p>Happy quizzing! — PubQuizForge</p>`
     ].join("\n");
 
+    const unsubscribe = unsubscribeUrl(to);
+
     await resend.emails.send({
         from: EMAIL_FROM,
         to: [to],
         ...(PUBLISHER_EMAIL ? { replyTo: PUBLISHER_EMAIL } : {}),
         subject: "You're subscribed to PubQuizForge 🎉",
-        html
+        html: html + unsubscribeFooter(unsubscribe),
+        headers: {
+            "List-Unsubscribe": `<${unsubscribe}>`
+        }
     });
 }
 
@@ -258,6 +264,10 @@ export type NewsletterBroadcastResult = {
     failed: number;
     errors: string[];
 };
+
+function unsubscribeFooter(url: string): string {
+    return `<p style="font-size:12px;color:#888;margin-top:24px;">Don't want these emails? <a href="${url}">Unsubscribe</a>.</p>`;
+}
 
 function escapeHtml(value: string): string {
     return value
@@ -292,7 +302,7 @@ export function newsletterTextToHtml(text: string): string {
         `<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.6;color:#111818;">`,
         paragraphs,
         `<hr style="border:none;border-top:1px solid #e5e5e5;margin:24px 0;" />`,
-        `<p style="font-size:12px;color:#888;">You are receiving this email because you subscribed to the PubQuizForge newsletter. Visit <a href="${SITE_URL}">${SITE_URL}</a> to manage your subscription.</p>`,
+        `<p style="font-size:12px;color:#888;">You are receiving this email because you subscribed to the PubQuizForge newsletter.</p>`,
         `</div>`
     ].join("");
 }
@@ -343,6 +353,8 @@ export async function sendNewsletterBroadcastEmail(opts: {
         const settled = await Promise.all<NewsletterSendOutcome>(
             chunk.map(async (email): Promise<NewsletterSendOutcome> => {
                 try {
+                    const unsubscribe = unsubscribeUrl(email);
+
                     const { error } = await resend.emails.send({
                         from: EMAIL_FROM,
                         to: [email],
@@ -350,7 +362,10 @@ export async function sendNewsletterBroadcastEmail(opts: {
                             ? { replyTo: PUBLISHER_EMAIL }
                             : {}),
                         subject: opts.subject,
-                        html: opts.html
+                        html: opts.html + unsubscribeFooter(unsubscribe),
+                        headers: {
+                            "List-Unsubscribe": `<${unsubscribe}>`
+                        }
                     });
 
                     return error
