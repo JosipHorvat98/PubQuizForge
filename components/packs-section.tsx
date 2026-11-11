@@ -2,12 +2,13 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { packCategories, packs, type PackCategory } from "@/data/site";
+import { packCategories, packs, type PackCategory, type PackTier } from "@/data/site";
 import {
   packHasPdf,
   canAccessPackWithPlanId,
   packTier,
-  PACK_TIER_LABEL
+  PACK_TIER_LABEL,
+  PACK_TIER_RANK
 } from "@/lib/entitlements";
 import { ProductCard } from "@/components/product-card";
 import { useMembership } from "@/components/providers/membership-provider";
@@ -17,19 +18,75 @@ import { cx } from "@/lib/utils";
 
 export function PacksSection() {
   const [activeCategory, setActiveCategory] = useState<PackCategory>("all");
+  const [activeTier, setActiveTier] = useState<PackTier | "all">("all");
   const [pickerOpen, setPickerOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const { addItem } = useCart();
   const { entitlements } = useMembership();
   const router = useRouter();
 
+  // Group packs by tier (free → bronze → silver → gold), then alphabetically,
+  // so the grid reads in a sensible order instead of feeling scattered.
+  const sortedPacks = useMemo(
+    () =>
+      packs.slice().sort((a, b) => {
+        const byTier =
+          PACK_TIER_RANK[packTier(a)] - PACK_TIER_RANK[packTier(b)];
+
+        return byTier !== 0 ? byTier : a.title.localeCompare(b.title);
+      }),
+    []
+  );
+
   const filteredPacks = useMemo(() => {
-    if (activeCategory === "all") {
-      return packs;
+    return sortedPacks.filter((pack) => {
+      const matchesCategory =
+        activeCategory === "all" || pack.category === activeCategory;
+      const matchesTier =
+        activeTier === "all" || packTier(pack) === activeTier;
+
+      return matchesCategory && matchesTier;
+    });
+  }, [sortedPacks, activeCategory, activeTier]);
+
+  const tierFilters: Array<{ id: PackTier | "all"; label: string }> = [
+    { id: "all", label: "All tiers" },
+    { id: "free", label: "Free" },
+    { id: "bronze", label: "Bronze" },
+    { id: "silver", label: "Silver" },
+    { id: "gold", label: "Gold" }
+  ];
+
+  const tierCounts = useMemo(() => {
+    const counts: Record<string, number> = {
+      all: packs.length,
+      free: 0,
+      bronze: 0,
+      silver: 0,
+      gold: 0
+    };
+
+    for (const pack of packs) {
+      counts[packTier(pack)] += 1;
     }
 
-    return packs.filter((pack) => pack.category === activeCategory);
-  }, [activeCategory]);
+    return counts;
+  }, []);
+
+  function tierActiveClass(id: PackTier | "all"): string {
+    switch (id) {
+      case "free":
+        return "border-emerald-400/50 bg-emerald-500/15 text-emerald-300";
+      case "bronze":
+        return "border-[var(--bronze)] bg-[var(--bronze-dim)] text-[var(--bronze)]";
+      case "silver":
+        return "border-[var(--silver)] bg-[var(--silver-dim)] text-[var(--silver)]";
+      case "gold":
+        return "border-[var(--gold)] bg-[var(--gold-dim)] text-[var(--gold)]";
+      default:
+        return "border-[var(--gold)] bg-[var(--gold)] text-black";
+    }
+  }
 
   function handleOpenPicker() {
     setSelectedIds([]);
@@ -125,11 +182,45 @@ export function PacksSection() {
           ))}
         </div>
 
-        <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-          {filteredPacks.map((pack) => (
-            <ProductCard key={pack.id} pack={pack} />
-          ))}
+        <div className="mb-6 flex flex-wrap items-center gap-2">
+          <span className="mr-1 text-xs font-bold uppercase tracking-[0.2em] text-[var(--muted)]">
+            Tier
+          </span>
+          {tierFilters.map((tier) => {
+            const isActive = activeTier === tier.id;
+
+            return (
+              <button
+                key={tier.id}
+                type="button"
+                onClick={() => setActiveTier(tier.id)}
+                className={cx(
+                  "rounded-full border px-4 py-2 text-sm font-semibold transition",
+                  isActive
+                    ? tierActiveClass(tier.id)
+                    : "border-white/8 bg-transparent text-[var(--muted)] hover:border-white/20 hover:text-white"
+                )}
+              >
+                {tier.label}
+                <span className="ml-2 text-xs opacity-70">
+                  {tierCounts[tier.id]}
+                </span>
+              </button>
+            );
+          })}
         </div>
+
+        {filteredPacks.length === 0 ? (
+          <p className="rounded-2xl border border-white/8 bg-[var(--surface)] px-5 py-8 text-center text-sm text-[var(--muted)]">
+            No packs match this filter yet.
+          </p>
+        ) : (
+          <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+            {filteredPacks.map((pack) => (
+              <ProductCard key={pack.id} pack={pack} />
+            ))}
+          </div>
+        )}
 
         {pickerOpen ? (
           <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 p-4">
@@ -154,7 +245,7 @@ export function PacksSection() {
               </p>
 
               <div className="mt-6 grid gap-2 sm:grid-cols-2">
-                {packs.map((pack) => {
+                {sortedPacks.map((pack) => {
                   const selected = selectedIds.includes(pack.id);
                   const unavailable = !packHasPdf(pack);
                   const locked = !canAccessPackWithPlanId(
