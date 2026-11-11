@@ -75,7 +75,7 @@ export const PACK_TIER_RANK: Record<PackTier, number> = {
 };
 
 export const PACK_TIER_LABEL: Record<PackTier, string> = {
-    free: "Free",
+    free: "No tier",
     bronze: "Bronze",
     silver: "Silver",
     gold: "Gold"

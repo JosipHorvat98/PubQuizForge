@@ -51,7 +51,7 @@ export function PacksSection() {
 
   const tierFilters: Array<{ id: PackTier | "all"; label: string }> = [
     { id: "all", label: "All tiers" },
-    { id: "free", label: "Free" },
+    { id: "free", label: "No tier" },
     { id: "bronze", label: "Bronze" },
     { id: "silver", label: "Silver" },
     { id: "gold", label: "Gold" }
