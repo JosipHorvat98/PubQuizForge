@@ -1,5 +1,5 @@
 // file: lib/entitlements.ts
-import { packs, type Pack } from "@/data/site";
+import { packs, type Pack, type PackTier } from "@/data/site";
 
 export type PlanId = "bronze" | "silver" | "gold";
 
@@ -65,6 +65,48 @@ export function getPlanEntitlements(planId: string | undefined): PlanEntitlement
     const key = planId.toLowerCase() as PlanId;
 
     return PLAN_ENTITLEMENTS[key] ?? null;
+}
+
+export const PACK_TIER_RANK: Record<PackTier, number> = {
+    free: 0,
+    bronze: 1,
+    silver: 2,
+    gold: 3
+};
+
+export const PACK_TIER_LABEL: Record<PackTier, string> = {
+    free: "Free",
+    bronze: "Bronze",
+    silver: "Silver",
+    gold: "Gold"
+};
+
+/** The membership tier a pack is gated behind. */
+export function packTier(pack: Pack): PackTier {
+    return pack.tier;
+}
+
+/** Rank required to access a pack (free = 0 … gold = 3). */
+export function packTierRank(pack: Pack): number {
+    return PACK_TIER_RANK[packTier(pack)];
+}
+
+/** Rank of a membership plan id (no membership = 0). */
+export function planRank(planId?: string | null): number {
+    return getPlanEntitlements(planId ?? undefined)?.rank ?? 0;
+}
+
+/**
+ * Whether a user on `planId` (null/undefined = no membership) may buy or
+ * redeem `pack`. Free packs are open to everyone; bronze+ packs require the
+ * matching tier or higher (bronze → bronze/silver/gold, silver → silver/gold,
+ * gold → gold only).
+ */
+export function canAccessPackWithPlanId(
+    pack: Pack,
+    planId?: string | null
+): boolean {
+    return planRank(planId) >= packTierRank(pack);
 }
 
 /** Whether a pack has a real PDF to download at all. */

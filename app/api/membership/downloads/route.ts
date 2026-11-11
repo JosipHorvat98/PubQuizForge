@@ -6,7 +6,10 @@ import { supabaseAdmin } from "@/lib/supabase-admin";
 import { packs } from "@/data/site";
 import {
     currentPeriodStart,
-    getPlanEntitlements
+    getPlanEntitlements,
+    canAccessPackWithPlanId,
+    packTier,
+    PACK_TIER_LABEL
 } from "@/lib/entitlements";
 import {
     consumeCredit,
@@ -85,6 +88,16 @@ export async function POST(request: Request) {
         if (!entitlements) {
             return NextResponse.json(
                 { error: "Unknown membership plan." },
+                { status: 403 }
+            );
+        }
+
+        if (!canAccessPackWithPlanId(pack, membership.plan_id)) {
+            return NextResponse.json(
+                {
+                    error: `This pack requires a ${PACK_TIER_LABEL[packTier(pack)]} membership or higher. Upgrade to redeem it.`,
+                    tierLocked: true
+                },
                 { status: 403 }
             );
         }

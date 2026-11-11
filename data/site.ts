@@ -13,6 +13,8 @@ export type PackCategory =
     | "food"
     | "culture";
 
+export type PackTier = "free" | "bronze" | "silver" | "gold";
+
 export type Pack = {
     id: string;
     category: Exclude<PackCategory, "all">;
@@ -25,6 +27,8 @@ export type Pack = {
     /** Optional themed cover photo (Unsplash). Falls back to the emoji when unset. */
     image?: string | null;
     pdfPath?: string | null;
+    /** Minimum membership tier required to buy or redeem this pack. */
+    tier: PackTier;
 };
 
 export type Plan = {
@@ -79,6 +83,7 @@ export const packCategories: Array<{ id: PackCategory; label: string }> = [
 export const packs: Pack[] = [
     {
         id: "general-knowledge-vol-1",
+        tier: "free",
         category: "general",
         categoryLabel: "General Knowledge",
         title: "General Knowledge Vol. 1",
@@ -91,6 +96,7 @@ export const packs: Pack[] = [
     },
     {
         id: "general-knowledge-vol-2",
+        tier: "free",
         category: "general",
         categoryLabel: "General Knowledge",
         title: "General Knowledge Vol. 2",
@@ -103,6 +109,7 @@ export const packs: Pack[] = [
     },
     {
         id: "friends-ultimate-pack",
+        tier: "bronze",
         category: "tv",
         categoryLabel: "TV & Film",
         title: "F.R.I.E.N.D.S — Ultimate Pack",
@@ -115,6 +122,7 @@ export const packs: Pack[] = [
     },
     {
         id: "movie-mix-80s-90s",
+        tier: "bronze",
         category: "tv",
         categoryLabel: "TV & Film",
         title: "80s & 90s Movie Mix",
@@ -127,6 +135,7 @@ export const packs: Pack[] = [
     },
     {
         id: "music-through-the-decades",
+        tier: "silver",
         category: "music",
         categoryLabel: "Music",
         title: "Music Through the Decades",
@@ -139,6 +148,7 @@ export const packs: Pack[] = [
     },
     {
         id: "one-hit-wonders",
+        tier: "silver",
         category: "music",
         categoryLabel: "Music",
         title: "One Hit Wonders",
@@ -151,6 +161,7 @@ export const packs: Pack[] = [
     },
     {
         id: "world-capitals-master-edition",
+        tier: "gold",
         category: "geo",
         categoryLabel: "Geography",
         title: "World Capitals — Master Edition",
@@ -163,6 +174,7 @@ export const packs: Pack[] = [
     },
     {
         id: "flags-of-the-world",
+        tier: "bronze",
         category: "geo",
         categoryLabel: "Geography",
         title: "Flags of the World",
@@ -175,6 +187,7 @@ export const packs: Pack[] = [
     },
     {
         id: "ancient-civilisations",
+        tier: "silver",
         category: "history",
         categoryLabel: "History",
         title: "Ancient Civilisations",
@@ -187,6 +200,7 @@ export const packs: Pack[] = [
     },
     {
         id: "world-war-ii-full-story",
+        tier: "gold",
         category: "history",
         categoryLabel: "History",
         title: "World War II — The Full Story",
@@ -199,6 +213,7 @@ export const packs: Pack[] = [
     },
     {
         id: "football-world-cup-edition",
+        tier: "bronze",
         category: "sport",
         categoryLabel: "Sport",
         title: "Football — World Cup Edition",
@@ -211,6 +226,7 @@ export const packs: Pack[] = [
     },
     {
         id: "olympics-quiz-pack",
+        tier: "gold",
         category: "sport",
         categoryLabel: "Sport",
         title: "Olympics Quiz Pack",
@@ -223,6 +239,7 @@ export const packs: Pack[] = [
     },
     {
         id: "space-and-the-universe",
+        tier: "gold",
         category: "science",
         categoryLabel: "Science",
         title: "Space & The Universe",
@@ -235,6 +252,7 @@ export const packs: Pack[] = [
     },
     {
         id: "human-body-basics",
+        tier: "silver",
         category: "science",
         categoryLabel: "Science",
         title: "Human Body Basics",
@@ -247,6 +265,7 @@ export const packs: Pack[] = [
     },
     {
         id: "christmas-quiz-night",
+        tier: "bronze",
         category: "themed",
         categoryLabel: "Themed Nights",
         title: "Christmas Quiz Night",
@@ -259,6 +278,7 @@ export const packs: Pack[] = [
     },
     {
         id: "halloween-special",
+        tier: "bronze",
         category: "themed",
         categoryLabel: "Themed Nights",
         title: "Halloween Special",
@@ -271,6 +291,7 @@ export const packs: Pack[] = [
     },
     {
         id: "dinosaurs-prehistoric-earth",
+        tier: "silver",
         category: "science",
         categoryLabel: "Science",
         title: "Dinosaurs & Prehistoric Earth",
@@ -283,6 +304,7 @@ export const packs: Pack[] = [
     },
     {
         id: "oceans-deep-sea",
+        tier: "silver",
         category: "geo",
         categoryLabel: "Geography",
         title: "Oceans & Deep Sea",
@@ -295,6 +317,7 @@ export const packs: Pack[] = [
     },
     {
         id: "animal-kingdom",
+        tier: "bronze",
         category: "science",
         categoryLabel: "Science",
         title: "Animal Kingdom",
@@ -307,6 +330,7 @@ export const packs: Pack[] = [
     },
     {
         id: "human-brain-psychology",
+        tier: "gold",
         category: "science",
         categoryLabel: "Science",
         title: "Human Brain & Psychology",
@@ -319,6 +343,7 @@ export const packs: Pack[] = [
     },
     {
         id: "medicine-diseases-discoveries",
+        tier: "gold",
         category: "science",
         categoryLabel: "Science",
         title: "Medicine, Diseases & Discoveries",
@@ -331,6 +356,7 @@ export const packs: Pack[] = [
     },
     {
         id: "science-weird-but-true",
+        tier: "silver",
         category: "science",
         categoryLabel: "Science",
         title: "Science: Weird but True",
@@ -343,6 +369,7 @@ export const packs: Pack[] = [
     },
     {
         id: "chemistry-everyday-life",
+        tier: "gold",
         category: "science",
         categoryLabel: "Science",
         title: "Chemistry in Everyday Life",
@@ -355,6 +382,7 @@ export const packs: Pack[] = [
     },
     {
         id: "natural-disasters",
+        tier: "bronze",
         category: "geo",
         categoryLabel: "Geography",
         title: "Natural Disasters",
@@ -367,6 +395,7 @@ export const packs: Pack[] = [
     },
     {
         id: "extreme-weather",
+        tier: "bronze",
         category: "geo",
         categoryLabel: "Geography",
         title: "Extreme Weather",
@@ -379,6 +408,7 @@ export const packs: Pack[] = [
     },
     {
         id: "geography-around-the-world",
+        tier: "bronze",
         category: "geo",
         categoryLabel: "Geography",
         title: "Geography: Around the World",
@@ -391,6 +421,7 @@ export const packs: Pack[] = [
     },
     {
         id: "islands-of-the-world",
+        tier: "silver",
         category: "geo",
         categoryLabel: "Geography",
         title: "Islands of the World",
@@ -403,6 +434,7 @@ export const packs: Pack[] = [
     },
     {
         id: "mountains-rivers-lakes",
+        tier: "silver",
         category: "geo",
         categoryLabel: "Geography",
         title: "Mountains, Rivers & Lakes",
@@ -415,6 +447,7 @@ export const packs: Pack[] = [
     },
     {
         id: "famous-landmarks",
+        tier: "silver",
         category: "geo",
         categoryLabel: "Geography",
         title: "Famous Landmarks",
@@ -427,6 +460,7 @@ export const packs: Pack[] = [
     },
     {
         id: "europe",
+        tier: "bronze",
         category: "geo",
         categoryLabel: "Geography",
         title: "Europe",
@@ -439,6 +473,7 @@ export const packs: Pack[] = [
     },
     {
         id: "usa-50-states",
+        tier: "bronze",
         category: "geo",
         categoryLabel: "Geography",
         title: "USA: 50 States",
@@ -451,6 +486,7 @@ export const packs: Pack[] = [
     },
     {
         id: "kings-queens-royalty",
+        tier: "silver",
         category: "history",
         categoryLabel: "History",
         title: "Kings, Queens & Royalty",
@@ -463,6 +499,7 @@ export const packs: Pack[] = [
     },
     {
         id: "empires-conquerors",
+        tier: "silver",
         category: "history",
         categoryLabel: "History",
         title: "Empires & Conquerors",
@@ -475,6 +512,7 @@ export const packs: Pack[] = [
     },
     {
         id: "spies-codes-secret-operations",
+        tier: "gold",
         category: "history",
         categoryLabel: "History",
         title: "Spies, Codes & Secret Operations",
@@ -487,6 +525,7 @@ export const packs: Pack[] = [
     },
     {
         id: "shipwrecks-maritime-disasters",
+        tier: "silver",
         category: "history",
         categoryLabel: "History",
         title: "Shipwrecks & Maritime Disasters",
@@ -499,6 +538,7 @@ export const packs: Pack[] = [
     },
     {
         id: "aviation-wright-to-concorde",
+        tier: "silver",
         category: "history",
         categoryLabel: "History",
         title: "Aviation: From Wright Brothers to Concorde",
@@ -511,6 +551,7 @@ export const packs: Pack[] = [
     },
     {
         id: "inventions-changed-the-world",
+        tier: "silver",
         category: "history",
         categoryLabel: "History",
         title: "Inventions That Changed the World",
@@ -523,6 +564,7 @@ export const packs: Pack[] = [
     },
     {
         id: "money-millionaires-fortunes",
+        tier: "bronze",
         category: "general",
         categoryLabel: "General Knowledge",
         title: "Money, Millionaires & Famous Fortunes",
@@ -535,6 +577,7 @@ export const packs: Pack[] = [
     },
     {
         id: "brands-logos-slogans",
+        tier: "bronze",
         category: "general",
         categoryLabel: "General Knowledge",
         title: "Brands, Logos & Slogans",
@@ -547,6 +590,7 @@ export const packs: Pack[] = [
     },
     {
         id: "beer-wine-spirits",
+        tier: "bronze",
         category: "food",
         categoryLabel: "Food & Drink",
         title: "Beer, Wine & Spirits",
@@ -559,6 +603,7 @@ export const packs: Pack[] = [
     },
     {
         id: "food-around-the-world",
+        tier: "bronze",
         category: "food",
         categoryLabel: "Food & Drink",
         title: "Food Around the World",
@@ -571,6 +616,7 @@ export const packs: Pack[] = [
     },
     {
         id: "coffee-tea-chocolate",
+        tier: "bronze",
         category: "food",
         categoryLabel: "Food & Drink",
         title: "Coffee, Tea & Chocolate",
@@ -583,6 +629,7 @@ export const packs: Pack[] = [
     },
     {
         id: "video-games",
+        tier: "bronze",
         category: "pop",
         categoryLabel: "Pop Culture",
         title: "Video Games",
@@ -595,6 +642,7 @@ export const packs: Pack[] = [
     },
     {
         id: "classic-tv",
+        tier: "bronze",
         category: "tv",
         categoryLabel: "TV & Film",
         title: "Classic TV",
@@ -607,6 +655,7 @@ export const packs: Pack[] = [
     },
     {
         id: "sitcoms",
+        tier: "bronze",
         category: "tv",
         categoryLabel: "TV & Film",
         title: "Sitcoms",
@@ -619,6 +668,7 @@ export const packs: Pack[] = [
     },
     {
         id: "superheroes-comic-books",
+        tier: "bronze",
         category: "pop",
         categoryLabel: "Pop Culture",
         title: "Superheroes & Comic Books",
@@ -631,6 +681,7 @@ export const packs: Pack[] = [
     },
     {
         id: "fantasy-worlds",
+        tier: "bronze",
         category: "pop",
         categoryLabel: "Pop Culture",
         title: "Fantasy Worlds",
@@ -643,6 +694,7 @@ export const packs: Pack[] = [
     },
     {
         id: "books-literature",
+        tier: "silver",
         category: "culture",
         categoryLabel: "Arts & Culture",
         title: "Books & Literature",
@@ -655,6 +707,7 @@ export const packs: Pack[] = [
     },
     {
         id: "art-famous-masterpieces",
+        tier: "gold",
         category: "culture",
         categoryLabel: "Arts & Culture",
         title: "Art & Famous Masterpieces",
@@ -667,6 +720,7 @@ export const packs: Pack[] = [
     },
     {
         id: "sports-records-legends",
+        tier: "bronze",
         category: "sport",
         categoryLabel: "Sport",
         title: "Sports: Records & Legends",
@@ -679,6 +733,7 @@ export const packs: Pack[] = [
     },
     {
         id: "formula-1",
+        tier: "gold",
         category: "sport",
         categoryLabel: "Sport",
         title: "Formula 1",
@@ -705,6 +760,7 @@ export const plans: Plan[] = [
         extraPackDiscount: 10,
         features: [
             { label: "1 pack credit every month", included: true, strong: true },
+            { label: "Access to all Bronze packs", included: true },
             { label: "Roll over up to 2 unused credits", included: true },
             { label: "10% off extra pack purchases", included: true },
             { label: "Bonus questions every month", included: true },
@@ -727,6 +783,7 @@ export const plans: Plan[] = [
         extraPackDiscount: 20,
         features: [
             { label: "3 pack credits every month", included: true, strong: true },
+            { label: "Access to Bronze + Silver packs", included: true },
             { label: "Roll over up to 6 unused credits", included: true },
             { label: "Early access to new packs", included: true },
             { label: "20% off extra pack purchases", included: true },
@@ -748,6 +805,7 @@ export const plans: Plan[] = [
         extraPackDiscount: 30,
         features: [
             { label: "5 pack credits every month", included: true, strong: true },
+            { label: "Access to every pack (Bronze → Gold)", included: true },
             { label: "Roll over up to 12 unused credits", included: true },
             { label: "30% off all existing packs", included: true },
             { label: "Exclusive Gold packs", included: true },

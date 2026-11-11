@@ -7,7 +7,12 @@ import Image from "next/image";
 import type { Pack } from "@/data/site";
 import { useCart } from "@/components/providers/cart-provider";
 import { useMembership } from "@/components/providers/membership-provider";
-import { canRedeemWithCredits } from "@/lib/entitlements";
+import {
+    canRedeemWithCredits,
+    canAccessPackWithPlanId,
+    packTier,
+    PACK_TIER_LABEL
+} from "@/lib/entitlements";
 
 function formatEuro(amount: number) {
     return `€${amount.toFixed(2)}`;
@@ -35,6 +40,23 @@ export function ProductCard({ pack }: ProductCardProps) {
 
     const hasPdf = canRedeemWithCredits(pack);
     const unavailable = !hasPdf;
+
+    // Membership tier gating: free packs are open to everyone; bronze/silver/
+    // gold packs require that tier or higher.
+    const tier = packTier(pack);
+    const tierLabel = PACK_TIER_LABEL[tier];
+    const tierLocked = !canAccessPackWithPlanId(
+        pack,
+        entitlements?.planId ?? null
+    );
+    const tierBadgeClass =
+        tier === "free"
+            ? "bg-emerald-500/12 text-emerald-300"
+            : tier === "bronze"
+                ? "bg-[var(--bronze-dim)] text-[var(--bronze)]"
+                : tier === "silver"
+                    ? "bg-[var(--silver-dim)] text-[var(--silver)]"
+                    : "bg-[var(--gold-dim)] text-[var(--gold)]";
 
     // Member a-la-carte price with the tier discount (mirrors the checkout API).
     const discountPercent =
@@ -151,6 +173,14 @@ export function ProductCard({ pack }: ProductCardProps) {
                 </div>
 
                 <div className="mt-4 flex flex-wrap gap-2">
+                    <span
+                        className={[
+                            "rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider",
+                            tierBadgeClass
+                        ].join(" ")}
+                    >
+                        {tierLabel}
+                    </span>
                     {unavailable ? (
                         <span className="rounded-full bg-amber-500/15 px-3 py-1 text-xs font-semibold text-amber-300">
                             Temporarily unavailable
@@ -192,6 +222,13 @@ export function ProductCard({ pack }: ProductCardProps) {
                         >
                             Temporarily unavailable
                         </button>
+                    ) : tierLocked ? (
+                        <Link
+                            href="/memberships"
+                            className="rounded-xl border border-[rgba(245,200,66,0.3)] bg-[var(--gold-dim)] px-4 py-2.5 text-sm font-bold text-[var(--gold)] hover:bg-[var(--gold)] hover:text-black"
+                        >
+                            Requires {tierLabel}
+                        </Link>
                     ) : isMember && !membershipLoading && canRedeem ? (
                         <button
                             type="button"

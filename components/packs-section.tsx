@@ -3,8 +3,14 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { packCategories, packs, type PackCategory } from "@/data/site";
-import { packHasPdf } from "@/lib/entitlements";
+import {
+  packHasPdf,
+  canAccessPackWithPlanId,
+  packTier,
+  PACK_TIER_LABEL
+} from "@/lib/entitlements";
 import { ProductCard } from "@/components/product-card";
+import { useMembership } from "@/components/providers/membership-provider";
 import { useCart } from "@/components/providers/cart-provider";
 import { SectionHeading } from "@/components/section-heading";
 import { cx } from "@/lib/utils";
@@ -14,6 +20,7 @@ export function PacksSection() {
   const [pickerOpen, setPickerOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const { addItem } = useCart();
+  const { entitlements } = useMembership();
   const router = useRouter();
 
   const filteredPacks = useMemo(() => {
@@ -32,7 +39,11 @@ export function PacksSection() {
   function handleTogglePack(id: string) {
     const pack = packs.find((candidate) => candidate.id === id);
 
-    if (!pack || !packHasPdf(pack)) {
+    if (
+      !pack ||
+      !packHasPdf(pack) ||
+      !canAccessPackWithPlanId(pack, entitlements?.planId ?? null)
+    ) {
       return;
     }
 
@@ -146,13 +157,17 @@ export function PacksSection() {
                 {packs.map((pack) => {
                   const selected = selectedIds.includes(pack.id);
                   const unavailable = !packHasPdf(pack);
+                  const locked = !canAccessPackWithPlanId(
+                    pack,
+                    entitlements?.planId ?? null
+                  );
 
                   return (
                     <button
                       key={pack.id}
                       type="button"
                       onClick={() => handleTogglePack(pack.id)}
-                      disabled={unavailable || (!selected && selectedIds.length >= 3)}
+                      disabled={locked || unavailable || (!selected && selectedIds.length >= 3)}
                       className={[
                         "flex items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm",
                         selected
@@ -161,17 +176,27 @@ export function PacksSection() {
                         !selected && selectedIds.length >= 3
                           ? "opacity-50"
                           : "",
-                        unavailable
+                        unavailable || locked
                           ? "cursor-not-allowed opacity-50"
                           : ""
                       ].join(" ")}
                     >
                       <span className="text-xl">{pack.emoji}</span>
                       <span className="flex-1 font-semibold text-white">
-                        {unavailable ? `${pack.title} (unavailable)` : pack.title}
+                        {unavailable
+                          ? `${pack.title} (unavailable)`
+                          : locked
+                            ? `${pack.title} — ${PACK_TIER_LABEL[packTier(pack)]} only`
+                            : pack.title}
                       </span>
                       <span className="text-xs font-bold text-[var(--muted)]">
-                        {selected ? "✓" : unavailable ? "Unavailable" : pack.price}
+                        {selected
+                          ? "✓"
+                          : unavailable
+                            ? "Unavailable"
+                            : locked
+                              ? PACK_TIER_LABEL[packTier(pack)]
+                              : pack.price}
                       </span>
                     </button>
                   );

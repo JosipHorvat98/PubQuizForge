@@ -8,8 +8,14 @@ import { useEffect, useRef, useState } from "react";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 import { useCart } from "@/components/providers/cart-provider";
+import { useMembership } from "@/components/providers/membership-provider";
 import { packs } from "@/data/site";
-import { packHasPdf } from "@/lib/entitlements";
+import {
+    packHasPdf,
+    canAccessPackWithPlanId,
+    packTier,
+    PACK_TIER_LABEL
+} from "@/lib/entitlements";
 import { startCheckout } from "@/lib/checkout";
 
 export default function PackPage() {
@@ -20,6 +26,7 @@ export default function PackPage() {
     const [showToast, setShowToast] = useState(false);
     const resetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const { entitlements } = useMembership();
 
     const foundPack = packs.find((item) => item.id === params.slug);
 
@@ -29,6 +36,12 @@ export default function PackPage() {
 
     const pack = foundPack;
     const unavailable = !packHasPdf(pack);
+    const tier = packTier(pack);
+    const tierLabel = PACK_TIER_LABEL[tier];
+    const tierLocked = !canAccessPackWithPlanId(
+        pack,
+        entitlements?.planId ?? null
+    );
 
     const relatedPacks = packs
         .filter((item) => item.category === pack.category && item.id !== pack.id)
@@ -66,6 +79,10 @@ export default function PackPage() {
     }
 
     function handleAddToCart() {
+        if (tierLocked || unavailable) {
+            return;
+        }
+
         for (let index = 0; index < quantity; index += 1) {
             addItem({
                 id: pack.id,
@@ -95,6 +112,10 @@ export default function PackPage() {
     }
 
     async function handleBuyNow() {
+        if (tierLocked || unavailable) {
+            return;
+        }
+
         try {
             const numericPrice = Number(pack.price.replace("€", ""));
             const unitAmount = Math.round(numericPrice * 100);
@@ -120,7 +141,7 @@ export default function PackPage() {
                 <div className="container-shell grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
                     <div>
                         <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[rgba(245,200,66,0.3)] bg-[var(--gold-dim)] px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--gold)]">
-                            {pack.categoryLabel}
+                            {pack.categoryLabel} · {tierLabel}
                         </div>
 
                         <h1 className="max-w-4xl text-5xl font-black leading-tight tracking-tight md:text-7xl">
@@ -205,6 +226,18 @@ export default function PackPage() {
                                     >
                                         Temporarily unavailable
                                     </button>
+                                </>
+                            ) : tierLocked ? (
+                                <>
+                                    <p className="rounded-xl border border-[rgba(245,200,66,0.25)] bg-[var(--gold-dim)] px-4 py-3 text-sm font-semibold text-[var(--gold)]">
+                                        This pack is available with a {tierLabel} membership or higher.
+                                    </p>
+                                    <Link
+                                        href="/memberships"
+                                        className="block rounded-xl bg-[var(--gold)] px-5 py-3 text-center text-sm font-extrabold text-black hover:bg-[var(--gold-strong)]"
+                                    >
+                                        View memberships
+                                    </Link>
                                 </>
                             ) : (
                                 <>

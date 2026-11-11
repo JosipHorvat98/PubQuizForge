@@ -9,7 +9,10 @@ import { findActiveMembershipForEmail } from "@/lib/memberships";
 import {
     getPlanEntitlements,
     packBySlug,
-    packHasPdf
+    packHasPdf,
+    canAccessPackWithPlanId,
+    packTier,
+    PACK_TIER_LABEL
 } from "@/lib/entitlements";
 import {
     isPackPromoCode,
@@ -131,6 +134,57 @@ async function getLoggedInEmail(): Promise<string | null> {
     }
 }
 
+/**
+ * Returns the signed-in user's active membership plan id (bronze/silver/gold),
+ * or null for guests and users without an active subscription.
+ */
+async function getMemberPlanId(): Promise<string | null> {
+    try {
+        const supabase = await createClient();
+
+        const {
+            data: { user }
+        } = await supabase.auth.getUser();
+
+        if (!user?.email) {
+            return null;
+        }
+
+        const membership = await findActiveMembershipForEmail(user.email);
+
+        return membership?.plan_id ?? null;
+    } catch (error) {
+        console.error("Unable to resolve membership plan:", error);
+
+        return null;
+    }
+}
+
+/**
+ * Rejects a purchase when any pack is gated behind a higher membership tier.
+ * Returns a human-readable error message, or null when everything is allowed.
+ */
+function findTierAccessError(
+    packIds: string[],
+    planId: string | null
+): string | null {
+    for (const id of packIds) {
+        const pack = packBySlug(id);
+
+        if (!pack) {
+            continue;
+        }
+
+        if (!canAccessPackWithPlanId(pack, planId)) {
+            const label = PACK_TIER_LABEL[packTier(pack)];
+
+            return `"${pack.title}" requires a ${label} membership (or higher). Upgrade your plan to buy this pack.`;
+        }
+    }
+
+    return null;
+}
+
 export async function POST(request: Request) {
     try {
         const body = (await request.json()) as CheckoutRequestBody;
@@ -156,6 +210,19 @@ export async function POST(request: Request) {
             }
 
             const discount = await getMemberDiscountPercent();
+            const planId = await getMemberPlanId();
+            const tierError = findTierAccessError(
+                body.items.map((item) => item.id),
+                planId
+            );
+
+            if (tierError) {
+                return NextResponse.json(
+                    { error: tierError, tierLocked: true },
+                    { status: 403 }
+                );
+            }
+
             const memberFactor = (100 - discount) / 100;
 
             // The "3 for 2" deal only applies when a valid promo code is sent.
@@ -231,6 +298,18 @@ export async function POST(request: Request) {
             }
 
             const discount = await getMemberDiscountPercent();
+            if (body.slug) {
+                const planId = await getMemberPlanId();
+                const tierError = findTierAccessError([body.slug], planId);
+
+                if (tierError) {
+                    return NextResponse.json(
+                        { error: tierError, tierLocked: true },
+                        { status: 403 }
+                    );
+                }
+            }
+
             const discountFactor = (100 - discount) / 100;
             const customerEmail = await getLoggedInEmail();
 
