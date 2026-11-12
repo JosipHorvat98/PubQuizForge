@@ -8,12 +8,7 @@ import { Header } from "@/components/header";
 import { plans } from "@/data/site";
 import { startCheckout } from "@/lib/checkout";
 import { useAuth } from "@/components/providers/auth-provider";
-
-const subscriptionPriceIds: Record<string, string> = {
-  bronze: "price_1TKFNhEDQ5UIKPib0ICI1PuA",
-  silver: "price_1TKFNwEDQ5UIKPibn4gyHs1H",
-  gold: "price_1TKFO9EDQ5UIKPibl50dVxzs"
-};
+import { subscriptionPriceIds } from "@/lib/subscription-prices";
 
 const CHECKOUT_STORAGE_KEY = "pqf_checkout_plan";
 const CHECKOUT_RETURN_KEY = "pqf_checkout_returned";

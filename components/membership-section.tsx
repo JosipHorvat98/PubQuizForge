@@ -1,19 +1,13 @@
 // file: components/membership-section.tsx
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { plans } from "@/data/site";
 import { SectionHeading } from "@/components/section-heading";
 import { cx } from "@/lib/utils";
 import { startCheckout } from "@/lib/checkout";
 import { useAuth } from "@/components/providers/auth-provider";
-
-const subscriptionPriceIds: Record<string, string> = {
-    bronze: "price_1TKFNhEDQ5UIKPib0ICI1PuA",
-    silver: "price_1TKFNwEDQ5UIKPibn4gyHs1H",
-    gold: "price_1TKFO9EDQ5UIKPibl50dVxzs"
-};
+import { subscriptionPriceIds } from "@/lib/subscription-prices";
 
 export function MembershipSection() {
     const { user } = useAuth();

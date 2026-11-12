@@ -3,6 +3,7 @@ import "./globals.css";
 import { AuthProvider } from "@/components/providers/auth-provider";
 import { CartProvider } from "@/components/providers/cart-provider";
 import { MembershipProvider } from "@/components/providers/membership-provider";
+import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://pubquizforge.com"),
@@ -38,6 +39,7 @@ export default function RootLayout({
                         <MembershipProvider>{children}</MembershipProvider>
                     </CartProvider>
                 </AuthProvider>
+                <Analytics />
             </body>
         </html>
     );

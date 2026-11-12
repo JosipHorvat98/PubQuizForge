@@ -1,4 +1,5 @@
 import type Stripe from "stripe";
+import { priceIdToPlanId } from "@/lib/subscription-prices";
 
 export const ACTIVE_SUBSCRIPTION_STATUSES = [
     "active",
@@ -6,15 +7,10 @@ export const ACTIVE_SUBSCRIPTION_STATUSES = [
     "past_due"
 ] as const;
 
-// Maps Stripe Price IDs to the plan slug used across the app.
-// Mirrors the price IDs used at checkout (components/membership-section.tsx,
-// app/memberships/page.tsx) so we can derive the plan even when a subscription
-// or its metadata lacks `plan_id`.
-export const PRICE_ID_TO_PLAN_ID: Record<string, string> = {
-    "price_1TKFNhEDQ5UIKPib0ICI1PuA": "bronze",
-    "price_1TKFNwEDQ5UIKPibn4gyHs1H": "silver",
-    "price_1TKFO9EDQ5UIKPibl50dVxzs": "gold"
-};
+// Maps Stripe Price IDs to the plan slug used across the app. Built from the
+// same env-configured price IDs used at checkout so the webhook can derive the
+// plan even when a subscription or its metadata lacks `plan_id`.
+export const PRICE_ID_TO_PLAN_ID: Record<string, string> = priceIdToPlanId;
 
 export function isActiveSubscriptionStatus(status: string): boolean {
     return ACTIVE_SUBSCRIPTION_STATUSES.includes(
