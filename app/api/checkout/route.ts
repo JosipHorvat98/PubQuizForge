@@ -266,6 +266,7 @@ export async function POST(request: Request) {
                 ...(customerEmail ? { customer_email: customerEmail } : {}),
                 success_url: `${siteUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
                 cancel_url: `${siteUrl}/cart`,
+                allow_promotion_codes: true,
                 line_items: lineItems,
                 metadata: {
                     slugs: JSON.stringify(body.items.map((item) => item.id))
@@ -317,6 +318,7 @@ export async function POST(request: Request) {
                 mode: "payment",
                 ...(customerEmail ? { customer_email: customerEmail } : {}),
                 success_url: `${siteUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
+                allow_promotion_codes: true,
                 cancel_url: `${siteUrl}/cancel`,
                 line_items: [
                     {
@@ -373,6 +375,7 @@ export async function POST(request: Request) {
                 mode: "subscription",
                 customer_email: user.email,
                 success_url: `${siteUrl}/success`,
+                allow_promotion_codes: true,
                 cancel_url: `${siteUrl}/memberships`,
                 line_items: [
                     {
