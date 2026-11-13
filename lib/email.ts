@@ -112,7 +112,7 @@ export async function sendPackPurchaseEmail(opts: {
         : "";
 
     const html = [
-        `<h2>Thanks for your order! 🎉</h2>`,
+        `<h2>Thanks for your order!</h2>`,
         `<p>Your question packs are attached as PDFs (also downloadable any time from your <a href="${SITE_URL}/downloads">downloads</a> page).</p>`,
         `<h3>Order summary</h3>`,
         `<ul>${itemsHtml}</ul>`,
@@ -126,7 +126,7 @@ export async function sendPackPurchaseEmail(opts: {
     await resend.emails.send({
         from: EMAIL_FROM,
         to: [opts.to],
-        subject: "Your PubQuizForge order 🎉",
+        subject: "Your PubQuizForge order",
         html,
         attachments
     });
@@ -144,7 +144,7 @@ export async function sendMembershipConfirmationEmail(opts: {
     }
 
     const html = [
-        `<h2>Welcome to ${opts.planName}! 🥂</h2>`,
+        `<h2>Welcome to ${opts.planName}!</h2>`,
         `<p>Your membership is active. Use your pack credits on the <a href="${SITE_URL}/memberships">membership page</a> and download packs at any time from your <a href="${SITE_URL}/downloads">downloads</a>.</p>`,
         `<p>Happy quizzing! — PubQuizForge</p>`
     ].join("\n");
@@ -209,7 +209,7 @@ export async function sendCustomQuestionConfirmationEmail(
     }
 
     const html = [
-        `<h2>We received your request! ✍️</h2>`,
+        `<h2>We received your request!</h2>`,
         `<p>Hi ${submission.name},</p>`,
         `<p>Thanks for your custom question request (<strong>${submission.theme}</strong>). We'll get back to you at <strong>${submission.email}</strong> as soon as it's ready.</p>`,
         `<p>— PubQuizForge</p>`
@@ -239,7 +239,7 @@ export async function sendNewsletterConfirmationEmail(to: string): Promise<void>
     }
 
     const html = [
-        `<h2>You're on the list! 🎉</h2>`,
+        `<h2>You're on the list!</h2>`,
         `<p>Thanks for subscribing to the PubQuizForge newsletter.</p>`,
         `<p>You'll hear about new packs, member offers and quiz-night tips — no spam, and you can unsubscribe at any time.</p>`,
         `<p>Happy quizzing! — PubQuizForge</p>`
@@ -251,7 +251,7 @@ export async function sendNewsletterConfirmationEmail(to: string): Promise<void>
         from: EMAIL_FROM,
         to: [to],
         ...(PUBLISHER_EMAIL ? { replyTo: PUBLISHER_EMAIL } : {}),
-        subject: "You're subscribed to PubQuizForge 🎉",
+        subject: "You're subscribed to PubQuizForge",
         html: html + unsubscribeFooter(unsubscribe),
         headers: {
             "List-Unsubscribe": `<${unsubscribe}>`
@@ -418,7 +418,7 @@ export async function sendContactMessageEmail(
     }
 
     const html = [
-        `<h2>New contact message 📬</h2>`,
+        `<h2>New contact message</h2>`,
         `<p><strong>Name:</strong> ${submission.name}</p>`,
         `<p><strong>Email:</strong> ${submission.email}</p>`,
         `<p><strong>Subject:</strong> ${submission.subject}</p>`,

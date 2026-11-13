@@ -46,7 +46,7 @@ export function NewsletterForm() {
     if (done) {
         return (
             <p className="text-sm font-semibold text-green-300">
-                You&apos;re on the list! 🎉
+                You&apos;re on the list!
             </p>
         );
     }

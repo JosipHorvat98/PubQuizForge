@@ -7,7 +7,7 @@ export function Hero() {
 
       <div className="container-shell text-center">
         <div className="fade-up inline-flex items-center gap-2 rounded-full border border-[rgba(245,200,66,0.3)] bg-[var(--gold-dim)] px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-[var(--gold)]">
-          ✦ Instant PDF Download
+          Instant PDF Download
         </div>
 
         <h1 className="fade-up mx-auto mt-6 max-w-4xl text-balance text-5xl font-black leading-none tracking-tight md:text-7xl">

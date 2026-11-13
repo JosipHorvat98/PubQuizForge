@@ -34,7 +34,7 @@ export async function GET() {
         const { data, error } = await resend.emails.send({
             from: EMAIL_FROM,
             to: ["jojohorvat@gmail.com"],
-            subject: "PubQuizForge test email ✅",
+            subject: "PubQuizForge test email",
             html: "<h2>Test email from PubQuizForge</h2><p>If you can read this, Resend is configured correctly and can deliver to this address.</p>"
         });
 

@@ -182,7 +182,7 @@ return (
                                 className={inputClass}
                                 value={subject}
                                 onChange={(event) => setSubject(event.target.value)}
-                                placeholder="New packs just landed 🎉"
+                                placeholder="New packs just landed"
                             />
                         </div>
 

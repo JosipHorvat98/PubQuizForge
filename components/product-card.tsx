@@ -125,8 +125,8 @@ export function ProductCard({ pack }: ProductCardProps) {
                                 className="absolute inset-0 opacity-35"
                                 style={{ background: pack.glow }}
                             />
-                            <span className="relative text-6xl drop-shadow-[0_8px_18px_rgba(0,0,0,0.45)]">
-                                {pack.emoji}
+                            <span className="relative text-4xl font-black uppercase tracking-wider text-white/85 drop-shadow-[0_8px_18px_rgba(0,0,0,0.45)]">
+                                {pack.title.charAt(0)}
                             </span>
                         </>
                     )}
@@ -192,8 +192,12 @@ export function ProductCard({ pack }: ProductCardProps) {
                         </span>
                     ) : null}
                     {pack.badges.map((badge) => {
-                        const isHot = badge.includes("🔥");
-                        const isNew = badge.includes("✦");
+                        const isHot = ["Bestseller", "Popular", "Seasonal"].some(
+                            (word) => badge.includes(word)
+                        );
+                        const isNew = ["New", "Special"].some((word) =>
+                            badge.includes(word)
+                        );
 
                         return (
                             <span

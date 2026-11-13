@@ -28,8 +28,7 @@ export default function AboutPage() {
       <section className="pb-8">
         <div className="container-shell grid gap-5 md:grid-cols-3">
           <article className="rounded-3xl border border-white/8 bg-[var(--surface)] p-6">
-            <div className="text-3xl">⚡</div>
-            <h2 className="mt-4 text-2xl font-bold">Ready in minutes</h2>
+            <h2 className="text-2xl font-bold">Ready in minutes</h2>
             <p className="mt-3 leading-7 text-[var(--muted)]">
               Download a pack, print it, and host the same day. No need to write
               questions from scratch.
@@ -37,8 +36,7 @@ export default function AboutPage() {
           </article>
 
           <article className="rounded-3xl border border-white/8 bg-[var(--surface)] p-6">
-            <div className="text-3xl">🧠</div>
-            <h2 className="mt-4 text-2xl font-bold">Original content</h2>
+            <h2 className="text-2xl font-bold">Original content</h2>
             <p className="mt-3 leading-7 text-[var(--muted)]">
               Our packs are designed for variety, pacing, and replay value, with a
               strong mix of difficulty and entertainment.
@@ -46,8 +44,7 @@ export default function AboutPage() {
           </article>
 
           <article className="rounded-3xl border border-white/8 bg-[var(--surface)] p-6">
-            <div className="text-3xl">🍻</div>
-            <h2 className="mt-4 text-2xl font-bold">Made for real quiz nights</h2>
+            <h2 className="text-2xl font-bold">Made for real quiz nights</h2>
             <p className="mt-3 leading-7 text-[var(--muted)]">
               Whether you host in a pub, bar, café, school, or at home, the packs are
               built to be practical, fast, and fun to run.

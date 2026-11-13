@@ -135,8 +135,6 @@ export default function MembershipsPage() {
                   ) : null}
                 </div>
 
-                <div className="text-4xl">{plan.icon}</div>
-
                 <div
                   className={[
                     "mt-4 text-3xl font-black tracking-tight",

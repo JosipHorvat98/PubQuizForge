@@ -170,7 +170,9 @@ export default function PackPage() {
                                         className="absolute inset-0 opacity-35"
                                         style={{ background: pack.glow }}
                                     />
-                                    <span className="relative text-8xl">{pack.emoji}</span>
+                                    <span className="relative text-6xl font-black uppercase tracking-wider text-white/85">
+                                        {pack.title.charAt(0)}
+                                    </span>
                                 </>
                             )}
                         </div>
@@ -293,7 +295,9 @@ export default function PackPage() {
                                             className="absolute inset-0 opacity-35"
                                             style={{ background: item.glow }}
                                         />
-                                        <span className="relative text-6xl">{item.emoji}</span>
+                                        <span className="relative text-4xl font-black uppercase tracking-wider text-white/85">
+                                            {item.title.charAt(0)}
+                                        </span>
                                     </>
                                 )}
                             </div>

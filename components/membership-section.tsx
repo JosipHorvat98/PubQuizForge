@@ -67,8 +67,6 @@ export function MembershipSection() {
                                 </span>
                             ) : null}
 
-                            <div className="text-4xl">{plan.icon}</div>
-
                             <div
                                 className={cx(
                                     "mt-4 text-3xl font-black tracking-tight",
