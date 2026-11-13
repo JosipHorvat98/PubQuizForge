@@ -14,10 +14,6 @@ import {
     packTier,
     PACK_TIER_LABEL
 } from "@/lib/entitlements";
-import {
-    isPackPromoCode,
-    packsPromoFactor
-} from "@/lib/promo";
 
 function getEnv(name: string): string {
     const value = process.env[name];
@@ -225,26 +221,7 @@ export async function POST(request: Request) {
 
             const memberFactor = (100 - discount) / 100;
 
-            // The "3 for 2" deal only applies when a valid promo code is sent.
-            const promoCode = (body.promoCode ?? "").trim();
-
-            if (promoCode && !isPackPromoCode(promoCode)) {
-                return NextResponse.json(
-                    { error: "Invalid promo code" },
-                    { status: 400 }
-                );
-            }
-
-            const totalPacks = body.items.reduce(
-                (sum, item) => sum + (item.quantity || 1),
-                0
-            );
-
-            const promoFactor = isPackPromoCode(promoCode)
-                ? packsPromoFactor(totalPacks)
-                : 1;
-
-            const discountFactor = memberFactor * promoFactor;
+            const discountFactor = memberFactor;
 
             const customerEmail = await getLoggedInEmail();
 
