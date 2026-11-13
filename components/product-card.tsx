@@ -32,6 +32,7 @@ export function ProductCard({ pack }: ProductCardProps) {
         isMember,
         entitlements,
         creditsAvailable,
+        creditsPlanId,
         loading: membershipLoading,
         reload: reloadMembership
     } = useMembership();
@@ -66,10 +67,14 @@ export function ProductCard({ pack }: ProductCardProps) {
         ? parsePrice(pack.price) * ((100 - discountPercent) / 100)
         : parsePrice(pack.price);
 
-    // A member can redeem the pack only when they have at least one credit
-    // available and the pack actually ships a PDF.
+    // Credits stay usable after a subscription is cancelled, so redemption is
+    // gated by the plan that granted the credits (not an active membership).
+    const redeemPlanId = creditsPlanId ?? entitlements?.planId ?? null;
     const canRedeem =
-        isMember && creditsAvailable !== null && creditsAvailable > 0 && hasPdf;
+        creditsAvailable !== null &&
+        creditsAvailable > 0 &&
+        hasPdf &&
+        canAccessPackWithPlanId(pack, redeemPlanId);
 
     async function handleMemberDownload() {
         setDownloadError(null);
@@ -222,14 +227,7 @@ export function ProductCard({ pack }: ProductCardProps) {
                         >
                             Temporarily unavailable
                         </button>
-                    ) : tierLocked ? (
-                        <Link
-                            href="/memberships"
-                            className="rounded-xl border border-[rgba(245,200,66,0.3)] bg-[var(--gold-dim)] px-4 py-2.5 text-sm font-bold text-[var(--gold)] hover:bg-[var(--gold)] hover:text-black"
-                        >
-                            Requires {tierLabel}
-                        </Link>
-                    ) : isMember && !membershipLoading && canRedeem ? (
+                    ) : !membershipLoading && canRedeem ? (
                         <button
                             type="button"
                             onClick={handleMemberDownload}
@@ -238,6 +236,13 @@ export function ProductCard({ pack }: ProductCardProps) {
                         >
                             {downloading ? "Preparing..." : "Redeem · 1 credit"}
                         </button>
+                    ) : tierLocked ? (
+                        <Link
+                            href="/memberships"
+                            className="rounded-xl border border-[rgba(245,200,66,0.3)] bg-[var(--gold-dim)] px-4 py-2.5 text-sm font-bold text-[var(--gold)] hover:bg-[var(--gold)] hover:text-black"
+                        >
+                            Requires {tierLabel}
+                        </Link>
                     ) : (
                         <button
                             type="button"

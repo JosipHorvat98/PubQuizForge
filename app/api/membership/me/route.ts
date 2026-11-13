@@ -15,20 +15,21 @@ import {
 
 export const dynamic = "force-dynamic";
 
+const EMPTY = {
+    isMember: false,
+    membership: null,
+    entitlements: null,
+    usageThisPeriod: 0,
+    creditsAvailable: null,
+    creditsUsed: 0,
+    creditsLedgerReady: false,
+    creditsPlanId: null
+};
+
 export async function GET() {
-    // Cheap gate: no session cookie -> anonymous browser, don't hit the auth
-    // endpoint at all. This is THE hot endpoint (every page load asks it once),
-    // so guarding it here stops pointless /auth/v1/user calls for guests.
+    // Cheap gate: no session cookie -> anonymous browser, don't hit auth.
     if (!(await hasSessionCookie())) {
-        return NextResponse.json({
-            isMember: false,
-            membership: null,
-            entitlements: null,
-            usageThisPeriod: 0,
-            creditsAvailable: null,
-            creditsUsed: 0,
-            creditsLedgerReady: false
-        });
+        return NextResponse.json(EMPTY);
     }
 
     try {
@@ -39,18 +40,12 @@ export async function GET() {
         } = await supabase.auth.getUser();
 
         if (!user?.email) {
-            return NextResponse.json({
-                isMember: false,
-                membership: null,
-                entitlements: null,
-                usageThisPeriod: 0,
-                creditsAvailable: null,
-                creditsUsed: 0,
-                creditsLedgerReady: false
-            });
+            return NextResponse.json(EMPTY);
         }
 
-        let membership;
+        let membership: Awaited<
+            ReturnType<typeof findActiveMembershipForEmail>
+        > = null;
         let lookupFailed = false;
 
         try {
@@ -60,45 +55,37 @@ export async function GET() {
             lookupFailed = true;
         }
 
-        if (!membership) {
-            return NextResponse.json({
-                isMember: false,
-                membership: null,
-                entitlements: null,
-                usageThisPeriod: 0,
-                creditsAvailable: null,
-                creditsUsed: 0,
-                creditsLedgerReady: false,
-                lookupFailed
-            });
-        }
+        const entitlements = membership
+            ? getPlanEntitlements(membership.plan_id)
+            : null;
 
-        const entitlements = getPlanEntitlements(membership.plan_id);
-
-        // Legacy monthly usage (membership downloads this month). Used only as
-        // a display/aid until the credits ledger is live.
+        // Legacy monthly usage (membership downloads this month). Display only.
         let usageThisPeriod = 0;
 
-        try {
-            const { count, error } = await supabaseAdmin
-                .from("downloads")
-                .select("id", { count: "exact", head: true })
-                .eq("email", user.email)
-                .eq("type", "pack")
-                .eq("source", "membership")
-                .gte("created_at", currentPeriodStart());
+        if (membership) {
+            try {
+                const { count, error } = await supabaseAdmin
+                    .from("downloads")
+                    .select("id", { count: "exact", head: true })
+                    .eq("email", user.email)
+                    .eq("type", "pack")
+                    .eq("source", "membership")
+                    .gte("created_at", currentPeriodStart());
 
-            if (!error) {
-                usageThisPeriod = count ?? 0;
+                if (!error) {
+                    usageThisPeriod = count ?? 0;
+                }
+            } catch (error) {
+                console.error("Unable to count monthly membership usage:", error);
             }
-        } catch (error) {
-            console.error("Unable to count monthly membership usage:", error);
         }
 
-        // Credits ledger state.
+        // Credits ledger state. Read even without an active membership so a
+        // cancelled customer keeps (and can spend) the credits they earned.
         let creditsAvailable: number | null = null;
         let creditsUsed = 0;
         let creditsLedgerReady = false;
+        let creditsPlanId: string | null = null;
 
         try {
             const credits = await getCreditsForEmail(user.email);
@@ -106,6 +93,7 @@ export async function GET() {
 
             if (credits) {
                 creditsAvailable = credits.credits_available;
+                creditsPlanId = credits.plan_id;
                 creditsUsed = await getCreditsUsedForEmail(user.email);
             }
         } catch (error) {
@@ -113,13 +101,15 @@ export async function GET() {
         }
 
         return NextResponse.json({
-            isMember: true,
+            isMember: Boolean(membership),
             membership,
             entitlements,
             usageThisPeriod,
             creditsAvailable,
             creditsUsed,
-            creditsLedgerReady
+            creditsLedgerReady,
+            creditsPlanId,
+            lookupFailed
         });
     } catch (error) {
         console.error("membership/me error:", error);

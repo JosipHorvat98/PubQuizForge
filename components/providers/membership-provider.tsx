@@ -26,6 +26,8 @@ type MembershipInfo = {
     creditsAvailable: number | null;
     readonly creditsUsed: number;
     readonly creditsLedgerReady: boolean;
+    /** Plan that granted the remaining credits (used for redeem after cancel). */
+    readonly creditsPlanId: string | null;
     readonly lookupFailed?: boolean;
     readonly loading?: boolean;
     readonly reload?: () => Promise<void>;
@@ -47,7 +49,8 @@ const EMPTY: MembershipInfo = {
     usageThisPeriod: 0,
     creditsAvailable: null,
     creditsUsed: 0,
-    creditsLedgerReady: false
+    creditsLedgerReady: false,
+    creditsPlanId: null
 };
 
 export function MembershipProvider({ children }: { children: ReactNode }) {

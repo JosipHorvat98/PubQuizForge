@@ -63,36 +63,39 @@ export async function POST(request: Request) {
             );
         }
 
-        let membership;
+        let membership: Awaited<
+            ReturnType<typeof findActiveMembershipForEmail>
+        > = null;
 
         try {
             membership = await findActiveMembershipForEmail(user.email);
         } catch (error) {
             console.error("membership download lookup failed", error);
-
-            return NextResponse.json(
-                { error: "Unable to verify your membership. Please try again." },
-                { status: 500 }
-            );
         }
 
-        if (!membership) {
+        // Credits persist after a subscription is cancelled, so a missing
+        // active membership is fine as long as credits are still available.
+        const credits = await getCreditsForEmail(user.email);
+
+        if (!membership && !(credits && credits.credits_available > 0)) {
             return NextResponse.json(
-                { error: "No active membership found." },
+                { error: "No active membership or pack credits found." },
                 { status: 403 }
             );
         }
 
-        const entitlements = getPlanEntitlements(membership.plan_id);
+        // Tier for redemption: the active plan if any, otherwise the plan that
+        // granted the remaining credits (so a cancelled Gold can still redeem).
+        const planIdForAccess = membership?.plan_id ?? credits?.plan_id ?? null;
 
-        if (!entitlements) {
+        if (!planIdForAccess) {
             return NextResponse.json(
                 { error: "Unknown membership plan." },
                 { status: 403 }
             );
         }
 
-        if (!canAccessPackWithPlanId(pack, membership.plan_id)) {
+        if (!canAccessPackWithPlanId(pack, planIdForAccess)) {
             return NextResponse.json(
                 {
                     error: `This pack requires a ${PACK_TIER_LABEL[packTier(pack)]} membership or higher. Upgrade to redeem it.`,
@@ -104,23 +107,13 @@ export async function POST(request: Request) {
 
         let creditsAvailable: number | null = null;
 
-        // Prefer the credits ledger when it exists; otherwise fall back to the
-        // legacy per-month download counter so nothing breaks pre-migration.
-        try {
-            const credits = await getCreditsForEmail(user.email);
+        if (credits) {
+            creditsAvailable = credits.credits_available;
 
-            if (credits) {
-                creditsAvailable = credits.credits_available;
-            }
-        } catch (error) {
-            console.error("Unable to read credits ledger:", error);
-        }
-
-        if (creditsAvailable !== null) {
             if (creditsAvailable <= 0) {
                 return NextResponse.json(
                     {
-                        error: `No pack credits left. Your ${entitlements.monthlyCredits} credit(s) refresh with your next billing cycle — or upgrade for more.`,
+                        error: "No pack credits left. Buy a pack or renew your membership to continue.",
                         creditExhausted: true
                     },
                     { status: 403 }
@@ -131,14 +124,31 @@ export async function POST(request: Request) {
 
             if (!consumed.success) {
                 return NextResponse.json(
-                    { error: "No pack credits left. They refresh with your next billing cycle." },
+                    { error: "No pack credits left.", creditExhausted: true },
                     { status: 403 }
                 );
             }
 
             creditsAvailable = consumed.credits_available;
         } else {
-            // Legacy fallback: count this month's membership downloads.
+            // Legacy fallback (no credits ledger yet): requires an active
+            // membership and counts this month's membership downloads.
+            if (!membership) {
+                return NextResponse.json(
+                    { error: "No pack credits found." },
+                    { status: 403 }
+                );
+            }
+
+            const entitlements = getPlanEntitlements(membership.plan_id);
+
+            if (!entitlements) {
+                return NextResponse.json(
+                    { error: "Unknown membership plan." },
+                    { status: 403 }
+                );
+            }
+
             let usageThisPeriod = 0;
 
             try {

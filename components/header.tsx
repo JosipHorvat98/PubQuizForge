@@ -10,6 +10,7 @@ import { useAuth } from "@/components/providers/auth-provider";
 
 export function Header() {
   const { user, isAuthReady, isAdmin } = useAuth();
+  const nickname = String(user?.user_metadata?.nickname ?? "").trim();
   const [isCartBumping, setIsCartBumping] = useState(false);
   const { count, cartPulseKey, isHydrated } = useCart();
 
@@ -81,7 +82,7 @@ export function Header() {
                   prefetch={false}
                   className="text-sm font-semibold text-white hover:text-[var(--gold)]"
                 >
-                  Account
+                  {nickname || "Account"}
                 </Link>
 
                 {isAdmin ? (

@@ -33,6 +33,8 @@ export default async function AccountPage() {
         redirect("/login?next=/account");
     }
 
+    const nickname = String(user.user_metadata?.nickname ?? "").trim();
+
     const { data: subscription, error: subscriptionError } =
         await supabaseAdmin
             .from("subscriptions")
@@ -94,7 +96,7 @@ export default async function AccountPage() {
                             </p>
 
                             <h2 className="mt-3 break-all text-2xl font-black tracking-tight md:text-3xl">
-                                {user.email}
+                                {nickname || user.email}
                             </h2>
 
                             <p className="mt-3 break-all text-sm text-[var(--muted)]">
@@ -114,6 +116,13 @@ export default async function AccountPage() {
                                     className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-white transition hover:bg-white/10 active:scale-[0.98]"
                                 >
                                     View Memberships
+                                </Link>
+
+                                <Link
+                                    href="/account/settings"
+                                    className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-white transition hover:bg-white/10 active:scale-[0.98]"
+                                >
+                                    Settings
                                 </Link>
                             </div>
                         </section>

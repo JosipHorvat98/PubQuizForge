@@ -42,6 +42,22 @@ export default async function SignupPage({
               <input type="hidden" name="next" value={next} />
 
               <div className="grid gap-2">
+                <label htmlFor="nickname" className="text-sm font-semibold">
+                  Nickname
+                </label>
+                <input
+                  id="nickname"
+                  name="nickname"
+                  type="text"
+                  required
+                  minLength={2}
+                  maxLength={30}
+                  placeholder="e.g. QuizMasterJosip"
+                  className="rounded-xl border border-white/10 bg-[var(--surface-2)] px-4 py-3 outline-none focus:border-[var(--gold)]"
+                />
+              </div>
+
+              <div className="grid gap-2">
                 <label htmlFor="email" className="text-sm font-semibold">
                   Email
                 </label>

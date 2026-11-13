@@ -7,8 +7,15 @@ import { createClient } from "@/utils/supabase/server";
 export async function signup(formData: FormData) {
     const email = String(formData.get("email") ?? "").trim();
     const password = String(formData.get("password") ?? "");
+    const nickname = String(formData.get("nickname") ?? "").trim();
     const next = String(formData.get("next") ?? "/account").trim() || "/account";
     const safeNext = next.startsWith("/") ? next : "/account";
+
+    if (nickname.length < 2) {
+        redirect(
+            `/signup?error=${encodeURIComponent("Please enter a nickname (at least 2 characters).")}&next=${encodeURIComponent(safeNext)}`
+        );
+    }
 
     const supabase = await createClient();
 
@@ -16,7 +23,8 @@ export async function signup(formData: FormData) {
         email,
         password,
         options: {
-            emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}${safeNext}`
+            emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}${safeNext}`,
+            data: nickname ? { nickname } : undefined
         }
     });
 
