@@ -122,7 +122,7 @@ export function AccountSettingsClient({
                         value={nickname}
                         onChange={(event) => setNickname(event.target.value)}
                         maxLength={30}
-                        placeholder="QuizMasterJosip"
+                        placeholder="Your nickname"
                     />
                 </div>
 

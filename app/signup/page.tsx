@@ -52,7 +52,7 @@ export default async function SignupPage({
                   required
                   minLength={2}
                   maxLength={30}
-                  placeholder="e.g. QuizMasterJosip"
+                  placeholder="Your nickname"
                   className="rounded-xl border border-white/10 bg-[var(--surface-2)] px-4 py-3 outline-none focus:border-[var(--gold)]"
                 />
               </div>
