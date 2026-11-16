@@ -4,7 +4,7 @@
 import { useMemo, useState } from "react";
 import {
     packCategories,
-    packs,
+    type Pack,
     type PackCategory,
     type PackTier
 } from "@/data/site";
@@ -19,7 +19,7 @@ import { cx } from "@/lib/utils";
 
 type AvailabilityFilter = "all" | "available" | "unavailable";
 
-export function PacksSection() {
+export function PacksSection({ packs }: { packs: Pack[] }) {
     const [activeCategory, setActiveCategory] = useState<PackCategory>("all");
     const [activeTier, setActiveTier] = useState<PackTier | "all">("all");
     const [activeAvailability, setActiveAvailability] =
@@ -34,7 +34,7 @@ export function PacksSection() {
 
                 return byTier !== 0 ? byTier : a.title.localeCompare(b.title);
             }),
-        []
+        [packs]
     );
 
     const filteredPacks = useMemo(() => {
@@ -74,7 +74,7 @@ export function PacksSection() {
         }
 
         return counts;
-    }, []);
+    }, [packs]);
 
     const availabilityFilters: Array<{
         id: AvailabilityFilter;
@@ -99,7 +99,7 @@ export function PacksSection() {
             available,
             unavailable: packs.length - available
         } as Record<AvailabilityFilter, number>;
-    }, []);
+    }, [packs]);
 
     function tierActiveClass(id: PackTier | "all"): string {
         switch (id) {

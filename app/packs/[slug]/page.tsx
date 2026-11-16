@@ -9,7 +9,7 @@ import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 import { useCart } from "@/components/providers/cart-provider";
 import { useMembership } from "@/components/providers/membership-provider";
-import { packs } from "@/data/site";
+import type { Pack } from "@/data/site";
 import {
     packHasPdf,
     canAccessPackWithPlanId,
@@ -27,8 +27,58 @@ export default function PackPage() {
     const resetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const { entitlements } = useMembership();
+    const [packList, setPackList] = useState<Pack[] | null>(null);
 
-    const foundPack = packs.find((item) => item.id === params.slug);
+    useEffect(() => {
+        let active = true;
+
+        fetch("/api/packs")
+            .then((response) => response.json())
+            .then((data: { packs?: Pack[] }) => {
+                if (active) {
+                    setPackList(data.packs ?? []);
+                }
+            })
+            .catch(() => {
+                if (active) {
+                    setPackList([]);
+                }
+            });
+
+        return () => {
+            active = false;
+        };
+    }, []);
+
+    useEffect(() => {
+        return () => {
+            if (resetTimerRef.current) {
+                clearTimeout(resetTimerRef.current);
+            }
+
+            if (toastTimerRef.current) {
+                clearTimeout(toastTimerRef.current);
+            }
+        };
+    }, []);
+
+    if (!packList) {
+        return (
+            <main className="min-h-screen bg-[var(--bg)] text-[var(--text)]">
+                <Header />
+                <section className="section-space">
+                    <div className="container-shell">
+                        <p className="text-sm text-[var(--muted)]">
+                            Loading pack...
+                        </p>
+                    </div>
+                </section>
+                <Footer />
+            </main>
+        );
+    }
+
+    const foundPack = packList.find((item) => item.id === params.slug);
 
     if (!foundPack) {
         notFound();
@@ -43,21 +93,9 @@ export default function PackPage() {
         entitlements?.planId ?? null
     );
 
-    const relatedPacks = packs
+    const relatedPacks = packList
         .filter((item) => item.category === pack.category && item.id !== pack.id)
         .slice(0, 3);
-
-    useEffect(() => {
-        return () => {
-            if (resetTimerRef.current) {
-                clearTimeout(resetTimerRef.current);
-            }
-
-            if (toastTimerRef.current) {
-                clearTimeout(toastTimerRef.current);
-            }
-        };
-    }, []);
 
     function decreaseQuantity() {
         setQuantity((current) => Math.max(1, current - 1));

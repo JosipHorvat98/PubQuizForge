@@ -6,9 +6,10 @@ import Stripe from "stripe";
 import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 import { findActiveMembershipForEmail } from "@/lib/memberships";
+import type { Pack } from "@/data/site";
+import { getPacksMerged } from "@/lib/packs-server";
 import {
     getPlanEntitlements,
-    packBySlug,
     packHasPdf,
     canAccessPackWithPlanId,
     packTier,
@@ -68,8 +69,8 @@ function parseEuroPriceToCents(price: string): number {
  * A pack slug can be purchased only when it resolves to a real pack that
  * actually ships a PDF (i.e. is currently available on the site).
  */
-function isSlugPurchasable(slug: string): boolean {
-    const pack = packBySlug(slug);
+function isSlugPurchasable(packs: Pack[], slug: string): boolean {
+    const pack = packs.find((candidate) => candidate.id === slug);
 
     return Boolean(pack && packHasPdf(pack));
 }
@@ -161,11 +162,12 @@ async function getMemberPlanId(): Promise<string | null> {
  * Returns a human-readable error message, or null when everything is allowed.
  */
 function findTierAccessError(
+    packs: Pack[],
     packIds: string[],
     planId: string | null
 ): string | null {
     for (const id of packIds) {
-        const pack = packBySlug(id);
+        const pack = packs.find((candidate) => candidate.id === id);
 
         if (!pack) {
             continue;
@@ -184,6 +186,7 @@ function findTierAccessError(
 export async function POST(request: Request) {
     try {
         const body = (await request.json()) as CheckoutRequestBody;
+        const allPacks = await getPacksMerged();
 
         if (body.mode === "payment" && "items" in body) {
             if (!body.items.length) {
@@ -192,7 +195,7 @@ export async function POST(request: Request) {
 
             // Refuse any pack that is marked unavailable (no PDF attached yet).
             const unavailableItem = body.items.find(
-                (item) => !isSlugPurchasable(item.id)
+                (item) => !isSlugPurchasable(allPacks, item.id)
             );
 
             if (unavailableItem) {
@@ -208,6 +211,7 @@ export async function POST(request: Request) {
             const discount = await getMemberDiscountPercent();
             const planId = await getMemberPlanId();
             const tierError = findTierAccessError(
+                allPacks,
                 body.items.map((item) => item.id),
                 planId
             );
@@ -268,7 +272,7 @@ export async function POST(request: Request) {
                 );
             }
 
-            if (body.slug && !isSlugPurchasable(body.slug)) {
+            if (body.slug && !isSlugPurchasable(allPacks, body.slug)) {
                 return NextResponse.json(
                     { error: "This pack is temporarily unavailable." },
                     { status: 400 }
@@ -278,7 +282,11 @@ export async function POST(request: Request) {
             const discount = await getMemberDiscountPercent();
             if (body.slug) {
                 const planId = await getMemberPlanId();
-                const tierError = findTierAccessError([body.slug], planId);
+                const tierError = findTierAccessError(
+                    allPacks,
+                    [body.slug],
+                    planId
+                );
 
                 if (tierError) {
                     return NextResponse.json(

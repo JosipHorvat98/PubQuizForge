@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 import { findActiveMembershipForEmail } from "@/lib/memberships";
 import { supabaseAdmin } from "@/lib/supabase-admin";
-import { packs } from "@/data/site";
+import { getPacksMerged } from "@/lib/packs-server";
 import {
     currentPeriodStart,
     getPlanEntitlements,
@@ -34,7 +34,8 @@ export async function POST(request: Request) {
             );
         }
 
-        const pack = packs.find((candidate) => candidate.id === packId);
+        const allPacks = await getPacksMerged();
+        const pack = allPacks.find((candidate) => candidate.id === packId);
 
         if (!pack) {
             return NextResponse.json(

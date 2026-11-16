@@ -196,6 +196,7 @@ export default async function AdminDashboardPage() {
                             <Link href="/admin/newsletter" className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-white transition hover:bg-white/10">Newsletter</Link>
                             <Link href="/admin/credits" className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-white transition hover:bg-white/10">Credits</Link>
                             <Link href="/admin/orders" className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-white transition hover:bg-white/10">Orders</Link>
+                            <Link href="/admin/packs" className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-white transition hover:bg-white/10">Packs</Link>
                         </div>
                     </section>
 

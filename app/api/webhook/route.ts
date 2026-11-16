@@ -1,6 +1,7 @@
 ﻿import Stripe from "stripe";
 import { NextResponse } from "next/server";
-import { packs, plans, type Pack } from "@/data/site";
+import { plans, type Pack } from "@/data/site";
+import { getPacksMerged } from "@/lib/packs-server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { packHasPdf } from "@/lib/entitlements";
 import {
@@ -118,7 +119,8 @@ async function savePackDownloads(
     }
 
     const slugs = singleSlug ? [singleSlug] : multiSlugs;
-    const matchedPacks = packs.filter(
+    const allPacks = await getPacksMerged();
+    const matchedPacks = allPacks.filter(
         (pack) => slugs.includes(pack.id) && packHasPdf(pack)
     );
 
