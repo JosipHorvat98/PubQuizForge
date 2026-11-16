@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { newsCategories } from "@/data/site";
 
 export type NewsAdminPost = {
     id: string;
@@ -14,8 +15,6 @@ export type NewsAdminPost = {
     published_at: string | null;
     updated_at: string | null;
 };
-
-const CATEGORIES = ["Update", "Fix", "New Pack", "Note", "Other"];
 
 const inputClass =
     "w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none focus:border-white/25";
@@ -186,7 +185,7 @@ export function NewsAdminClient({ posts }: { posts: NewsAdminPost[] }) {
                             value={category}
                             onChange={(event) => setCategory(event.target.value)}
                         >
-                            {CATEGORIES.map((value) => (
+                            {newsCategories.map((value) => (
                                 <option key={value} value={value}>
                                     {value}
                                 </option>

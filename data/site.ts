@@ -63,6 +63,18 @@ export const stats = [
     { value: "300+", label: "Quiz nights powered" }
 ];
 
+export const newsCategories = [
+    "Update",
+    "New Pack",
+    "Fix",
+    "Guide",
+    "Announcement",
+    "Promo",
+    "Other"
+] as const;
+
+export type NewsCategory = (typeof newsCategories)[number];
+
 export const packCategories: Array<{ id: PackCategory; label: string }> = [
     { id: "all", label: "All Packs" },
     { id: "general", label: "General Knowledge" },
