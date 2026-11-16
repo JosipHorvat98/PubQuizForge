@@ -43,7 +43,10 @@ const ACTION_LABELS: Record<string, string> = {
     newsletter_broadcast: "Sent newsletter broadcast",
     newsletter_unsubscribe: "Unsubscribed newsletter email",
     admin_credit_update: "Updated pack credits",
-    pack_override_update: "Updated pack details"
+    pack_override_update: "Updated pack details",
+    admin_subscription_cancel: "Scheduled subscription cancellation",
+    admin_subscription_resume: "Resumed subscription",
+    admin_subscription_cancel_now: "Cancelled subscription immediately"
 };
 
 export function describeAuditAction(action: string): string {
