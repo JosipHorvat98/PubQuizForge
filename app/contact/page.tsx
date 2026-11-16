@@ -2,6 +2,7 @@
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 import { ContactForm } from "@/components/contact-form";
+import { legalBusiness } from "@/data/legal";
 
 export default function ContactPage() {
     return (
@@ -35,7 +36,14 @@ export default function ContactPage() {
                                 <div className="text-xs font-extrabold uppercase tracking-[0.18em] text-[var(--gold)]">
                                     Email
                                 </div>
-                                <p className="mt-2 text-base text-white">jojohorvat@gmail.com</p>
+                                <p className="mt-2 text-base text-white">
+                                    <a
+                                        href={`mailto:${legalBusiness.email}`}
+                                        className="hover:text-[var(--gold)]"
+                                    >
+                                        {legalBusiness.email}
+                                    </a>
+                                </p>
                             </div>
 
                             <div>
