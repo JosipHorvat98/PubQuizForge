@@ -9,19 +9,13 @@ function parseEmails(value?: string): string[] {
         .filter(Boolean);
 }
 
-/** Full-access admins (ADMIN_EMAILS + the publisher). */
+/**
+ * Full-access admins. Only ADMIN_EMAILS is trusted for admin access — the
+ * publisher address (PUBLISHER_EMAIL) is intentionally NOT an admin fallback,
+ * because it may be a shared support inbox.
+ */
 function getSuperAdminEmails(): string[] {
-    const list = parseEmails(process.env.ADMIN_EMAILS);
-
-    // The publisher (owner) is always a super admin, even if ADMIN_EMAILS is
-    // not configured in a given environment.
-    const publisher = (process.env.PUBLISHER_EMAIL ?? "").trim().toLowerCase();
-
-    if (publisher && !list.includes(publisher)) {
-        list.push(publisher);
-    }
-
-    return list;
+    return parseEmails(process.env.ADMIN_EMAILS);
 }
 
 /** News-only editors (EDITOR_EMAILS). */
