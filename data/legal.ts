@@ -11,7 +11,7 @@ export const legalBusiness = {
     country: "Croatia",
     oib: "61911979859",
     brand: "PubQuizForge",
-    email: "hello@pubquizforge.com",
+    email: "support@pubquizforge.com",
     website: "https://pubquizforge.com",
     vatNote: "Not VAT registered.",
     lastUpdated: "12 November 2026"
