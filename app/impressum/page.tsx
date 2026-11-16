@@ -17,7 +17,6 @@ export default function ImpressumPage() {
                     Address: {legalBusiness.address}, {legalBusiness.city},{" "}
                     {legalBusiness.country}
                 </li>
-                <li>OIB (tax ID): {legalBusiness.oib}</li>
                 <li>
                     Email:{" "}
                     <a href={`mailto:${legalBusiness.email}`}>

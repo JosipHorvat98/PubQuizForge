@@ -13,7 +13,7 @@ export default function TermsPage() {
             <p>
                 Services are provided by {legalBusiness.tradeName} (
                 {legalBusiness.brand}), {legalBusiness.address},{" "}
-                {legalBusiness.city}, OIB {legalBusiness.oib}. Contact:{" "}
+                {legalBusiness.city}. Contact:{" "}
                 <a href={`mailto:${legalBusiness.email}`}>
                     {legalBusiness.email}
                 </a>

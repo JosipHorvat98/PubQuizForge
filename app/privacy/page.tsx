@@ -12,8 +12,8 @@ export default function PrivacyPage() {
             <h2>Data controller</h2>
             <p>
                 The data controller is {legalBusiness.tradeName},{" "}
-                {legalBusiness.address}, {legalBusiness.city}, OIB{" "}
-                {legalBusiness.oib} (brand {legalBusiness.brand}). Contact:{" "}
+                {legalBusiness.address}, {legalBusiness.city} (brand{" "}
+                {legalBusiness.brand}). Contact:{" "}
                 <a href={`mailto:${legalBusiness.email}`}>
                     {legalBusiness.email}
                 </a>

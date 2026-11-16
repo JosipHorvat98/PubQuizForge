@@ -7,10 +7,12 @@ import { legalBusiness } from "@/data/legal";
 export function LegalPage({
     title,
     subtitle,
+    kicker = "Legal",
     children
 }: {
     title: string;
     subtitle?: string;
+    kicker?: string;
     children: ReactNode;
 }) {
     return (
@@ -20,7 +22,7 @@ export function LegalPage({
             <section className="section-space pb-20">
                 <div className="container-shell max-w-3xl">
                     <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--muted)]">
-                        Legal
+                        {kicker}
                     </div>
 
                     <h1 className="text-4xl font-black tracking-tight md:text-6xl">
@@ -43,8 +45,7 @@ export function LegalPage({
 
                     <p className="mt-10 border-t border-white/8 pt-6 text-xs text-[var(--muted)]">
                         {legalBusiness.tradeName} · {legalBusiness.address},{" "}
-                        {legalBusiness.city} · OIB {legalBusiness.oib} ·{" "}
-                        {legalBusiness.vatNote} ·{" "}
+                        {legalBusiness.city} · {legalBusiness.vatNote} ·{" "}
                         <a href={`mailto:${legalBusiness.email}`}>
                             {legalBusiness.email}
                         </a>

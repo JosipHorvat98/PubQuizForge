@@ -23,7 +23,7 @@ export default function LegalHubPage() {
             <p>
                 {legalBusiness.tradeName} ({legalBusiness.brand}) · owner{" "}
                 {legalBusiness.owner} · {legalBusiness.address},{" "}
-                {legalBusiness.city} · OIB {legalBusiness.oib}. Contact:{" "}
+                {legalBusiness.city}. Contact:{" "}
                 <a href={`mailto:${legalBusiness.email}`}>
                     {legalBusiness.email}
                 </a>
