@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { NewsletterForm } from "@/components/newsletter-form";
+import { legalBusiness, legalLinks } from "@/data/legal";
 
 export function Footer() {
   return (
@@ -25,10 +26,27 @@ export function Footer() {
           </Link>
         </nav>
 
-        <p>
-          © 2026 <span className="font-bold text-[var(--gold)]">PubQuizForge</span> ·
-          All question packs are original content · Built for quiz masters everywhere
-        </p>
+        <nav className="flex flex-wrap justify-center gap-x-5 gap-y-2 text-xs">
+          {legalLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              prefetch={false}
+              className="font-medium text-white/60 hover:text-white"
+            >
+              {link.label}
+            </Link>
+          ))}
+        </nav>
+
+        <div className="space-y-1 text-xs">
+          <p>
+            © 2026 <span className="font-bold text-[var(--gold)]">PubQuizForge</span> · All question packs are original content
+          </p>
+          <p>
+            {legalBusiness.tradeName} · {legalBusiness.address}, {legalBusiness.city} · OIB {legalBusiness.oib} · {legalBusiness.vatNote}
+          </p>
+        </div>
       </div>
     </footer>
   );
