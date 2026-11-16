@@ -6,93 +6,94 @@ import { legalBusiness } from "@/data/legal";
 export default function FaqPage() {
     return (
         <LegalPage
-            title="Često postavljena pitanja"
-            subtitle="Brzi odgovori o paketima, članstvima i plaćanju."
+            title="Frequently Asked Questions"
+            subtitle="Quick answers about packs, memberships and payments."
         >
-            <h2>Što je quiz pack?</h2>
+            <h2>What is a quiz pack?</h2>
             <p>
-                Gotov set pitanja i odgovora (obično 50 pitanja) u PDF formatu,
-                spreman za ispis i vođenje quiz večeri.
+                A ready-made set of questions and answers (usually 50) in PDF
+                format, ready to print and host at a quiz night.
             </p>
 
-            <h2>Kako preuzimam paket?</h2>
+            <h2>How do I download a pack?</h2>
             <p>
-                Nakon plaćanja paket je dostupan na stranici{" "}
-                <Link href="/downloads">My Downloads</Link> i/ili putem emaila s
-                poveznicom za preuzimanje.
+                After payment the pack is available on the{" "}
+                <Link href="/downloads">My Downloads</Link> page and/or by email
+                with a download link.
             </p>
 
-            <h2>Trebam li račun?</h2>
+            <h2>Do I need an account?</h2>
             <p>
-                Za kupnju i članstvo preporučujemo račun kako bi preuzimanja i
-                članstvo bili vezani uz vas. Registracija je brza.
+                We recommend an account so your downloads and membership stay
+                linked to you. Signing up is quick.
             </p>
 
-            <h2>Kako rade članstva i krediti?</h2>
+            <h2>How do memberships and credits work?</h2>
             <p>
-                Svaki plan daje mjesečne kredite. Jedan kredit = jedno
-                preuzimanje paketa. Neiskorišteni krediti prenose se do
-                dopuštenog limita.
+                Each plan grants monthly credits. One credit = one pack
+                download. Unused credits roll over up to the allowed limit.
             </p>
 
-            <h2>Što znači tier (bronze/silver/gold)?</h2>
+            <h2>What does tier (bronze/silver/gold) mean?</h2>
             <p>
-                Tier označava minimalno članstvo potrebno za kupnju ili
-                preuzimanje određenog paketa. Gold daje pristup svim paketima.
-                Neki paketi su dostupni svima (No tier).
+                The tier is the minimum membership needed to buy or redeem a
+                given pack. Gold gives access to all packs. Some packs are open
+                to everyone (No tier).
             </p>
 
-            <h2>Ostaju li mi krediti ako otkažem pretplatu?</h2>
+            <h2>Do my credits stay if I cancel?</h2>
             <p>
-                Da. Krediti ostaju i možete ih iskoristiti do potroška, prema
-                planu koji ih je dodijelio.
+                Yes. Credits remain and can be used until spent, based on the
+                plan that granted them.
             </p>
 
-            <h2>Koji je format paketa?</h2>
-            <p>PDF, prilagođen ispisu (A4). Sadrži pitanja, odgovore i listiće po potrebi.</p>
-
-            <h2>Mogu li preprodavati ili dijeliti pakete?</h2>
+            <h2>What format are the packs?</h2>
             <p>
-                Ne. Licenca je osobna i neprenosiva. Preprodaja i javna
-                distribucija nisu dopuštene.
+                PDF, formatted for A4 printing. Packs include questions, answers
+                and answer sheets where relevant.
             </p>
 
-            <h2>Kako plaćam?</h2>
+            <h2>Can I resell or share packs?</h2>
             <p>
-                Karticom putem sigurnog <strong>Stripe</strong> checkouta.
-                Podaci o kartici ne prolaze kroz našu stranicu.
+                No. The licence is personal and non-transferable. Resale and
+                public distribution are not allowed.
             </p>
 
-            <h2>Imate promo kodove?</h2>
+            <h2>How do I pay?</h2>
             <p>
-                Da — promo kod se upisuje na stranici plaćanja („Add promotion
-                code“).
+                By card through the secure <strong>Stripe</strong> checkout. Card
+                details never pass through our site.
             </p>
 
-            <h2>Kako funkcioniraju povrati?</h2>
+            <h2>Do you have promo codes?</h2>
             <p>
-                Detalji su u <Link href="/refund">Politici povrata</Link>. Za
-                problem s preuzimanjem ili naplatom javite se na{" "}
+                Yes — enter the code on the payment page (Add promotion code).
+            </p>
+
+            <h2>How do refunds work?</h2>
+            <p>
+                See the <Link href="/refund">Refund Policy</Link>. For download
+                or payment issues, contact{" "}
                 <a href={`mailto:${legalBusiness.email}`}>
                     {legalBusiness.email}
                 </a>
                 .
             </p>
 
-            <h2>Mogu li naručiti custom pitanja?</h2>
+            <h2>Can I order custom questions?</h2>
             <p>
-                Da — putem stranice{" "}
-                <Link href="/custom-questions">Custom Questions</Link>. Nakon
-                zahtjeva javit ćemo se s detaljima.
+                Yes — via the{" "}
+                <Link href="/custom-questions">Custom Questions</Link> page. We
+                will get back to you with the details.
             </p>
 
-            <h2>Kako vas kontaktiram?</h2>
+            <h2>How do I contact you?</h2>
             <p>
                 Email:{" "}
                 <a href={`mailto:${legalBusiness.email}`}>
                     {legalBusiness.email}
                 </a>
-                , ili putem stranice <Link href="/contact">Contact</Link>.
+                , or use the <Link href="/contact">Contact</Link> page.
             </p>
         </LegalPage>
     );

@@ -5,56 +5,54 @@ import { LegalPage } from "@/components/legal-page";
 export default function CookiesPage() {
     return (
         <LegalPage
-            title="Politika kolačića"
-            subtitle="Koje kolačiće koristimo i zašto."
+            title="Cookie Policy"
+            subtitle="Which cookies we use and why."
         >
             <p>
-                Kolačići su male datoteke koje se pohranjuju u vaš preglednik.
-                Koristimo ih za rad prijave i sigurnost te za plaćanje.
+                Cookies are small files stored in your browser. We use them to
+                operate login and security, and for payments.
             </p>
 
-            <h2>Nužni kolačići</h2>
+            <h2>Essential cookies</h2>
             <ul>
                 <li>
-                    <strong>Supabase (prijava)</strong> — kolačići sesije (npr.
-                    sb-…-auth-token) omogućuju prijavu i pristup računu. Bez
-                    njih se ne možete prijaviti.
+                    <strong>Supabase (login)</strong> — session cookies (e.g.
+                    sb-…-auth-token) enable sign-in and account access. Without
+                    them you cannot sign in.
                 </li>
             </ul>
 
-            <h2>Plaćanje</h2>
+            <h2>Payments</h2>
             <ul>
                 <li>
-                    <strong>Stripe</strong> — tijekom plaćanja koriste se Stripe
-                    kolačići na checkout stranici radi sigurnosti i
-                    sprječavanja prijevara.
+                    <strong>Stripe</strong> — during checkout, Stripe cookies are
+                    used on the payment page for security and fraud prevention.
                 </li>
             </ul>
 
-            <h2>Analitika</h2>
+            <h2>Analytics</h2>
             <ul>
                 <li>
-                    <strong>Vercel Web Analytics</strong> — koristimo analitiku
-                    koja radi <strong>bez kolačića</strong> i prikuplja
-                    agregirane podatke o posjetima.
+                    <strong>Vercel Web Analytics</strong> — we use cookieless
+                    analytics that collects aggregated visit data.
                 </li>
             </ul>
 
-            <h2>Marketinški kolačići</h2>
+            <h2>Marketing cookies</h2>
             <p>
-                Trenutačno <strong>ne koristimo</strong> marketinške ni
-                profilacijske kolačiće.
+                We currently do <strong>not</strong> use marketing or profiling
+                cookies.
             </p>
 
-            <h2>Upravljanje kolačićima</h2>
+            <h2>Managing cookies</h2>
             <p>
-                Kolačiće možete obrisati ili blokirati u postavkama preglednika.
-                Blokiranje nužnih kolačića može onemogućiti prijavu i kupnju.
+                You can delete or block cookies in your browser settings.
+                Blocking essential cookies may prevent sign-in and checkout.
             </p>
 
             <p>
-                Više o obradi osobnih podataka:{" "}
-                <Link href="/privacy">Pravila privatnosti</Link>.
+                For more on personal data:{" "}
+                <Link href="/privacy">Privacy Policy</Link>.
             </p>
         </LegalPage>
     );

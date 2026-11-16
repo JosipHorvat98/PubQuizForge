@@ -34,7 +34,7 @@ export function LegalPage({
                     ) : null}
 
                     <p className="mt-2 text-xs text-[var(--muted)]">
-                        Posljednje ažuriranje: {legalBusiness.lastUpdated}
+                        Last updated: {legalBusiness.lastUpdated}
                     </p>
 
                     <div className="mt-8 space-y-5 text-sm leading-7 text-[var(--muted)] [&_a]:text-[var(--gold)] [&_a]:underline [&_h2]:mt-8 [&_h2]:text-lg [&_h2]:font-bold [&_h2]:text-white [&_h3]:mt-4 [&_h3]:font-bold [&_h3]:text-white [&_li]:mt-1 [&_strong]:text-white [&_ul]:list-disc [&_ul]:pl-5">

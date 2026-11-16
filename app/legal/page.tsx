@@ -6,8 +6,8 @@ import { legalBusiness, legalLinks } from "@/data/legal";
 export default function LegalHubPage() {
     return (
         <LegalPage
-            title="Pravne informacije"
-            subtitle="Pregled uvjeta, privatnosti i podataka o trgovcu."
+            title="Legal"
+            subtitle="Terms, privacy and business information in one place."
         >
             <ul>
                 {legalLinks
@@ -19,11 +19,11 @@ export default function LegalHubPage() {
                     ))}
             </ul>
 
-            <h2>Trgovac</h2>
+            <h2>Business</h2>
             <p>
-                {legalBusiness.tradeName} ({legalBusiness.brand}) · vlasnik{" "}
+                {legalBusiness.tradeName} ({legalBusiness.brand}) · owner{" "}
                 {legalBusiness.owner} · {legalBusiness.address},{" "}
-                {legalBusiness.city} · OIB {legalBusiness.oib}. Kontakt:{" "}
+                {legalBusiness.city} · OIB {legalBusiness.oib}. Contact:{" "}
                 <a href={`mailto:${legalBusiness.email}`}>
                     {legalBusiness.email}
                 </a>

@@ -6,115 +6,118 @@ import { legalBusiness } from "@/data/legal";
 export default function TermsPage() {
     return (
         <LegalPage
-            title="Uvjeti korištenja"
-            subtitle="Pravila kupnje i korištenja digitalnih quiz paketa i članstava."
+            title="Terms of Service"
+            subtitle="Rules for purchasing and using digital quiz packs and memberships."
         >
-            <h2>Pružatelj usluga</h2>
+            <h2>Service provider</h2>
             <p>
-                Usluge pruža {legalBusiness.tradeName} ({legalBusiness.brand}),{" "}
-                {legalBusiness.address}, {legalBusiness.city}, OIB{" "}
-                {legalBusiness.oib}. Kontakt:{" "}
+                Services are provided by {legalBusiness.tradeName} (
+                {legalBusiness.brand}), {legalBusiness.address},{" "}
+                {legalBusiness.city}, OIB {legalBusiness.oib}. Contact:{" "}
                 <a href={`mailto:${legalBusiness.email}`}>
                     {legalBusiness.email}
                 </a>
                 .
             </p>
 
-            <h2>Predmet</h2>
+            <h2>Scope</h2>
             <p>
-                Prodajemo digitalne quiz pakete (PDF) i članstva (pretplate) za
-                osobnu upotrebu pri organizaciji quiz večeri.
+                We sell digital quiz packs (PDF) and memberships (subscriptions)
+                for personal use when hosting quiz nights.
             </p>
 
-            <h2>Račun</h2>
+            <h2>Account</h2>
             <ul>
                 <li>
-                    Za kupnju i članstvo potreban je račun s točnim podacima.
+                    Purchases and memberships require an account with accurate
+                    information.
                 </li>
                 <li>
-                    Odgovorni ste za čuvanje lozinke i aktivnosti na računu.
+                    You are responsible for keeping your password safe and for
+                    activity on your account.
                 </li>
                 <li>
-                    Kršenje ovih uvjeta može dovesti do suspenzije računa.
+                    Violation of these terms may result in account suspension.
                 </li>
             </ul>
 
-            <h2>Kupnja i cijene</h2>
+            <h2>Purchases and prices</h2>
             <ul>
-                <li>Cijene su izražene u eurima (EUR).</li>
+                <li>Prices are shown in euros (EUR).</li>
                 <li>
-                    Cijene su konačne. {legalBusiness.vatNote}
+                    Prices are final. {legalBusiness.vatNote}
                 </li>
                 <li>
-                    Plaćanje se obrađuje putem <strong>Stripea</strong>.
-                    Promo kodovi se primjenjuju na stranici plaćanja.
+                    Payments are processed by <strong>Stripe</strong>. Promo
+                    codes are applied on the payment page.
                 </li>
             </ul>
 
-            <h2>Dostava digitalnog sadržaja</h2>
+            <h2>Digital delivery</h2>
             <p>
-                Nakon uspješnog plaćanja paket je dostupan za preuzimanje na
-                stranici „My Downloads“ i/ili putem emaila. Sadržaj je digitalan
-                — nema fizičke dostave.
+                After successful payment, the pack is available for download on
+                the “My Downloads” page and/or by email. Content is digital —
+                there is no physical delivery.
             </p>
 
-            <h2>Licenca</h2>
+            <h2>Licence</h2>
             <p>
-                Kupnjom stječete osobnu, neprenosivu licencu za korištenje
-                paketa na vlastitim quiz događajima. Zabranjeno je preprodavati,
-                dijeliti ili javno objavljivati pakete.
+                Purchasing grants you a personal, non-transferable licence to
+                use the pack at your own quiz events. Resale, sharing or public
+                publishing of packs is prohibited.
             </p>
 
-            <h2>Članstva i krediti</h2>
+            <h2>Memberships and credits</h2>
             <ul>
-                <li>Svaki plan daje mjesečne kredite za preuzimanje paketa.</li>
                 <li>
-                    Neiskorišteni krediti prenose se u sljedeći mjesec do
-                    najviše dopuštenog limita (rollover cap).
+                    Each plan grants monthly credits for downloading packs.
                 </li>
                 <li>
-                    Krediti ostaju važi i nakon otkazivanja pretplate te se mogu
-                    iskoristiti do potroška.
+                    Unused credits roll over to the next month up to the allowed
+                    limit (rollover cap).
                 </li>
                 <li>
-                    Pristup paketima prema tier-u (bronze/silver/gold) vrijedi
-                    dok traje pretplata ili dok imate kredite.
+                    Credits remain valid after cancelling a subscription and can
+                    be used until spent.
+                </li>
+                <li>
+                    Access to packs by tier (bronze/silver/gold) applies while
+                    the subscription is active or while you have credits.
                 </li>
             </ul>
 
-            <h2>Pravo na odustajanje</h2>
+            <h2>Right of withdrawal</h2>
             <p>
-                Za digitalni sadržaj koji se preuzima odmah, potrošač gubi pravo
-                na jednostrano odustajanje nakon što je preuzimanje započelo uz
-                izričitu privolu. Detalji su u{" "}
-                <Link href="/refund">Politici povrata</Link>.
+                For digital content delivered immediately, the consumer loses
+                the right of withdrawal once download has begun with explicit
+                consent. See the <Link href="/refund">Refunds</Link> policy.
             </p>
 
-            <h2>Odgovornost</h2>
+            <h2>Liability</h2>
             <p>
-                Sadržaj pružamo „takav kakav jest“. Ne jamčimo da će pitanja
-                odgovarati svakom događaju ni potpunu točnost svih odgovora.
-                Odgovornost je ograničena na iznos plaćen za konkretan paket ili
-                članstvo, u granicama dopuštenim zakonom.
+                Content is provided “as is”. We do not guarantee that questions
+                suit every event or that all answers are fully accurate.
+                Liability is limited to the amount paid for the specific pack or
+                membership, within the limits permitted by law.
             </p>
 
-            <h2>Intelektualno vlasništvo</h2>
+            <h2>Intellectual property</h2>
             <p>
-                Svi paketi i sadržaj zaštićeni su autorskim pravom. Zabranjeno je
-                neovlašteno kopiranje i distribucija.
+                All packs and content are protected by copyright. Unauthorised
+                copying and distribution are prohibited.
             </p>
 
-            <h2>Izmjene uvjeta</h2>
+            <h2>Changes to these terms</h2>
             <p>
-                Uvjete možemo povremeno ažurirati. Važne izmjene objavit ćemo na
-                ovoj stranici s datumom ažuriranja.
+                We may update these terms from time to time. Material changes
+                will be published on this page with the updated date.
             </p>
 
-            <h2>Mjerodavno pravo</h2>
+            <h2>Governing law</h2>
             <p>
-                Primjenjuje se pravo Republike Hrvatske. Za sporove je nadležan
-                stvarno nadležni sud u Republici Hrvatskoj, osim ako zakon
-                propisuje drugačije za potrošače.
+                The law of the Republic of Croatia applies. The competent court
+                in the Republic of Croatia has jurisdiction, unless the law
+                provides otherwise for consumers.
             </p>
         </LegalPage>
     );

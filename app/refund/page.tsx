@@ -6,74 +6,72 @@ import { legalBusiness } from "@/data/legal";
 export default function RefundPage() {
     return (
         <LegalPage
-            title="Politika povrata"
-            subtitle="Povrati, odustajanje i reklamacije za digitalne proizvode."
+            title="Refund Policy"
+            subtitle="Refunds, withdrawal and complaints for digital products."
         >
-            <h2>Digitalni proizvodi</h2>
+            <h2>Digital products</h2>
             <p>
-                Svi proizvodi su digitalni (PDF) i dostupni su odmah nakon
-                plaćanja. Nema fizičke dostave.
+                All products are digital (PDF) and available immediately after
+                payment. There is no physical delivery.
             </p>
 
-            <h2>Pravo na odustajanje</h2>
+            <h2>Right of withdrawal</h2>
             <p>
-                Prema EU pravilima potrošač ima 14 dana na odustajanje, osim za
-                digitalni sadržaj koji se preuzima odmah. Kupnjom i početkom
-                preuzimanja dajete izričitu privolu i potvrđujete da gubite
-                pravo na jednostrano odustajanje.
+                Under EU rules, consumers have 14 days to withdraw, except for
+                digital content delivered immediately. By purchasing and
+                starting the download you give explicit consent and confirm that
+                you lose the right of withdrawal.
             </p>
 
-            <h2>Kada odobravamo povrat</h2>
+            <h2>When we approve refunds</h2>
             <ul>
-                <li>PDF se ne može preuzeti ili je datoteka neispravna.</li>
-                <li>Dupla naplata ili tehnička greška pri plaćanju.</li>
-                <li>Paket značajno odstupa od opisa.</li>
+                <li>The PDF cannot be downloaded or the file is faulty.</li>
+                <li>Duplicate charge or a technical payment error.</li>
+                <li>The pack significantly differs from its description.</li>
             </ul>
 
-            <h2>Članstva</h2>
+            <h2>Memberships</h2>
             <ul>
                 <li>
-                    Pretplatu možete otkazati u svakom trenutku (u računu ili
-                    kontaktom).
+                    You can cancel a subscription at any time (in your account or
+                    by contacting us).
                 </li>
                 <li>
-                    Pristup ostaje do kraja plaćenog perioda; nakon toga se ne
-                    obnavlja.
+                    Access remains until the end of the paid period; it does not
+                    renew after that.
                 </li>
                 <li>
-                    Neiskorišteni krediti ostaju i mogu se koristiti do
-                    potroška.
+                    Unused credits remain and can be used until spent.
                 </li>
                 <li>
-                    Za započeti period naplate u pravilu nema povrata, osim
-                    zakonskih prava.
+                    For a started billing period there is generally no refund,
+                    except for statutory rights.
                 </li>
             </ul>
 
-            <h2>Kako zatražiti povrat</h2>
+            <h2>How to request a refund</h2>
             <p>
-                Pošaljite email na{" "}
+                Email{" "}
                 <a href={`mailto:${legalBusiness.email}`}>
                     {legalBusiness.email}
                 </a>{" "}
-                s: email računa, datum kupnje, naziv paketa i razlog. Odgovaramo u
-                razumnom roku (najčešće 2–5 radnih dana).
+                with: account email, purchase date, pack name and reason. We
+                reply within a reasonable time (usually 2–5 business days).
             </p>
 
-            <h2>Način povrata</h2>
+            <h2>Refund method</h2>
             <p>
-                Povrat se vrši na isti način plaćanja (kartica) preko Stripea.
-                Vrijeme knjiženja ovisi o banci.
+                Refunds are issued to the original payment method (card) via
+                Stripe. Posting time depends on your bank.
             </p>
 
-            <h2>Kontakt</h2>
+            <h2>Contact</h2>
             <p>
-                Za sva pitanja:{" "}
+                For any questions:{" "}
                 <a href={`mailto:${legalBusiness.email}`}>
                     {legalBusiness.email}
                 </a>
-                . Također pogledajte{" "}
-                <Link href="/terms">Uvjete korištenja</Link>.
+                . See also <Link href="/terms">Terms of Service</Link>.
             </p>
         </LegalPage>
     );

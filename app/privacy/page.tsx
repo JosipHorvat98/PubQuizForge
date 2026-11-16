@@ -6,130 +6,129 @@ import { legalBusiness } from "@/data/legal";
 export default function PrivacyPage() {
     return (
         <LegalPage
-            title="Pravila privatnosti"
-            subtitle="Kako prikupljamo, koristimo i štitimo vaše osobne podatke."
+            title="Privacy Policy"
+            subtitle="How we collect, use and protect your personal data."
         >
-            <h2>Voditelj obrade</h2>
+            <h2>Data controller</h2>
             <p>
-                Voditelj obrade je {legalBusiness.tradeName},{" "}
+                The data controller is {legalBusiness.tradeName},{" "}
                 {legalBusiness.address}, {legalBusiness.city}, OIB{" "}
-                {legalBusiness.oib} (brend {legalBusiness.brand}). Kontakt:{" "}
+                {legalBusiness.oib} (brand {legalBusiness.brand}). Contact:{" "}
                 <a href={`mailto:${legalBusiness.email}`}>
                     {legalBusiness.email}
                 </a>
                 .
             </p>
 
-            <h2>Koje podatke prikupljamo</h2>
+            <h2>Data we collect</h2>
             <ul>
                 <li>
-                    <strong>Račun:</strong> email, nickname, hash lozinke i
-                    datum registracije.
+                    <strong>Account:</strong> email, nickname, password hash and
+                    registration date.
                 </li>
                 <li>
-                    <strong>Kupnje i preuzimanja:</strong> email, kupljeni ili
-                    preuzeti paketi, iznos i status narudžbe.
+                    <strong>Purchases and downloads:</strong> email, purchased or
+                    downloaded packs, amount and order status.
                 </li>
                 <li>
-                    <strong>Članstvo:</strong> plan, status pretplate, broj
-                    kredita i datumi obnove.
+                    <strong>Membership:</strong> plan, subscription status,
+                    credit balance and renewal dates.
                 </li>
                 <li>
-                    <strong>Newsletter:</strong> email i status pretplate.
+                    <strong>Newsletter:</strong> email and subscription status.
                 </li>
                 <li>
-                    <strong>Custom pitanja i kontakt:</strong> ime, email, tema,
-                    broj pitanja i poruka.
+                    <strong>Custom questions and contact:</strong> name, email,
+                    theme, question count and message.
                 </li>
                 <li>
-                    <strong>Tehnički podaci:</strong> IP adresa i podaci o
-                    pregledniku u poslužiteljskim zapisima (sigurnost).
+                    <strong>Technical data:</strong> IP address and browser
+                    details in server logs (security).
                 </li>
             </ul>
 
-            <h2>Pravne osnove i svrhe</h2>
+            <h2>Legal bases and purposes</h2>
             <ul>
                 <li>
-                    <strong>Izvršenje ugovora</strong> — pružanje kupljenih
-                    paketa, članstva i podrške.
+                    <strong>Performance of a contract</strong> — providing
+                    purchased packs, memberships and support.
                 </li>
                 <li>
-                    <strong>Legitimni interes</strong> — sigurnost i
-                    sprječavanje prijevara i zloupotreba.
+                    <strong>Legitimate interest</strong> — security and
+                    prevention of fraud and abuse.
                 </li>
                 <li>
-                    <strong>Privola</strong> — newsletter i marketinške poruke
-                    (možete je povući u svakom trenutku).
+                    <strong>Consent</strong> — newsletter and marketing messages
+                    (you can withdraw at any time).
                 </li>
                 <li>
-                    <strong>Pravna obveza</strong> — računovodstvo i porezni
-                    propisi.
+                    <strong>Legal obligation</strong> — accounting and tax
+                    requirements.
                 </li>
             </ul>
 
-            <h2>Plaćanje</h2>
+            <h2>Payments</h2>
             <p>
-                Plaćanja obrađuje <strong>Stripe</strong>. Podatke o kartici ne
-                pohranjujemo — njima upravlja Stripe u skladu sa svojim
-                pravilima privatnosti.
+                Payments are processed by <strong>Stripe</strong>. We do not
+                store card data — it is handled by Stripe under its own privacy
+                terms.
             </p>
 
-            <h2>Primatelji i obrađivači</h2>
+            <h2>Recipients and processors</h2>
             <ul>
                 <li>
-                    <strong>Supabase</strong> — baza podataka i autentikacija.
+                    <strong>Supabase</strong> — database and authentication.
                 </li>
                 <li>
-                    <strong>Vercel</strong> — hosting aplikacije i analitika bez
-                    kolačića.
+                    <strong>Vercel</strong> — application hosting and cookieless
+                    analytics.
                 </li>
                 <li>
-                    <strong>Stripe</strong> — obrada plaćanja.
+                    <strong>Stripe</strong> — payment processing.
                 </li>
                 <li>
-                    <strong>Resend</strong> — slanje transakcijskih emailova.
+                    <strong>Resend</strong> — transactional email delivery.
                 </li>
             </ul>
             <p>
-                Ovi pružatelji mogu obrađivati podatke izvan EU/EEA uz
-                odgovarajuće zaštitne mjere (npr. standardne ugovorne
-                klauzule).
+                These providers may process data outside the EU/EEA with
+                appropriate safeguards (e.g. standard contractual clauses).
             </p>
 
-            <h2>Rokovi čuvanja</h2>
+            <h2>Retention</h2>
             <ul>
                 <li>
-                    Podaci računa — dok je račun aktivan, a nakon brisanja do
-                    prestanka zakonskih obveza.
+                    Account data — while the account is active, and after
+                    deletion until statutory obligations end.
                 </li>
                 <li>
-                    Računovodstveni podaci — u skladu s hrvatskim propisima
-                    (npr. 11 godina).
+                    Accounting records — in line with Croatian law (e.g. 11
+                    years).
                 </li>
-                <li>Newsletter — do odjave.</li>
+                <li>Newsletter — until you unsubscribe.</li>
             </ul>
 
-            <h2>Vaša prava</h2>
+            <h2>Your rights</h2>
             <p>
-                Imate pravo na pristup, ispravak, brisanje, ograničenje obrade,
-                prenosivost, prigovor te povlačenje privole. Zahtjev pošaljite
-                na{" "}
+                You have the right to access, rectification, erasure,
+                restriction, portability, objection and withdrawal of consent.
+                Send requests to{" "}
                 <a href={`mailto:${legalBusiness.email}`}>
                     {legalBusiness.email}
                 </a>
-                . Imate i pravo pritužbe Agenciji za zaštitu osobnih podataka
-                (AZOP).
+                . You also have the right to lodge a complaint with the Croatian
+                Personal Data Protection Agency (AZOP).
             </p>
 
-            <h2>Kolačići</h2>
+            <h2>Cookies</h2>
             <p>
-                Detalje potražite u <Link href="/cookies">Politici kolačića</Link>.
+                See our <Link href="/cookies">Cookie Policy</Link>.
             </p>
 
-            <h2>Sigurnost</h2>
+            <h2>Security</h2>
             <p>
-                Primjenjujemo razumne tehničke i organizacijske mjere zaštite
-                podataka.
+                We apply reasonable technical and organisational measures to
+                protect data.
             </p>
         </LegalPage>
     );
