@@ -41,7 +41,8 @@ const ACTION_LABELS: Record<string, string> = {
     custom_question_reopened: "Reopened custom question",
     delete_custom_question: "Deleted custom question",
     newsletter_broadcast: "Sent newsletter broadcast",
-    newsletter_unsubscribe: "Unsubscribed newsletter email"
+    newsletter_unsubscribe: "Unsubscribed newsletter email",
+    admin_credit_update: "Updated pack credits"
 };
 
 export function describeAuditAction(action: string): string {
