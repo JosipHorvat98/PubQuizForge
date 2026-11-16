@@ -1,6 +1,6 @@
 // file: app/api/admin/news/[id]/route.ts
 import { NextResponse } from "next/server";
-import { requireAdmin } from "@/lib/admin-auth";
+import { requireNewsEditor } from "@/lib/admin-auth";
 import { logAdminAction } from "@/lib/admin-audit";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 
@@ -19,7 +19,7 @@ export async function PATCH(
     context: { params: Promise<{ id: string }> }
 ) {
     try {
-        const admin = await requireAdmin();
+        const admin = await requireNewsEditor();
 
         const { id } = await context.params;
 
@@ -129,7 +129,7 @@ export async function DELETE(
     context: { params: Promise<{ id: string }> }
 ) {
     try {
-        const admin = await requireAdmin();
+        const admin = await requireNewsEditor();
 
         const { id } = await context.params;
 

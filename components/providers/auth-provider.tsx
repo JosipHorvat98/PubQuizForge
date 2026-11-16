@@ -18,6 +18,7 @@ type AuthContextValue = {
     user: User | null;
     isAuthReady: boolean;
     isAdmin: boolean;
+    isEditor: boolean;
 };
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -33,6 +34,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
     const [isAuthReady, setIsAuthReady] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false);
+    const [isEditor, setIsEditor] = useState(false);
     const pathname = usePathname();
 
     useEffect(() => {
@@ -58,15 +60,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         async function refreshAdminFlag(email?: string | null) {
             if (!email) {
                 setIsAdmin(false);
+                setIsEditor(false);
                 return;
             }
 
             try {
                 const response = await fetch("/api/admin/me");
-                const json = (await response.json()) as { isAdmin?: boolean };
+                const json = (await response.json()) as {
+                    isAdmin?: boolean;
+                    isEditor?: boolean;
+                };
                 setIsAdmin(Boolean(json.isAdmin));
+                setIsEditor(Boolean(json.isEditor));
             } catch {
                 setIsAdmin(false);
+                setIsEditor(false);
             }
         }
 
@@ -87,6 +95,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     void refreshAdminFlag(session.user.email);
                 } else {
                     setIsAdmin(false);
+                    setIsEditor(false);
                 }
             }
         );
@@ -121,19 +130,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
             if (!currentUser?.email) {
                 setIsAdmin(false);
+                setIsEditor(false);
                 return;
             }
 
             try {
                 const response = await fetch("/api/admin/me");
-                const json = (await response.json()) as { isAdmin?: boolean };
+                const json = (await response.json()) as {
+                    isAdmin?: boolean;
+                    isEditor?: boolean;
+                };
 
                 if (active) {
                     setIsAdmin(Boolean(json.isAdmin));
+                    setIsEditor(Boolean(json.isEditor));
                 }
             } catch {
                 if (active) {
                     setIsAdmin(false);
+                    setIsEditor(false);
                 }
             }
         }, 120);
@@ -145,8 +160,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, [pathname, isAuthReady]);
 
     const value = useMemo<AuthContextValue>(
-        () => ({ user, isAuthReady, isAdmin }),
-        [user, isAuthReady, isAdmin]
+        () => ({ user, isAuthReady, isAdmin, isEditor }),
+        [user, isAuthReady, isAdmin, isEditor]
     );
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

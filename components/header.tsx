@@ -9,7 +9,7 @@ import { useCart } from "@/components/providers/cart-provider";
 import { useAuth } from "@/components/providers/auth-provider";
 
 export function Header() {
-  const { user, isAuthReady, isAdmin } = useAuth();
+  const { user, isAuthReady, isAdmin, isEditor } = useAuth();
   const nickname = String(user?.user_metadata?.nickname ?? "").trim();
   const [isCartBumping, setIsCartBumping] = useState(false);
   const { count, cartPulseKey, isHydrated } = useCart();
@@ -85,9 +85,9 @@ export function Header() {
                   {nickname || "Account"}
                 </Link>
 
-                {isAdmin ? (
+                {isAdmin || isEditor ? (
                   <Link
-                    href="/admin"
+                    href={isAdmin ? "/admin" : "/admin/news"}
                     prefetch={false}
                     className="text-sm font-semibold text-[var(--gold)] hover:text-white"
                   >

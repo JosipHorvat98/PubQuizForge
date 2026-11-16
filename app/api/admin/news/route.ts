@@ -1,6 +1,6 @@
 // file: app/api/admin/news/route.ts
 import { NextResponse } from "next/server";
-import { requireAdmin } from "@/lib/admin-auth";
+import { requireNewsEditor } from "@/lib/admin-auth";
 import { logAdminAction } from "@/lib/admin-audit";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 
@@ -36,7 +36,7 @@ async function uniqueSlug(base: string): Promise<string> {
 
 export async function POST(request: Request) {
     try {
-        const admin = await requireAdmin();
+        const admin = await requireNewsEditor();
 
         const body = (await request.json()) as {
             title?: string;

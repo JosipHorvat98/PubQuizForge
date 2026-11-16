@@ -2,7 +2,7 @@
 import { redirect } from "next/navigation";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
-import { requireAdmin } from "@/lib/admin-auth";
+import { requireNewsEditor } from "@/lib/admin-auth";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { NewsAdminClient } from "@/components/news-admin-client";
 
@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminNewsPage() {
     try {
-        await requireAdmin();
+        await requireNewsEditor();
     } catch {
         redirect("/account");
     }

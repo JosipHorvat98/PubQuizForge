@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import Stripe from "stripe";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
-import { requireAdmin } from "@/lib/admin-auth";
+import { getAdminRole } from "@/lib/admin-auth";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { countActiveNewsletterSubscribers } from "@/lib/newsletter";
 import {
@@ -75,9 +75,13 @@ async function getStripeRevenueCents(): Promise<number | null> {
 }
 
 export default async function AdminDashboardPage() {
-    try {
-        await requireAdmin();
-    } catch {
+    const role = await getAdminRole();
+
+    if (role !== "super_admin") {
+        if (role === "editor") {
+            redirect("/admin/news");
+        }
+
         redirect("/account");
     }
 
