@@ -130,3 +130,15 @@ a:focus-visible {
   outline: 2px solid var(--gold);
   outline-offset: 3px;
 }
+
+/* Native <select> dropdowns on Windows render a white popup.
+   Force a dark color scheme so option text stays readable. */
+select {
+  color-scheme: dark;
+}
+
+select option,
+select optgroup {
+  background-color: var(--surface);
+  color: var(--text);
+}
