@@ -70,6 +70,7 @@ export const newsCategories = [
     "Guide",
     "Announcement",
     "Promo",
+    "Note",
     "Other"
 ] as const;
 
