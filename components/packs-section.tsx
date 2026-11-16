@@ -24,6 +24,7 @@ export function PacksSection({ packs }: { packs: Pack[] }) {
     const [activeTier, setActiveTier] = useState<PackTier | "all">("all");
     const [activeAvailability, setActiveAvailability] =
         useState<AvailabilityFilter>("all");
+    const [query, setQuery] = useState("");
 
     // Group by tier (free → bronze → silver → gold), then alphabetically.
     const sortedPacks = useMemo(
@@ -38,6 +39,8 @@ export function PacksSection({ packs }: { packs: Pack[] }) {
     );
 
     const filteredPacks = useMemo(() => {
+        const needle = query.trim().toLowerCase();
+
         return sortedPacks.filter((pack) => {
             const matchesCategory =
                 activeCategory === "all" || pack.category === activeCategory;
@@ -47,10 +50,27 @@ export function PacksSection({ packs }: { packs: Pack[] }) {
             const matchesAvailability =
                 activeAvailability === "all" ||
                 (activeAvailability === "available" ? available : !available);
+            const matchesQuery =
+                !needle ||
+                [pack.title, pack.id, pack.categoryLabel]
+                    .join(" ")
+                    .toLowerCase()
+                    .includes(needle);
 
-            return matchesCategory && matchesTier && matchesAvailability;
+            return (
+                matchesCategory &&
+                matchesTier &&
+                matchesAvailability &&
+                matchesQuery
+            );
         });
-    }, [sortedPacks, activeCategory, activeTier, activeAvailability]);
+    }, [
+        sortedPacks,
+        activeCategory,
+        activeTier,
+        activeAvailability,
+        query
+    ]);
 
     const tierFilters: Array<{ id: PackTier | "all"; label: string }> = [
         { id: "all", label: "All tiers" },
@@ -123,6 +143,13 @@ export function PacksSection({ packs }: { packs: Pack[] }) {
                     label="Digital Packs"
                     title="Question Bundles"
                     subtitle="50 questions per pack · Answer sheet included · Instant PDF download"
+                />
+
+                <input
+                    value={query}
+                    onChange={(event) => setQuery(event.target.value)}
+                    placeholder="Search packs by title or topic..."
+                    className="mb-4 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none focus:border-white/25"
                 />
 
                 <div className="mb-4 flex flex-wrap gap-3">

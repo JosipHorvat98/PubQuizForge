@@ -58,8 +58,8 @@ export const navLinks = [
 ];
 
 export const stats = [
-    { value: "2,400+", label: "Questions available" },
-    { value: "48+", label: "Quiz packs" },
+    { value: "2,500+", label: "Questions available" },
+    { value: "50+", label: "Quiz packs" },
     { value: "300+", label: "Quiz nights powered" }
 ];
 
