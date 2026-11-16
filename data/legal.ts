@@ -5,12 +5,13 @@
  * Replace the bracketed placeholders with your real obrt details.
  */
 export const legalBusiness = {
-    tradeName: "[Naziv obrta]",
-    owner: "[Ime i prezime vlasnika]",
-    address: "[Ulica i broj]",
-    city: "[Poštanski broj i grad]",
+    tradeName: "Lumio",
+    owner: "Josip Horvat",
+    address: "Donja Šemnica 292",
+    city: "49000 Krapina",
     country: "Hrvatska",
-    oib: "[OIB]",
+    oib: "61911979859",
+    brand: "PubQuizForge",
     email: "jojohorvat@gmail.com",
     website: "https://pubquizforge.com",
     vatNote: "Nije u sustavu PDV-a.",

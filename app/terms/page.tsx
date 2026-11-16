@@ -11,8 +11,9 @@ export default function TermsPage() {
         >
             <h2>Pružatelj usluga</h2>
             <p>
-                Usluge pruža {legalBusiness.tradeName}, {legalBusiness.address},{" "}
-                {legalBusiness.city}, OIB {legalBusiness.oib}. Kontakt:{" "}
+                Usluge pruža {legalBusiness.tradeName} ({legalBusiness.brand}),{" "}
+                {legalBusiness.address}, {legalBusiness.city}, OIB{" "}
+                {legalBusiness.oib}. Kontakt:{" "}
                 <a href={`mailto:${legalBusiness.email}`}>
                     {legalBusiness.email}
                 </a>

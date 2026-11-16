@@ -21,8 +21,9 @@ export default function LegalHubPage() {
 
             <h2>Trgovac</h2>
             <p>
-                {legalBusiness.tradeName}, {legalBusiness.address},{" "}
-                {legalBusiness.city}, OIB {legalBusiness.oib}. Kontakt:{" "}
+                {legalBusiness.tradeName} ({legalBusiness.brand}) · vlasnik{" "}
+                {legalBusiness.owner} · {legalBusiness.address},{" "}
+                {legalBusiness.city} · OIB {legalBusiness.oib}. Kontakt:{" "}
                 <a href={`mailto:${legalBusiness.email}`}>
                     {legalBusiness.email}
                 </a>

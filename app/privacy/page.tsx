@@ -13,7 +13,7 @@ export default function PrivacyPage() {
             <p>
                 Voditelj obrade je {legalBusiness.tradeName},{" "}
                 {legalBusiness.address}, {legalBusiness.city}, OIB{" "}
-                {legalBusiness.oib}. Kontakt:{" "}
+                {legalBusiness.oib} (brend {legalBusiness.brand}). Kontakt:{" "}
                 <a href={`mailto:${legalBusiness.email}`}>
                     {legalBusiness.email}
                 </a>

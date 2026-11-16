@@ -11,6 +11,7 @@ export default function ImpressumPage() {
             <h2>Pružatelj usluga</h2>
             <ul>
                 <li>Naziv: {legalBusiness.tradeName}</li>
+                <li>Brend: {legalBusiness.brand}</li>
                 <li>Vlasnik: {legalBusiness.owner}</li>
                 <li>
                     Adresa: {legalBusiness.address}, {legalBusiness.city},{" "}
@@ -34,6 +35,7 @@ export default function ImpressumPage() {
 
             <h2>Djelatnost</h2>
             <p>
+                {legalBusiness.brand} je brend obrta {legalBusiness.tradeName}.
                 Prodaja digitalnih sadržaja (quiz paketa u PDF formatu) i
                 članstava (pretplata) putem interneta.
             </p>
