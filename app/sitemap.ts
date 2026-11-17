@@ -3,7 +3,9 @@ import type { MetadataRoute } from "next";
 import { packs } from "@/data/site";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-    const base = "https://pubquizforge.com";
+    const base = (
+        process.env.NEXT_PUBLIC_SITE_URL || "https://pubquizforge.com"
+    ).replace(/\/+$/, "");
     const now = new Date();
 
     const staticRoutes = [
