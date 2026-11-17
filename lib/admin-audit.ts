@@ -46,7 +46,8 @@ const ACTION_LABELS: Record<string, string> = {
     pack_override_update: "Updated pack details",
     admin_subscription_cancel: "Scheduled subscription cancellation",
     admin_subscription_resume: "Resumed subscription",
-    admin_subscription_cancel_now: "Cancelled subscription immediately"
+    admin_subscription_cancel_now: "Cancelled subscription immediately",
+    admin_subscription_sync: "Synced subscriptions from Stripe"
 };
 
 export function describeAuditAction(action: string): string {

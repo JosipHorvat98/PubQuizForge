@@ -1,7 +1,11 @@
 // file: lib/memberships.ts
 import "server-only";
-import Stripe from "stripe";
-import { PRICE_ID_TO_PLAN_ID } from "@/lib/subscriptions";
+import { findBestStripeSubscription } from "@/lib/membership-sync";
+import {
+    getPlanIdFromSubscription,
+    getSubscriptionPeriodEnd,
+    isActiveSubscriptionStatus
+} from "@/lib/subscriptions";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 
 const ACTIVE_STATUSES = ["active", "trialing", "past_due"] as const;
@@ -12,16 +16,6 @@ export type StripeMembership = {
     cancel_at_period_end: boolean;
     current_period_end: string | null;
 };
-
-function getStripeClient(): Stripe {
-    const secretKey = process.env.STRIPE_SECRET_KEY;
-
-    if (!secretKey) {
-        throw new Error("Missing STRIPE_SECRET_KEY");
-    }
-
-    return new Stripe(secretKey);
-}
 
 export function isActiveMembershipStatus(status: string): boolean {
     return (ACTIVE_STATUSES as readonly string[]).includes(status);
@@ -38,49 +32,23 @@ async function findMembershipFromStripe(
     email: string
 ): Promise<StripeMembership | null> {
     try {
-        const stripe = getStripeClient();
+        const found = await findBestStripeSubscription(email);
 
-        const customers = await stripe.customers.list({ email, limit: 10 });
-        const customer = customers.data.find((candidate) => !candidate.deleted);
-
-        if (!customer) {
+        if (!found) {
             return null;
         }
 
-        const result = await stripe.subscriptions.list({
-            customer: customer.id,
-            status: "all",
-            limit: 100
-        });
+        const { subscription } = found;
 
-        const subscriptionList = Array.isArray(result) ? result : result.data;
-
-        const latestActive = subscriptionList
-            .filter((subscription) =>
-                isActiveMembershipStatus(subscription.status)
-            )
-            .sort((a, b) => b.created - a.created)[0];
-
-        if (!latestActive) {
+        if (!isActiveSubscriptionStatus(subscription.status)) {
             return null;
         }
-
-        const priceId = latestActive.items.data[0]?.price?.id ?? "";
-        const planId =
-            latestActive.metadata?.plan_id ??
-            latestActive.metadata?.slug ??
-            PRICE_ID_TO_PLAN_ID[priceId] ??
-            "unknown";
-
-        const periodEnd = latestActive.items.data[0]?.current_period_end ?? null;
 
         return {
-            plan_id: planId,
-            status: latestActive.status,
-            cancel_at_period_end: latestActive.cancel_at_period_end,
-            current_period_end: periodEnd
-                ? new Date(periodEnd * 1000).toISOString()
-                : null
+            plan_id: getPlanIdFromSubscription(subscription),
+            status: subscription.status,
+            cancel_at_period_end: subscription.cancel_at_period_end,
+            current_period_end: getSubscriptionPeriodEnd(subscription)
         };
     } catch (error) {
         console.error("Stripe membership lookup failed:", error);

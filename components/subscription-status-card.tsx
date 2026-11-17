@@ -70,6 +70,12 @@ export function SubscriptionStatusCard({
   }
 
   const periodEnd = formatDate(subscription.current_period_end);
+  const isCanceled = subscription.status === "canceled";
+  const statusTone = isCanceled
+    ? "border-red-500/20 bg-red-500/10 text-red-300"
+    : subscription.status === "past_due"
+      ? "border-yellow-500/20 bg-yellow-500/10 text-yellow-300"
+      : "border-green-500/20 bg-green-500/10 text-green-300";
 
   return (
     <section className="border-t border-white/8 p-7 md:p-8">
@@ -84,7 +90,9 @@ export function SubscriptionStatusCard({
           </h2>
 
           <div className="mt-4 flex flex-wrap gap-2">
-            <span className="rounded-full border border-green-500/20 bg-green-500/10 px-3 py-1 text-xs font-bold text-green-300">
+            <span
+              className={`rounded-full border px-3 py-1 text-xs font-bold ${statusTone}`}
+            >
               {formatStatus(subscription.status)}
             </span>
 
@@ -97,9 +105,11 @@ export function SubscriptionStatusCard({
 
           {periodEnd ? (
             <p className="mt-4 text-sm leading-6 text-[var(--muted)]">
-              {subscription.cancel_at_period_end
-                ? `Your access remains active until ${periodEnd}.`
-                : `Your current billing period ends on ${periodEnd}.`}
+              {isCanceled
+                ? `This membership ended on ${periodEnd}.`
+                : subscription.cancel_at_period_end
+                  ? `Your access stays active until ${periodEnd}. You will not be billed again.`
+                  : `Renews on ${periodEnd}.`}
             </p>
           ) : null}
         </div>

@@ -9,7 +9,7 @@ import {
     type AccountSubscription
 } from "@/components/subscription-status-card";
 import { supabaseAdmin } from "@/lib/supabase-admin";
-import { findActiveMembershipForEmail } from "@/lib/memberships";
+import { syncMembershipForEmail } from "@/lib/membership-sync";
 import { createClient } from "@/utils/supabase/server";
 
 async function signOut() {
@@ -35,40 +35,50 @@ export default async function AccountPage() {
 
     const nickname = String(user.user_metadata?.nickname ?? "").trim();
 
-    const { data: subscription, error: subscriptionError } =
-        await supabaseAdmin
-            .from("subscriptions")
-            .select(
-                "plan_id, status, cancel_at_period_end, current_period_end"
-            )
-            .eq("user_id", user.id)
-            .in("status", ["active", "trialing", "past_due"])
-            .order("updated_at", { ascending: false })
-            .limit(1)
-            .maybeSingle<AccountSubscription>();
+    // Stripe is the source of truth: read it on every account load and mirror
+    // the result into Supabase so /admin/subscriptions stays in sync even when
+    // a webhook delivery was missed.
+    let activeSubscription: AccountSubscription | null = null;
 
-    if (subscriptionError) {
-        console.error(
-            "Unable to load account subscription:",
-            subscriptionError
-        );
+    if (user.email) {
+        try {
+            const synced = await syncMembershipForEmail(user.email, user.id);
+
+            if (synced) {
+                activeSubscription = {
+                    plan_id: synced.plan_id,
+                    status: synced.status,
+                    cancel_at_period_end: synced.cancel_at_period_end,
+                    current_period_end: synced.current_period_end
+                };
+            }
+        } catch (error) {
+            console.error("Unable to sync membership from Stripe:", error);
+        }
     }
 
-    // Fallback: if no active subscription row was found in Supabase (e.g. a
-    // webhook event hasn't been delivered yet), ask Stripe directly so an
-    // active membership is still shown on the account page.
-    let activeSubscription = subscription ?? null;
+    // Last resort: whatever the webhook wrote to Supabase.
+    if (!activeSubscription) {
+        const { data: subscription, error: subscriptionError } =
+            await supabaseAdmin
+                .from("subscriptions")
+                .select(
+                    "plan_id, status, cancel_at_period_end, current_period_end"
+                )
+                .eq("user_id", user.id)
+                .in("status", ["active", "trialing", "past_due"])
+                .order("updated_at", { ascending: false })
+                .limit(1)
+                .maybeSingle<AccountSubscription>();
 
-    if (!activeSubscription && user?.email) {
-        try {
-            activeSubscription =
-                (await findActiveMembershipForEmail(user.email)) ?? null;
-        } catch (error) {
+        if (subscriptionError) {
             console.error(
-                "Unable to fetch membership from Stripe:",
-                error
+                "Unable to load account subscription:",
+                subscriptionError
             );
         }
+
+        activeSubscription = subscription ?? null;
     }
 
     return (

@@ -37,6 +37,7 @@ export function AdminSubscriptionsClient({
     const [busy, setBusy] = useState<string | null>(null);
     const [message, setMessage] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [syncing, setSyncing] = useState(false);
 
     async function act(row: AdminSubscriptionRow, action: SubscriptionAction) {
         if (
@@ -96,10 +97,60 @@ export function AdminSubscriptionsClient({
         }
     }
 
+    async function syncFromStripe() {
+        setSyncing(true);
+        setError(null);
+        setMessage(null);
+
+        try {
+            const response = await fetch("/api/admin/subscriptions/sync", {
+                method: "POST"
+            });
+
+            const result = (await response.json()) as {
+                error?: string;
+                total?: number;
+                synced?: number;
+                skipped?: number;
+            };
+
+            if (!response.ok) {
+                throw new Error(result.error ?? "Sync failed");
+            }
+
+            setMessage(
+                `Synced ${result.synced ?? 0} of ${result.total ?? 0} Stripe subscriptions (${result.skipped ?? 0} skipped). Reloading…`
+            );
+
+            window.location.reload();
+        } catch (caught) {
+            setError(
+                caught instanceof Error ? caught.message : "Sync failed"
+            );
+        } finally {
+            setSyncing(false);
+        }
+    }
+
     const activeStatuses = ["active", "trialing", "past_due"];
 
     return (
         <div className="mt-8">
+            <div className="flex flex-wrap items-center gap-3">
+                <button
+                    type="button"
+                    onClick={() => void syncFromStripe()}
+                    disabled={syncing}
+                    className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-xs font-bold text-white hover:bg-white/10 disabled:opacity-60"
+                >
+                    {syncing ? "Syncing…" : "Sync from Stripe"}
+                </button>
+                <p className="text-xs text-[var(--muted)]">
+                    Pulls every Stripe subscription into the database (fixes
+                    missing rows and stale cancellation flags).
+                </p>
+            </div>
+
             {message ? (
                 <p className="text-sm font-semibold text-green-300">{message}</p>
             ) : null}
