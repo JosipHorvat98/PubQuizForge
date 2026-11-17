@@ -306,7 +306,7 @@ export const packs: Pack[] = [
         glow: "radial-gradient(circle at 50% 0%, #0ea5e9, transparent 70%)",
         badges: ["50 questions"],
         image: "https://images.unsplash.com/photo-1530053969600-caed2596d242?auto=format&fit=crop&w=1000&q=80",
-        pdfPath: null
+        pdfPath: "/packs/oceans-and-deep-sea.pdf"
     },
     {
         id: "animal-kingdom",
