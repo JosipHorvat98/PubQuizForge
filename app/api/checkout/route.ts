@@ -229,18 +229,33 @@ export async function POST(request: Request) {
 
             const customerEmail = await getLoggedInEmail();
 
-            const lineItems = body.items.map((item) => ({
-                quantity: item.quantity,
-                price_data: {
-                    currency: "eur",
-                    product_data: {
-                        name: item.title
-                    },
-                    unit_amount: Math.round(
-                        parseEuroPriceToCents(item.price) * discountFactor
-                    )
+            const lineItems = body.items.map((item) => {
+                const pack = allPacks.find(
+                    (candidate) => candidate.id === item.id
+                );
+
+                if (!pack) {
+                    throw new Error(`Unknown pack in cart: ${item.id}`);
                 }
-            }));
+
+                const quantity = Math.min(
+                    10,
+                    Math.max(1, Math.floor(Number(item.quantity) || 1))
+                );
+
+                return {
+                    quantity,
+                    price_data: {
+                        currency: "eur",
+                        product_data: {
+                            name: pack.title
+                        },
+                        unit_amount: Math.round(
+                            parseEuroPriceToCents(pack.price) * discountFactor
+                        )
+                    }
+                };
+            });
 
             const session = await stripe.checkout.sessions.create({
                 mode: "payment",
@@ -265,35 +280,42 @@ export async function POST(request: Request) {
         }
 
         if (body.mode === "payment" && "productName" in body) {
-            if (!body.productName || !body.unitAmount) {
+            // Prices are ALWAYS resolved server-side from the pack catalogue;
+            // client-supplied productName/unitAmount are ignored on purpose.
+            const slug = (body.slug ?? "").trim();
+
+            if (!slug) {
                 return NextResponse.json(
-                    { error: "Missing productName or unitAmount" },
+                    { error: "Missing pack slug" },
                     { status: 400 }
                 );
             }
 
-            if (body.slug && !isSlugPurchasable(allPacks, body.slug)) {
+            if (!isSlugPurchasable(allPacks, slug)) {
                 return NextResponse.json(
                     { error: "This pack is temporarily unavailable." },
                     { status: 400 }
                 );
             }
 
-            const discount = await getMemberDiscountPercent();
-            if (body.slug) {
-                const planId = await getMemberPlanId();
-                const tierError = findTierAccessError(
-                    allPacks,
-                    [body.slug],
-                    planId
-                );
+            const pack = allPacks.find((candidate) => candidate.id === slug);
 
-                if (tierError) {
-                    return NextResponse.json(
-                        { error: tierError, tierLocked: true },
-                        { status: 403 }
-                    );
-                }
+            if (!pack) {
+                return NextResponse.json(
+                    { error: "Unknown pack" },
+                    { status: 400 }
+                );
+            }
+
+            const discount = await getMemberDiscountPercent();
+            const planId = await getMemberPlanId();
+            const tierError = findTierAccessError(allPacks, [slug], planId);
+
+            if (tierError) {
+                return NextResponse.json(
+                    { error: tierError, tierLocked: true },
+                    { status: 403 }
+                );
             }
 
             const discountFactor = (100 - discount) / 100;
@@ -307,18 +329,27 @@ export async function POST(request: Request) {
                 cancel_url: `${siteUrl}/cancel`,
                 line_items: [
                     {
-                        quantity: body.quantity ?? 1,
+                        quantity: Math.min(
+                            10,
+                            Math.max(
+                                1,
+                                Math.floor(Number(body.quantity) || 1)
+                            )
+                        ),
                         price_data: {
                             currency: "eur",
                             product_data: {
-                                name: body.productName
+                                name: pack.title
                             },
-                            unit_amount: Math.round(body.unitAmount * discountFactor)
+                            unit_amount: Math.round(
+                                parseEuroPriceToCents(pack.price) *
+                                    discountFactor
+                            )
                         }
                     }
                 ],
                 metadata: {
-                    slug: body.slug ?? ""
+                    slug
                 }
             });
 
