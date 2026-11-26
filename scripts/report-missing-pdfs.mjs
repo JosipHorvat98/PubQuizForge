@@ -79,12 +79,13 @@ console.log(`PDF files in source folder: ${files.length}\n`);
 console.log("--- Missing packs ---");
 
 const report = [];
+const matchedFiles = new Set();
 
 for (const pack of missing) {
     let best = { fileName: null, score: 0 };
 
     for (const fileName of files) {
-        if (alreadyUsed.has(normalize(fileName))) {
+        if (matchedFiles.has(fileName)) {
             continue;
         }
 
@@ -97,6 +98,10 @@ for (const pack of missing) {
 
     const match =
         best.fileName && best.score >= 0.9 ? best.fileName : null;
+
+    if (match) {
+        matchedFiles.add(match);
+    }
 
     report.push({
         id: pack.id,
