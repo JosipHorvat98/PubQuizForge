@@ -127,10 +127,18 @@ for (const pack of missing) {
 
 console.log("\n--- Files in folder not matching any pack that already has a PDF ---");
 
+const STOPWORDS = new Set(["the", "of", "and", "a", "vol", "pack", "quiz"]);
+
 for (const fileName of files) {
-    const matchesKnownPack = withPdf.some(
-        (pack) => score(pack.title, fileName) >= 0.8
+    const fileTokens = [...tokens(fileName)].filter(
+        (token) => !STOPWORDS.has(token) && token.length > 1
     );
+
+    const matchesKnownPack = withPdf.some((pack) => {
+        const packTokens = tokens(pack.title);
+
+        return fileTokens.some((token) => packTokens.has(token));
+    });
 
     if (!matchesKnownPack) {
         console.log(fileName);
