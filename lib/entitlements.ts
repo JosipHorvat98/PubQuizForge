@@ -1,5 +1,6 @@
 // file: lib/entitlements.ts
 import { packs, type Pack, type PackTier } from "@/data/site";
+import { parsePriceToCents } from "@/lib/price";
 
 export type PlanId = "bronze" | "silver" | "gold";
 
@@ -120,13 +121,7 @@ export function canRedeemWithCredits(pack: Pack): boolean {
 }
 
 export function parsePackPriceToCents(pack: Pack): number {
-    const numeric = Number(pack.price.replace("€", "").replace(",", ".").trim());
-
-    if (Number.isNaN(numeric)) {
-        return 0;
-    }
-
-    return Math.round(numeric * 100);
+    return parsePriceToCents(pack.price) ?? 0;
 }
 
 /** A-la-carte price for a member, with the tier discount already applied. */

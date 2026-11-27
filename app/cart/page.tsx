@@ -7,13 +7,10 @@ import { Header } from "@/components/header";
 import { useCart } from "@/components/providers/cart-provider";
 import { useMembership } from "@/components/providers/membership-provider";
 import { startCheckout } from "@/lib/checkout";
+import { formatCents, formatPrice, parsePriceToCents } from "@/lib/price";
 
-function formatEuro(amount: number) {
-    return `€${amount.toFixed(2)}`;
-}
-
-function parsePrice(price: string): number {
-    return Number(price.replace("€", "").trim()) || 0;
+function amountFromPrice(price: string): number {
+    return (parsePriceToCents(price) ?? 0) / 100;
 }
 
 export default function CartPage() {
@@ -30,7 +27,7 @@ export default function CartPage() {
     const discountFactor = memberFactor;
 
     const summaryOriginal = items.reduce(
-        (sum, item) => sum + parsePrice(item.price) * item.quantity,
+        (sum, item) => sum + amountFromPrice(item.price) * item.quantity,
         0
     );
     const summaryTotal = summaryOriginal * discountFactor;
@@ -99,7 +96,7 @@ export default function CartPage() {
                         <>
                             <div className="mt-10 grid gap-4">
                                 {items.map((item) => {
-                                    const itemTotal = parsePrice(item.price) * item.quantity;
+                                    const itemTotal = amountFromPrice(item.price) * item.quantity;
                                     const discountedTotal = itemTotal * discountFactor;
 
                                     return (
@@ -114,10 +111,13 @@ export default function CartPage() {
                                                         Unit price:{" "}
                                                         {hasDiscount ? (
                                                             <>
-                                                                <span className="line-through">{item.price}</span>{" "}
+                                                                <span className="line-through">{formatPrice(item.price)}</span>{" "}
                                                                 <span className="font-semibold text-[var(--gold)]">
-                                                                    {formatEuro(
-                                                                        parsePrice(item.price) * discountFactor
+                                                                    {formatCents(
+                                                                        Math.round(
+                                                                            (parsePriceToCents(item.price) ?? 0) *
+                                                                                discountFactor
+                                                                        )
                                                                     )}
                                                                 </span>{" "}
                                                                 <span className="text-green-300">
@@ -125,7 +125,7 @@ export default function CartPage() {
                                                                 </span>
                                                             </>
                                                         ) : (
-                                                            item.price
+                                                            formatPrice(item.price)
                                                         )}
                                                     </p>
                                                 </div>
@@ -168,12 +168,12 @@ export default function CartPage() {
                                                     <div className="flex items-center gap-3">
                                                         {hasDiscount ? (
                                                             <span className="text-sm font-semibold text-[var(--muted)] line-through">
-                                                                {formatEuro(itemTotal)}
+                                                                {formatCents(Math.round(itemTotal * 100))}
                                                             </span>
                                                         ) : null}
 
                                                         <span className="text-xl font-black tracking-tight text-[var(--gold)]">
-                                                            {formatEuro(discountedTotal)}
+                                                            {formatCents(Math.round(discountedTotal * 100))}
                                                         </span>
 
                                                         <button
@@ -231,12 +231,12 @@ export default function CartPage() {
 
                                 {hasDiscount ? (
                                     <span className="text-lg font-semibold text-[var(--muted)] line-through">
-                                        {formatEuro(summaryOriginal)}
+                                        {formatCents(Math.round(summaryOriginal * 100))}
                                     </span>
                                 ) : null}
 
                                 <span className="text-2xl font-black tracking-tight text-[var(--gold)]">
-                                    {formatEuro(summaryTotal)}
+                                    {formatCents(Math.round(summaryTotal * 100))}
                                 </span>
                             </div>
 
@@ -245,7 +245,7 @@ export default function CartPage() {
                                     {hasMemberDiscount
                                         ? `${discountPercent}% member discount · `
                                         : ""}
-                                    you save {formatEuro(savings)}
+                                    you save {formatCents(Math.round(savings * 100))}
                                 </p>
                             ) : null}
                         </div>

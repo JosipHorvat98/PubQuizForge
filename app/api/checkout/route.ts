@@ -8,6 +8,7 @@ import { createClient } from "@/utils/supabase/server";
 import { findActiveMembershipForEmail } from "@/lib/memberships";
 import type { Pack } from "@/data/site";
 import { getPacksMerged } from "@/lib/packs-server";
+import { parsePriceToCents } from "@/lib/price";
 import {
     getPlanEntitlements,
     packHasPdf,
@@ -56,13 +57,13 @@ type CheckoutRequestBody =
     };
 
 function parseEuroPriceToCents(price: string): number {
-    const numericPrice = Number(price.replace("€", "").trim());
+    const cents = parsePriceToCents(price);
 
-    if (Number.isNaN(numericPrice)) {
+    if (cents === null) {
         throw new Error(`Invalid price format: ${price}`);
     }
 
-    return Math.round(numericPrice * 100);
+    return cents;
 }
 
 /**

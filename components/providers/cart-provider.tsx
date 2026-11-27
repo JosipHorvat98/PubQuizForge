@@ -1,6 +1,7 @@
 ﻿// file: components/providers/cart-provider.tsx
 "use client";
 
+import { parsePriceToCents } from "@/lib/price";
 import {
   createContext,
   useCallback,
@@ -48,13 +49,9 @@ function getUserCartKey(userId: string) {
 }
 
 function parsePrice(price: string): number {
-  const numericValue = Number(price.replace("€", "").replace("EUR", "").trim());
+  const cents = parsePriceToCents(price);
 
-  if (Number.isNaN(numericValue)) {
-    return 0;
-  }
-
-  return numericValue;
+  return cents === null ? 0 : cents / 100;
 }
 
 function isValidCartItem(value: unknown): value is CartItem {

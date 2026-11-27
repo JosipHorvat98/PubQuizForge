@@ -3,6 +3,7 @@
 
 import { useMemo, useState } from "react";
 import type { PackTier } from "@/data/site";
+import { priceInputValue } from "@/lib/price";
 
 export type AdminPackRow = {
     id: string;
@@ -175,15 +176,22 @@ export function AdminPacksClient({ rows }: { rows: AdminPackRow[] }) {
                                     <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-[var(--muted)]">
                                         Price
                                     </label>
-                                    <input
-                                        value={current.price}
-                                        onChange={(event) =>
-                                            updateDraft(row, {
-                                                price: event.target.value
-                                            })
-                                        }
-                                        className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none focus:border-white/25"
-                                    />
+                                    <div className="relative">
+                                        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-[var(--muted)]">
+                                            €
+                                        </span>
+                                        <input
+                                            value={priceInputValue(current.price)}
+                                            onChange={(event) =>
+                                                updateDraft(row, {
+                                                    price: event.target.value
+                                                })
+                                            }
+                                            inputMode="decimal"
+                                            placeholder="4.99"
+                                            className="w-full rounded-xl border border-white/10 bg-white/5 py-2 pl-7 pr-3 text-sm text-white outline-none focus:border-white/25"
+                                        />
+                                    </div>
                                 </div>
 
                                 <div className="lg:col-span-2">

@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { logAdminAction } from "@/lib/admin-audit";
+import { normalizePrice } from "@/lib/price";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { getPackOverrides, getPacksMerged } from "@/lib/packs-server";
 import type { PackTier } from "@/data/site";
@@ -67,11 +68,21 @@ export async function PATCH(request: Request) {
 
     const now = new Date().toISOString();
 
+    const rawPrice = nullable(body.price);
+    const normalizedPrice = rawPrice === null ? null : normalizePrice(rawPrice);
+
+    if (rawPrice !== null && normalizedPrice === null) {
+        return NextResponse.json(
+            { error: "Invalid price. Use a number such as 4.99." },
+            { status: 400 }
+        );
+    }
+
     const { error } = await supabaseAdmin.from("pack_overrides").upsert(
         {
             pack_id: packId,
             tier: rawTier,
-            price: nullable(body.price),
+            price: normalizedPrice,
             title: nullable(body.title),
             pdf_path: nullable(body.pdfPath),
             is_hidden: Boolean(body.isHidden),
@@ -99,7 +110,7 @@ export async function PATCH(request: Request) {
         entityId: packId,
         meta: {
             tier: rawTier,
-            price: nullable(body.price),
+            price: normalizedPrice,
             is_hidden: Boolean(body.isHidden)
         }
     });

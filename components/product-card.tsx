@@ -7,20 +7,13 @@ import Image from "next/image";
 import type { Pack } from "@/data/site";
 import { useCart } from "@/components/providers/cart-provider";
 import { useMembership } from "@/components/providers/membership-provider";
+import { formatCents, formatPrice, parsePriceToCents } from "@/lib/price";
 import {
     canRedeemWithCredits,
     canAccessPackWithPlanId,
     packTier,
     PACK_TIER_LABEL
 } from "@/lib/entitlements";
-
-function formatEuro(amount: number) {
-    return `€${amount.toFixed(2)}`;
-}
-
-function parsePrice(price: string): number {
-    return Number(price.replace("€", "").trim()) || 0;
-}
 
 type ProductCardProps = {
     pack: Pack;
@@ -63,9 +56,10 @@ export function ProductCard({ pack }: ProductCardProps) {
     const discountPercent =
         isMember && entitlements ? entitlements.extraPackDiscount : 0;
     const hasDiscount = discountPercent > 0;
-    const memberPrice = hasDiscount
-        ? parsePrice(pack.price) * ((100 - discountPercent) / 100)
-        : parsePrice(pack.price);
+    const listPriceCents = parsePriceToCents(pack.price) ?? 0;
+    const memberPriceCents = hasDiscount
+        ? Math.round(listPriceCents * ((100 - discountPercent) / 100))
+        : listPriceCents;
 
     // Credits stay usable after a subscription is cancelled, so redemption is
     // gated by the plan that granted the credits (not an active membership).
@@ -162,13 +156,13 @@ export function ProductCard({ pack }: ProductCardProps) {
 
                 <div className="mt-3 flex items-baseline gap-2">
                     <span className="text-2xl font-black tracking-tight text-[var(--gold)]">
-                        {hasDiscount ? formatEuro(memberPrice) : pack.price}
+                        {hasDiscount ? formatCents(memberPriceCents) : formatPrice(pack.price)}
                     </span>
 
                     {hasDiscount ? (
                         <>
                             <span className="text-sm font-semibold text-[var(--muted)] line-through">
-                                {pack.price}
+                                {formatPrice(pack.price)}
                             </span>
                             <span className="rounded-full bg-green-500/12 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-green-300">
                                 {discountPercent}% off
@@ -254,7 +248,7 @@ export function ProductCard({ pack }: ProductCardProps) {
                                 addItem({
                                     id: pack.id,
                                     title: pack.title,
-                                    price: pack.price
+                                    price: formatPrice(pack.price)
                                 })
                             }
                             className="rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-bold text-white hover:bg-white/10"

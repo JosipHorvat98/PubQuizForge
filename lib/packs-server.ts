@@ -1,6 +1,7 @@
 // file: lib/packs-server.ts
 import "server-only";
 import { packs as basePacks, type Pack, type PackTier } from "@/data/site";
+import { normalizePrice } from "@/lib/price";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 
 export type PackOverride = {
@@ -25,10 +26,7 @@ function applyOverride(pack: Pack, override?: PackOverride): Pack {
             ? (override.tier as PackTier)
             : pack.tier;
 
-    const price =
-        override.price && override.price.trim()
-            ? override.price.trim()
-            : pack.price;
+    const price = normalizePrice(override.price) ?? pack.price;
 
     const title =
         override.title && override.title.trim()

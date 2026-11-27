@@ -17,6 +17,7 @@ import {
     PACK_TIER_LABEL
 } from "@/lib/entitlements";
 import { startCheckout } from "@/lib/checkout";
+import { formatPrice, parsePriceToCents } from "@/lib/price";
 
 export default function PackPage() {
     const params = useParams<{ slug: string }>();
@@ -125,7 +126,7 @@ export default function PackPage() {
             addItem({
                 id: pack.id,
                 title: pack.title,
-                price: pack.price
+                price: formatPrice(pack.price)
             });
         }
 
@@ -155,8 +156,7 @@ export default function PackPage() {
         }
 
         try {
-            const numericPrice = Number(pack.price.replace("€", ""));
-            const unitAmount = Math.round(numericPrice * 100);
+            const unitAmount = parsePriceToCents(pack.price) ?? 0;
 
             await startCheckout({
                 mode: "payment",
@@ -216,7 +216,7 @@ export default function PackPage() {
                         </div>
 
                         <div className="mt-6 text-5xl font-black tracking-tight text-[var(--gold)]">
-                            {pack.price}
+                            {formatPrice(pack.price)}
                         </div>
 
                         <div className="mt-6">
@@ -349,7 +349,7 @@ export default function PackPage() {
 
                                     <div className="mt-4 flex items-center justify-between gap-3">
                                         <span className="text-2xl font-black tracking-tight text-[var(--gold)]">
-                                            {item.price}
+                                            {formatPrice(item.price)}
                                         </span>
                                         <Link
                                             href={`/packs/${item.id}`}
